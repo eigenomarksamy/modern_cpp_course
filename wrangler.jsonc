@@ -1,0 +1,14 @@
+// Cloudflare Workers config: serves the rendered course in ./dist.
+// `npm run build` creates it from modern_cpp_daily_course.md. There is no
+// Worker script, static files only.
+// Docs: https://developers.cloudflare.com/workers/static-assets/
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "modern-cpp-course",
+  "compatibility_date": "2026-09-30",
+  "assets": {
+    "directory": "./dist"
+  },
+  // Attaches the subdomain to this Worker and creates its DNS record on deploy.
+  "routes": [{ "pattern": "cpp.eigenomar.com", "custom_domain": true }]
+}

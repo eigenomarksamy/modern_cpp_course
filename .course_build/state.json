@@ -1,0 +1,581 @@
+{
+  "project": "modern_cpp_daily_course",
+  "spec_version": "1.0",
+  "phase": "complete",
+  "total_days": 56,
+  "completed_days": 56,
+  "next_day": null,
+  "next_action": "none: course is complete",
+  "lessons": {
+    "01": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-01.md",
+      "kind": "lesson",
+      "title": "from source file to running program",
+      "words": 1813,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "02": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-02.md",
+      "kind": "lesson",
+      "title": "types and the many faces of initialization",
+      "words": 1592,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "03": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-03.md",
+      "kind": "lesson",
+      "title": "scope, storage duration, and object lifetime",
+      "words": 1536,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "04": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-04.md",
+      "kind": "lesson",
+      "title": "pointers, references, and const",
+      "words": 1678,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "05": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-05.md",
+      "kind": "lesson",
+      "title": "value categories without the headache",
+      "words": 1473,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "06": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-06.md",
+      "kind": "lesson",
+      "title": "undefined behavior and other things the standard won't promise",
+      "words": 1701,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "07": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-07.md",
+      "kind": "review",
+      "title": "week 1 review: the ground beneath your feet",
+      "words": 1603,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "08": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-08.md",
+      "kind": "lesson",
+      "title": "RAII: let scope do the cleanup",
+      "words": 1431,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "09": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-09.md",
+      "kind": "lesson",
+      "title": "constructors, destructors, and the object lifecycle",
+      "words": 1395,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "10": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-10.md",
+      "kind": "lesson",
+      "title": "copy and move semantics",
+      "words": 1376,
+      "minutes": 10,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "11": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-11.md",
+      "kind": "lesson",
+      "title": "the rule of zero, three, and five",
+      "words": 1470,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "12": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-12.md",
+      "kind": "lesson",
+      "title": "smart pointers and ownership in interfaces",
+      "words": 1460,
+      "minutes": 10,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "13": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-13.md",
+      "kind": "lesson",
+      "title": "polymorphism, inheritance, and composition",
+      "words": 1514,
+      "minutes": 10,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "14": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-14.md",
+      "kind": "review",
+      "title": "week 2 review: owning your resources",
+      "words": 1518,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "15": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-15.md",
+      "kind": "lesson",
+      "title": "containers and what they cost",
+      "words": 1431,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "16": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-16.md",
+      "kind": "lesson",
+      "title": "iterators and algorithms over raw loops",
+      "words": 1418,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "17": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-17.md",
+      "kind": "lesson",
+      "title": "lambdas and closures in depth",
+      "words": 1568,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "18": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-18.md",
+      "kind": "lesson",
+      "title": "templates: writing code for many types",
+      "words": 1591,
+      "minutes": 10,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "19": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-19.md",
+      "kind": "lesson",
+      "title": "forwarding references and perfect forwarding",
+      "words": 1362,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "20": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-20.md",
+      "kind": "lesson",
+      "title": "exception safety and error handling strategy",
+      "words": 1418,
+      "minutes": 10,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "21": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-21.md",
+      "kind": "review",
+      "title": "week 3 review: the library as a vocabulary",
+      "words": 1448,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "22": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-22.md",
+      "kind": "lesson",
+      "title": "structured bindings, init-statements, and helpful attributes",
+      "words": 1483,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "23": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-23.md",
+      "kind": "lesson",
+      "title": "compile-time branching with `if constexpr` and fold expressions",
+      "words": 1592,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "24": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-24.md",
+      "kind": "lesson",
+      "title": "`std::optional`: modeling \"maybe\"",
+      "words": 1309,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "25": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-25.md",
+      "kind": "lesson",
+      "title": "`std::variant` and `std::any`: sum types and type-erased values",
+      "words": 1531,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "26": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-26.md",
+      "kind": "lesson",
+      "title": "`std::string_view` and non-owning views",
+      "words": 1331,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "27": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-27.md",
+      "kind": "lesson",
+      "title": "`std::filesystem` and a practical C++17 refactoring",
+      "words": 1484,
+      "minutes": 10,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "28": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-28.md",
+      "kind": "review",
+      "title": "week 4 review: a complete C++17 refresher",
+      "words": 1731,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "29": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-29.md",
+      "kind": "lesson",
+      "title": "concepts: constraining templates",
+      "words": 1550,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "30": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-30.md",
+      "kind": "lesson",
+      "title": "ranges and views: lazy pipelines",
+      "words": 1502,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "31": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-31.md",
+      "kind": "lesson",
+      "title": "`std::span`: views over contiguous memory",
+      "words": 1364,
+      "minutes": 8,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "32": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-32.md",
+      "kind": "lesson",
+      "title": "three-way comparison and defaulted equality",
+      "words": 1583,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "33": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-33.md",
+      "kind": "lesson",
+      "title": "compile-time programming in C++20",
+      "words": 1564,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "34": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-34.md",
+      "kind": "lesson",
+      "title": "`std::format` and other everyday C++20 improvements",
+      "words": 1500,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "35": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-35.md",
+      "kind": "review",
+      "title": "week 5 review: the C++20 toolbox",
+      "words": 1608,
+      "minutes": 8,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "36": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-36.md",
+      "kind": "lesson",
+      "title": "threads and `std::jthread`",
+      "words": 1516,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "37": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-37.md",
+      "kind": "lesson",
+      "title": "data races and mutexes",
+      "words": 1391,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "38": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-38.md",
+      "kind": "lesson",
+      "title": "condition variables and the producer-consumer queue",
+      "words": 1301,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "39": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-39.md",
+      "kind": "lesson",
+      "title": "futures, promises, and tasks",
+      "words": 1347,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "40": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-40.md",
+      "kind": "lesson",
+      "title": "atomics and the memory model",
+      "words": 1576,
+      "minutes": 10,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "41": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-41.md",
+      "kind": "lesson",
+      "title": "deadlocks and concurrency design",
+      "words": 1428,
+      "minutes": 10,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "42": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-42.md",
+      "kind": "review",
+      "title": "week 6 review: sharing safely",
+      "words": 1598,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "43": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-43.md",
+      "kind": "lesson",
+      "title": "SOLID, coupling, and cohesion without dogma",
+      "words": 1599,
+      "minutes": 8,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "44": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-44.md",
+      "kind": "lesson",
+      "title": "dependency injection and testable seams",
+      "words": 1577,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "45": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-45.md",
+      "kind": "lesson",
+      "title": "design patterns in modern C++: strategy, factory, and observer",
+      "words": 1618,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "46": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-46.md",
+      "kind": "lesson",
+      "title": "static versus dynamic polymorphism and type erasure",
+      "words": 1656,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "47": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-47.md",
+      "kind": "lesson",
+      "title": "designing APIs that are hard to misuse",
+      "words": 1587,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "48": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-48.md",
+      "kind": "lesson",
+      "title": "C++20 modules and coroutines: a practical first look",
+      "words": 1495,
+      "minutes": 10,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "49": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-49.md",
+      "kind": "review",
+      "title": "week 7 review: design with judgment",
+      "words": 1719,
+      "minutes": 9,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "50": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-50.md",
+      "kind": "lesson",
+      "title": "measure first: benchmarking and profiling",
+      "words": 1543,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "51": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-51.md",
+      "kind": "lesson",
+      "title": "cache locality and data-oriented design",
+      "words": 1491,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "52": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-52.md",
+      "kind": "lesson",
+      "title": "the cost of allocation",
+      "words": 1422,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "53": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-53.md",
+      "kind": "lesson",
+      "title": "testing and observability",
+      "words": 1473,
+      "minutes": 10,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "54": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-54.md",
+      "kind": "lesson",
+      "title": "refactoring legacy code and architectural tradeoffs",
+      "words": 1441,
+      "minutes": 9,
+      "standard": "C++17",
+      "compile_check_note": true
+    },
+    "55": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-55.md",
+      "kind": "lesson",
+      "title": "putting it together: a small sensor-processing pipeline",
+      "words": 1823,
+      "minutes": 10,
+      "standard": "C++20",
+      "compile_check_note": true
+    },
+    "56": {
+      "status": "complete",
+      "path": ".course_build/lessons/day-56.md",
+      "kind": "review",
+      "title": "week 8 review and the road ahead",
+      "words": 1648,
+      "minutes": 10,
+      "standard": "C++20",
+      "compile_check_note": true
+    }
+  },
+  "supplementary_sections": {
+    "introduction.md": true,
+    "overview.md": true,
+    "cheat_sheet.md": true,
+    "references.md": true
+  },
+  "assembly": "complete",
+  "validation": "complete",
+  "last_successful_action": "assembled_and_validated",
+  "updated": "2026-10-31T09:47:55+00:00"
+}

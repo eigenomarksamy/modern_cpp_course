@@ -1,0 +1,13 @@
+# build output
+dist/
+# wrangler local state
+.wrangler/
+
+# dependencies
+node_modules/
+
+# python
+__pycache__/
+
+# leftovers from an interrupted lesson write (see .course_build/handoff.md)
+*.md.tmp
