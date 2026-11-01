@@ -15,17 +15,21 @@ a lambda looks like an inline function, which is exactly the wrong mental model.
 the compiler turns each lambda expression into a class with a unique, unnamed type (the closure type) and evaluates the expression to a prvalue of that type (the closure object). captures become data members, initialized when the lambda expression is evaluated. the body becomes `operator()`, which is `const` unless you write `mutable`.
 
 ```cpp complete
-double gain = 2.0;
-int calls = 0;
-auto f = [gain, &calls](double x) { ++calls; return x * gain; };
+double demo() {
+    double gain = 2.0;
+    int calls = 0;
+    auto f = [gain, &calls](double x) { ++calls; return x * gain; };
 
-// is roughly equivalent to:
-struct Closure {
-    double gain;   // copied when the lambda expression is evaluated
-    int& calls;    // a reference: no lifetime extension, no ownership
-    double operator()(double x) const { ++calls; return x * gain; }
-};
-auto g = Closure{gain, calls};
+    // is roughly equivalent to:
+    struct Closure {
+        double gain;   // copied when the lambda expression is evaluated
+        int& calls;    // a reference: no lifetime extension, no ownership
+        double operator()(double x) const { ++calls; return x * gain; }
+    };
+    auto g = Closure{gain, calls};
+
+    return f(1.0) + g(1.0);
+}
 ```
 
 several rules fall out of this picture. a by-value capture is a snapshot taken at creation, not a live view. a `const` call operator can still modify what a reference capture refers to, because the constness applies to the member, not to the referent. two lambdas with identical text have different types, so you cannot assign one to a variable of the other's type. a lambda with no captures has no state and converts implicitly to a plain function pointer, which is how you pass one to a C API expecting `void(*)(int)`.

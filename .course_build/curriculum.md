@@ -81,7 +81,7 @@ the standard library as a vocabulary: containers by cost, algorithms over iterat
 | 34 | `sequence-containers` | **containers and what they cost**: choose a sequence container by access pattern, memory layout, and invalidation rules, starting from `std::vector` | 23, 26 | C++17 | 8.5 |  | 15 |
 | 35 | `associative-containers` | **maps, sets, and node handles**: choose between ordered, hashed, and flat associative containers, and use the C++17 insertion functions and node handles | 34 | C++17 | 7.4 |  | 15 |
 | 36 | `algorithms` | **iterators and algorithms over raw loops**: use standard algorithms over half-open iterator ranges to state intent, and apply the erase-remove idiom correctly | 34 | C++17 | 9.7 | partition and stable sort; parallel execution policies | 16 |
-| 37 | `lambdas` | **lambdas are objects: closures and captures**: explain what a lambda expression compiles to, and choose captures by what the closure should own or refer to | 36, 26 | C++17 | 8.8 |  | 17 |
+| 37 | `lambdas` | **lambdas are objects: closures and captures**: explain what a lambda expression compiles to, and choose captures by what the closure should own or refer to | 36, 26 | C++17 | 9.0 |  | 17 |
 | 38 | `callbacks` | **lambdas that outlive their scope: callbacks and `std::function`**: capture safely for lambdas that are stored or deferred, and choose between `std::function` and a template parameter | 37 | C++17 | 9.3 |  | 17 |
 | 39 | `review-library` | **review: containers, algorithms, and lambdas**: consolidate container choice and invalidation, algorithms over iterator ranges, and lambda captures and lifetimes | 34, 35, 36, 37, 38 | C++17 | 9.3 |  | 21 |
 
