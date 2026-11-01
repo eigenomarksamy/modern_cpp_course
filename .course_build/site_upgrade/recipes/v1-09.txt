@@ -1,0 +1,118 @@
+source: day-09
+refs: 11=rule-of-zero 08=raii
+>>> constructors
+---
+title: constructors that establish invariants
+standard: C++17
+objective: write constructors that make an invalid object impossible, using initializer lists, validation, delegation, and explicit
+prerequisites: raii, initialization
+difficulty: 2
+---
+
+### the idea
+
+a radar range gate has two numbers and one rule: `0 <= min < max`. a class with a default constructor plus `set_min()` and `set_max()` lets every caller build a gate that breaks the rule, if only between two calls, so every function that receives a gate has to check it again. a constructor exists to make that impossible: if the object exists, its invariant holds.
+
+### understanding the concept
+
+<<< 15-17
+
+<<< 22-22
+
+### in code
+
+**validate once, in the constructor.**
+
+<<< 127-142
+
+**delegating constructors and default member initializers.**
+
+<<< 44-55
+
+each constructor states only what differs, and `gain_` has a sensible value however the object was built. notice also what the class does *not* store: a separate `size_` member would have to agree with `samples_.size()` forever. state you can derive is better derived than stored, because duplicated state is an invariant you must maintain by hand ([[construction-order]] shows how that particular duplicate goes wrong).
+
+### in practice
+
+the payoff of validating in constructors grows with the size of the system. parse configuration, network messages, and user input into types like `RangeGate` at the boundary, and the code behind the boundary never re-checks: it cannot receive an invalid gate, because none can be built. invariants enforced by types travel with the data, while checks scattered through call sites erode one refactor at a time.
+
+<<< 144-144
+
+### watch out for
+
+<<< 148-160
+
+### the takeaway
+
+a constructor's job is to establish the invariant: initialize members in the initializer list, validate once, derive what you can instead of storing it, and make single-argument constructors `explicit`.
+
+### optional challenge
+
+which of the numbered lines compile?
+
+```cpp
+struct Meters { explicit Meters(double v) : value(v) {} double value; };
+void set_range(Meters m);
+
+set_range(5.0);           // (1)
+set_range(Meters{5.0});   // (2)
+Meters a = 5.0;           // (3)
+Meters b{5.0};            // (4)
+Meters c = {5.0};         // (5)
+```
+
+<details>
+<summary>answer</summary>
+
+only (2) and (4). an `explicit` constructor is not used for implicit conversions, so (1) fails, and copy-initialization (3) does not consider it at all. (5) is copy-list-initialization: overload resolution does find the `explicit` constructor, and choosing it makes the program ill-formed. direct forms (2) and (4) name the type and are fine.
+
+</details>
+>>> construction-order
+---
+title: construction and destruction order
+standard: C++17
+objective: predict the order in which bases and members are built and destroyed, and what that means for virtual calls and constructors that throw
+prerequisites: constructors
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 18-20
+
+### in code
+
+<<< 26-42
+
+the robust fix is the one from [[constructors]]: remove `size_` and ask `samples_.size()`, so there is no second value to get out of order.
+
+<<< 59-101
+
+### in practice
+
+<<< 103-121
+
+### watch out for
+
+**do not publish `this` from a constructor.** registering the object with a registry, a timer, or another thread inside a base class constructor hands out a pointer to an object that is not finished:
+
+```cpp
+struct Sensor {
+    explicit Sensor(Scheduler& s) { s.add(this); }   // BUG: derived part not built yet
+    virtual void poll() = 0;
+    virtual ~Sensor() = default;
+};
+```
+
+if the scheduler runs on another thread, it can call `poll()` before the derived constructor finishes: during base construction that is a call to a pure virtual function (undefined behavior), and later it races with the rest of construction. register from a factory function after the object is fully constructed, and unregister before destruction begins.
+
+### the takeaway
+
+<<< 164-164
+
+### optional challenge
+
+<<< 168-183

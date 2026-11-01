@@ -11,3 +11,6 @@ __pycache__/
 
 # leftovers from an interrupted lesson write (see .course_build/handoff.md)
 *.md.tmp
+
+# regenerable from .course_build/archive/v1 by site_upgrade/tools_normalize_v1.py
+.course_build/site_upgrade/work/

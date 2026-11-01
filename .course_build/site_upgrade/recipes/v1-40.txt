@@ -1,0 +1,178 @@
+source: day-40
+refs: 06=undefined-behavior 36=threads 37=data-races 38=blocking-queue 51=cache-locality
+>>> atomics
+---
+title: std::atomic: indivisible operations
+standard: C++17
+objective: make single variables race-free with std::atomic, use read-modify-write operations and compare-and-swap loops, and recognize when atomics are not enough
+prerequisites: data-races, mutexes
+difficulty: 2
+---
+
+### the idea
+
+the frame counter from [[data-races]] lost updates because `++frames` is three steps: load, add, store. a mutex fixed it by making the threads take turns. for a single integer, that is a lot of machinery: what you want is for the increment itself to be one indivisible step. `std::atomic` provides exactly that, and only that, which is both why it is fast and why it is so easy to misuse.
+
+### understanding the concept
+
+`std::atomic<T>` (for trivially copyable `T`) makes each operation on the object indivisible, and concurrent atomic operations on the same object are never a data race. every atomic object has a single *modification order* that all threads agree on, so no increment is ever lost.
+
+<<< 28-28
+
+atomicity covers *one operation on one object*. a sequence of atomic operations is not atomic as a whole, and an atomic variable says nothing by itself about other, non-atomic memory; how atomics order other memory is the subject of [[memory-model]].
+
+### in code
+
+the counter, a statistic, and a compare-and-swap loop for an operation the library does not provide:
+
+```cpp
+#include <atomic>
+#include <cstdint>
+
+std::atomic<std::uint64_t> frames_dropped{0};
+std::atomic<float> peak_power{0.0f};
+
+void on_drop() {
+    ++frames_dropped;                 // one atomic read-modify-write: no lost updates
+}
+
+void record_power(float p) {
+    float cur = peak_power.load();
+    while (cur < p && !peak_power.compare_exchange_weak(cur, p)) {
+        // failed: cur now holds the latest value; the loop re-checks cur < p
+    }
+}
+```
+
+there is no `fetch_max` in C++20, so the CAS loop is the standard way to build any read-modify-write the library lacks: read the current value, compute the new one, and publish it only if nobody changed the value in between, retrying otherwise.
+
+### in practice
+
+an atomic counter shared by eight worker threads is correct, and it can still be slow: every increment needs exclusive ownership of the cache line that holds it, so the line bounces between cores. when only the total matters, count in a local variable inside each worker and add it to the shared atomic once per batch or at the end. the same idea scales up: the cheapest synchronization is the one you avoid by not sharing. atomics are the right tool for genuinely shared single values (a stop flag, a sequence number, a statistic read by a monitoring thread), not a faster replacement for every mutex.
+
+### watch out for
+
+**two atomic operations are not one.**
+
+```cpp
+std::atomic<int> active{0};
+constexpr int max_active = 4;
+
+bool try_enter() {
+    if (active.load() < max_active) {   // BUG: another thread can enter between the load...
+        ++active;                       // ...and the increment: five threads get in
+        return true;
+    }
+    return false;
+}
+```
+
+each operation is atomic and there is no data race, but the check and the increment are separate steps: a race condition, as in [[data-races]]. make the decision and the update one read-modify-write with a CAS loop (`while (cur < max_active && !active.compare_exchange_weak(cur, cur + 1))`), or protect the compound state with a mutex.
+
+### the takeaway
+
+`std::atomic` makes each single operation on one variable indivisible and race-free; anything that spans two operations needs a compare-and-swap loop or a mutex.
+
+### optional challenge
+
+two threads each run `x = x + 1;` a thousand times on `std::atomic<int> x{0};`. is the program undefined? what values can `x` end with?
+
+<details>
+<summary>answer</summary>
+
+it is not undefined: every access is atomic, so there is no data race. but `x = x + 1` is an atomic load followed by a separate atomic store, so two threads can both read the same value and both store the same increment, losing one update. the final value can be anything from 2 up to 2000 (2 is reachable in a pathological interleaving). `++x`, `x += 1`, or `x.fetch_add(1)` is a single read-modify-write and always ends at 2000.
+
+</details>
+>>> memory-model
+---
+title: happens-before and memory orders
+standard: C++20
+objective: explain happens-before and the synchronizes-with edge, publish data correctly with release and acquire, and choose a memory order deliberately
+prerequisites: atomics
+difficulty: 3
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-26
+
+### in code
+
+<<< 34-68
+
+relaxed operations build no edges at all, so they are only right for values that publish nothing. the statistics from [[atomics]] are the classic case: `frames_dropped.fetch_add(1, std::memory_order_relaxed)` still never loses an increment, and a monitoring thread that reads the counter sees *some* recent value, because nobody reads other data based on it.
+
+### in practice
+
+<<< 124-124
+
+### watch out for
+
+<<< 128-128
+
+### the takeaway
+
+<<< 132-132
+
+### optional challenge
+
+<<< 136-143
+>>> atomic-waiting
+---
+title: atomic waits, false sharing, and lock-freedom
+standard: C++20
+objective: block on an atomic value with C++20 wait and notify, avoid false sharing between hot atomics, and check whether an atomic is really lock-free
+prerequisites: memory-model
+difficulty: 2
+---
+
+### the idea
+
+a consumer that spins on an atomic flag burns a core while it waits. two workers that each update their own counter, with no shared data at all, still slow each other down. and an `std::atomic` of a struct may quietly contain a lock. atomics are a low-level tool, and using them well means knowing how they interact with the operating system's scheduler and the CPU's caches, not just with the memory model.
+
+### understanding the concept
+
+<<< 30-30
+
+### in code
+
+<<< 94-118
+
+### in practice
+
+<<< 122-122
+
+### watch out for
+
+**an atomic is not necessarily lock-free.**
+
+```cpp
+#include <atomic>
+
+struct Pose { double x, y, z, qw, qx, qy, qz; };   // 56 bytes
+std::atomic<Pose> latest_pose;                      // compiles; very likely uses a lock
+
+static_assert(std::atomic<int>::is_always_lock_free);   // true on mainstream platforms
+// static_assert(std::atomic<Pose>::is_always_lock_free);   // fails on typical 64-bit targets
+```
+
+`std::atomic<T>` works for any trivially copyable `T`, and for types too large for the hardware's atomic instructions the library falls back to a lock (libstdc++ uses a small table of mutexes and needs `-latomic` for some sizes). that is correct, but it defeats the usual reason for choosing an atomic in a real-time thread. assert `is_always_lock_free` where it matters, and for large data publish a pointer or use double buffering instead.
+
+### the takeaway
+
+use C++20 `wait`/`notify` instead of spinning, keep atomics that different threads update on separate cache lines, and assert lock-freedom wherever you rely on it.
+
+### optional challenge
+
+why does `await_next` wait on a generation counter that only ever increases, instead of a `bool` that the producer sets to `true` and the consumer resets to `false`?
+
+<details>
+<summary>answer</summary>
+
+`wait(old)` compares values: it sleeps while the atomic still equals `old`. with a toggling flag, two quick publications can change the value and change it back before the waiter looks, so the waiter sees "unchanged" and keeps sleeping through two frames (the ABA problem). a monotonically increasing counter never returns to a previous value in practice, so any publication is visible as a change, and the consumer can also tell how many frames it missed.
+
+</details>

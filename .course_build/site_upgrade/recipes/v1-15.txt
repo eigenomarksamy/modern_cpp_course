@@ -1,0 +1,121 @@
+source: day-15
+refs: 10=noexcept-moves 19=variadic-templates 50=benchmarking 51=cache-locality
+>>> sequence-containers
+---
+title: containers and what they cost
+standard: C++17
+objective: choose a sequence container by access pattern, memory layout, and invalidation rules, starting from std::vector
+prerequisites: noexcept-moves, unique-ptr
+difficulty: 2
+---
+
+### the idea
+
+`std::vector` is the default container in modern C++, and the reason has less to do with big-O than with memory. the standard's complexity guarantees tell you how the cost of an operation grows; they say nothing about the cache misses, allocations, and pointer chasing that decide what it costs at the sizes you actually have. and every container also makes promises about which references survive an insertion, which code tends to rely on without ever writing it down.
+
+### understanding the concept
+
+<<< 13-30
+
+### in code
+
+<<< 34-55
+
+<<< 94-111
+
+### in practice
+
+<<< 115-117
+
+### watch out for
+
+**`reserve` changes capacity, not size.**
+
+```cpp
+#include <vector>
+
+void load(std::vector<float>& samples) {
+    samples.reserve(1024);
+    samples[0] = 1.0f;          // BUG: size() is still 0, so this is out of bounds
+}
+```
+
+`reserve` allocates room for future elements without creating any; indexing them is undefined behavior, and on most implementations it "works" until a debug build or a sanitizer notices. after `reserve`, add elements with `push_back` or `emplace_back`. if you want 1024 value-initialized elements to index into, `resize(1024)` (or construct the vector with that size) is the call you meant.
+
+### the takeaway
+
+pick the container by access pattern, then check the invalidation rules, then measure; start with `std::vector`, and treat reference stability as part of the interface, because whoever depends on it is coupled to your container choice.
+
+### optional challenge
+
+<<< 129-145
+>>> associative-containers
+---
+title: maps, sets, and node handles
+standard: C++17
+objective: choose between ordered, hashed, and flat associative containers, and use the C++17 insertion functions and node handles
+prerequisites: sequence-containers
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+`std::map` and `std::set` are ordered: usually a red-black tree with one heap node per element, O(log n) lookup, iteration in key order, and references that stay valid until the element is erased. `std::unordered_map` and `std::unordered_set` are hash tables: one node per element plus a bucket array, O(1) lookup on average (O(n) in the worst case), no useful order, and a rehash on growth that invalidates iterators but never references. the unordered containers need a hash function and an equality comparison for the key, and they pay for hashing on every lookup.
+
+a third option is not a node container at all: a sorted `std::vector` searched with `std::lower_bound`. it gives up cheap insertion in the middle and in exchange has contiguous memory, no per-element allocation, and the smallest footprint. for data that is built once and read often, it is frequently the fastest of the three. (C++23 standardizes the idea as `std::flat_map`.)
+
+<<< 57-57
+
+### in code
+
+<<< 59-92
+
+### in practice
+
+a lookup table built at startup and read every cycle, such as per-channel calibration for a few hundred radar channels, is the textbook case for the sorted vector:
+
+```cpp
+#include <algorithm>
+#include <vector>
+
+struct ChannelCal { int channel; double gain; double offset_m; };
+
+const ChannelCal* find_cal(const std::vector<ChannelCal>& sorted, int channel) {
+    auto it = std::lower_bound(sorted.begin(), sorted.end(), channel,
+                               [](const ChannelCal& c, int ch) { return c.channel < ch; });
+    return (it != sorted.end() && it->channel == channel) ? &*it : nullptr;
+}
+```
+
+the table is sorted once after loading; every lookup is a binary search over contiguous memory with no allocation. whether this beats `std::unordered_map<int, ChannelCal>` at your size is a measurement question ([[benchmarking]]), but it is a strong default for read-mostly data, and it never has a rehash pause in the middle of a control cycle.
+
+### watch out for
+
+<<< 121-121
+
+### the takeaway
+
+use an ordered map when you need order or stable references, a hash map when lookups dominate and keys hash cheaply, and a sorted vector when the data is read far more often than it changes; query with `find`, write with `try_emplace` and `insert_or_assign`.
+
+### optional challenge
+
+what does this print, and which line does not compile?
+
+```cpp
+std::map<std::string, int> counts;
+if (counts["lidar"] > 0) { /* ... */ }
+std::cout << counts.size() << '\n';
+const auto& view = counts;
+std::cout << view["radar"] << '\n';
+```
+
+<details>
+<summary>answer</summary>
+
+the first output line prints `1`: `counts["lidar"]` inserted a value-initialized `int` for the missing key, so the "read" grew the map. the last line does not compile, because `operator[]` may insert and therefore has no `const` overload. use `view.find("radar")`, `view.count("radar")`, or C++20's `view.contains("radar")` to query, and `view.at("radar")` if a missing key is an error (it throws `std::out_of_range`).
+
+</details>

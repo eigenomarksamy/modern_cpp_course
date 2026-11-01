@@ -1,52 +1,34 @@
 # handoff: modern c++ daily course
 
-Read this first in a fresh session. It is short on purpose.
+read this first in a fresh session. it is short on purpose.
 
-## how to resume (any session, including after "resume modern cpp course")
+## state
 
-1. From the repository root, run `python .course_build/tools/course.py status`. It rescans the lesson files (the source of truth), rewrites `state.json` and the position block below, and prints the next action.
-2. Read `course_spec.md` (requirements), `.course_build/curriculum.md` (topic map and authoring conventions), and at most the last one or two completed lessons for style.
-3. Do only the next action. Never rewrite a lesson whose status is `complete`.
+the course is at curriculum 2.0: 119 days (102 lessons and 17 reviews) in 17 modules, generated from `.course_build/`. the original 56-day course (1.0) is archived unchanged in `archive/v1/` and in git history.
 
-## how a lesson is written and checkpointed
+- `authoring.md`: lesson format, code tags, editorial rules, workflow.
+- `curriculum.md`: the generated curriculum map.
+- `site_upgrade/`: how the 1.0 to 2.0 restructuring was done (plan, recipes, state). read `site_upgrade/handoff.md` if asked to `resume cpp site upgrade`.
 
-1. Write the full lesson to `.course_build/lessons/day-XX.md.tmp`.
-2. Compile representative snippets (`g++ -std=c++17|c++20 -Wall -Wextra -pedantic`) in a scratch folder outside the repo and record what was checked in `.course_build/checks/day-XX.md`.
-3. Run `python .course_build/tools/course.py commit .course_build/lessons/day-XX.md.tmp`. It validates the structure, atomically renames to `day-XX.md`, and reconciles `state.json` and this file. If it reports problems, fix the `.tmp` and run it again.
-4. A leftover `day-XX.md.tmp` from an interrupted session is an unfinished lesson: check it, then fix and commit it, or delete it and rewrite.
+## how to change the course
 
-## after all 56 lessons
+1. edit `lessons/<id>.md`, `sections/*.md`, or `curriculum.json` (order, modules, v1 mapping).
+2. `python .course_build/tools/course.py validate`, then `check_code.py --run` for any lesson whose code changed.
+3. `python .course_build/tools/course.py assemble` regenerates `modern_cpp_daily_course.md`, `site/course.json`, and `curriculum.md`.
+4. `npm run build && npm test` builds and tests the website; `python .course_build/tools/check_ui.py` checks its text.
 
-1. Supplementary sections live in `.course_build/sections/` (`introduction.md`, `overview.md`, `cheat_sheet.md`, `references.md`), each starting with its own `<a id="..."></a>` anchor and a `##` heading.
-2. Run `python .course_build/tools/course.py assemble`. It builds into a `.tmp`, validates, and only then atomically replaces `modern_cpp_daily_course.md` and marks the phase `complete`.
+never edit the generated files directly. adding a lesson: create the file, add its id to a module in `curriculum.json`, reassemble; day numbers and cross references renumber themselves. stable ids are also what browsers store as progress, so **never rename a lesson id** without adding a migration (see "progress" below).
 
-## revising later
+## progress and migration
 
-Edit only the affected `lessons/day-XX.md` or `sections/*.md`, run `course.py check` on them, then `course.py assemble`. The final document is generated; never edit it directly.
+the website stores progress in `localStorage` under `modern-cpp-course:progress` as lesson ids. the 1.0 site stored `["#day-01", ...]` under `modern-cpp-course:done`; on first load the 2.0 site maps those through `curriculum.json` → `legacy.v1.complete_when` and leaves the old key in place. if a future change renames or removes ids, add an explicit mapping the same way and handle it in `site/app.js` (`load`, `parseImport`).
+
+## toolchain notes
+
+- local: MSYS2 g++ 12.1 on Windows (no `<format>`, no sanitizers) and g++ 11.4 in WSL Ubuntu (sanitizers; lacks `constexpr std::vector` and P2210 `split`). CI uses g++ 14 and clang++ 18 on ubuntu-24.04.
+- `std::barrier` with several threads hangs on this MinGW toolchain (libstdc++ 12, non-futex wait); the barrier example is compile-checked only.
+- the website needs Node 22.12 or newer; `npm test` drives a headless Chrome or Edge if one is installed (set `CHROME_PATH` otherwise).
 
 ## publishing
 
-The course has its own repository (`github.com/eigenomarksamy/modern_cpp_course`) and its own Cloudflare Worker, configured in `wrangler.jsonc`. `npm run build` renders `modern_cpp_daily_course.md` into `dist/` with `scripts/build.mjs`; nothing in `.course_build/` is published. After reassembling, commit and push, and the Worker redeploys. eigenomar.com lists the course as a writings entry that links here.
-
-## decisions and continuity notes
-
-- Lessons are written in parallel, one writer per week, all following the conventions in `curriculum.md`. Writers never edit `state.json` or this file by hand; `course.py` regenerates both from the filesystem, so concurrent commits are safe.
-- Local toolchain: MSYS2 g++ 12.1. C++17 and most of C++20 (concepts, ranges, span, `<=>`, coroutines, `jthread`, latch/barrier/semaphore, `source_location`, pmr) compile. `<format>` is missing (needs GCC 13+), and there is no practical modules support, so `std::format` and module examples are written carefully but recorded as not compile-checked.
-- On this MinGW toolchain `std::barrier` with 4 threads hangs (libstdc++ 12 atomic-wait fallback on non-futex targets, cf. GCC PR 101037); `std::latch`, `counting_semaphore`, and atomic `wait`/`notify` ran fine. Barrier examples are compile-checked only.
-- Final document anchors are explicit `<a id>` tags: `day-XX`, `week-N`, `introduction`, `course-overview`, `table-of-contents`, `progress-checklist`, `cheat-sheet`, `references`.
-
-## unresolved issues
-
-- none yet
-
-<!-- auto:start -->
-## current position (generated by `course.py reconcile`, do not edit by hand)
-
-- phase: **complete**
-- lessons complete: 56 / 56 (days 01-56)
-- not complete: none
-- supplementary sections: introduction.md ok, overview.md ok, cheat_sheet.md ok, references.md ok
-- assembly: complete, validation: complete
-- **next action: none: course is complete**
-- last successful action: assembled_and_validated (2026-10-31T09:47:55+00:00)
-<!-- auto:end -->
+`npm run build` renders `site/course.json` into `dist/`; `wrangler.jsonc` serves it as a Cloudflare Worker with static assets on `cpp.eigenomar.com`. with the repository connected in the Cloudflare dashboard (build command `npm run build`, deploy command `npx wrangler deploy`), every push to `main` deploys. nothing is committed, pushed, or deployed without the owner's go-ahead.

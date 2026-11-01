@@ -1,0 +1,188 @@
+source: day-30
+refs: 16=algorithms 17=lambdas 26=string-view 29=concepts
+>>> range-algorithms
+---
+title: range algorithms and projections
+standard: C++20
+objective: call the constrained std::ranges algorithms on whole ranges, and use projections instead of hand-written comparison lambdas
+prerequisites: concepts, algorithms
+difficulty: 2
+---
+
+### the idea
+
+`std::sort(dets.begin(), dets.end(), [](const Detection& a, const Detection& b) { return a.range_m < b.range_m; });` says "sort detections by range" in about seventy characters, most of them ceremony: two iterators that always come as a pair, and a lambda whose only job is to pick one member twice. C++20's range algorithms let you write `std::ranges::sort(dets, {}, &Detection::range_m);`, and the shorter version is also the better-checked one.
+
+### understanding the concept
+
+<<< 15-17
+
+every classic algorithm has a `std::ranges::` counterpart. besides taking a range and a projection, they differ in small ways worth knowing: they are constrained, so misuse fails at the call site; they accept an iterator and a *sentinel* of a different type; and several return more than the classic versions did (`std::ranges::copy` returns both the input and output positions where it stopped), which you can unpack with a structured binding.
+
+### in code
+
+```cpp
+#include <algorithm>
+#include <cstdio>
+#include <vector>
+
+struct Detection { float range_m; float snr_db; int track_id; };
+
+int main() {
+    std::vector<Detection> dets{{80.f, 15.f, 3}, {30.f, 20.f, 1}, {60.f, 9.f, 2}};
+
+    std::ranges::sort(dets, {}, &Detection::range_m);                    // by range, ascending
+    auto strongest = std::ranges::max_element(dets, {}, &Detection::snr_db);
+    auto it = std::ranges::find(dets, 2, &Detection::track_id);          // compares the projected id
+    auto n = std::ranges::count_if(dets, [](float snr) { return snr > 12.f; }, &Detection::snr_db);
+
+    std::printf("%d %d %d %td\n", dets.front().track_id, strongest->track_id, it->track_id, n);
+    // prints: 1 1 2 2
+}
+```
+
+the projection is applied to each element before the comparison or predicate sees it, so the predicate in `count_if` receives a `float`, not a `Detection`. the `{}` is the default comparator, `std::ranges::less`.
+
+### in practice
+
+projections and comparators combine, which covers most real sorting needs without a custom lambda: `std::ranges::sort(tracks, std::ranges::greater{}, &Track::confidence)` sorts by confidence, highest first. a projection can also be any callable, for keys that are computed rather than stored, such as the distance from the vehicle: `std::ranges::sort(dets, {}, [&](const Detection& d) { return dist2(d, ego); })`. keep such projections cheap: a sort calls the projection twice per comparison, so O(n log n) times. when the key is expensive (a lookup, a string conversion), compute it once per element into a vector of key and index pairs, sort that, and reorder, rather than recomputing inside the sort.
+
+### watch out for
+
+**algorithms on temporaries return `std::ranges::dangling`.**
+
+<<< 93-99
+
+the classic algorithms would have returned an iterator into the destroyed vector and let you dereference it. if you need the result, keep the container in a named variable first.
+
+### the takeaway
+
+prefer the `std::ranges::` algorithms: pass the range, not two iterators, and use projections to say "by this member" instead of writing comparison lambdas.
+
+### optional challenge
+
+`std::ranges::sort(v, {}, key)` is called on 1,000 elements, and `key` converts each element's id to a `std::string`. roughly how many conversions happen, and how would you avoid most of them?
+
+<details>
+<summary>answer</summary>
+
+a comparison sort makes on the order of n log2 n comparisons, about 10,000 for 1,000 elements, and each comparison projects both operands, so about 20,000 string conversions instead of 1,000. compute the keys once: build a `std::vector<std::pair<std::string, std::size_t>>` of key and original index, sort that (by its first member), and use the indices to reorder or to read the elements in order. the general rule: projections are for cheap accessors, not for computation.
+
+</details>
+>>> views
+---
+title: views: lazy pipelines
+standard: C++20
+objective: compose lazy view pipelines and predict when, and how often, their callables run
+prerequisites: range-algorithms, string-view
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 19-20
+
+<<< 23-23
+
+### in code
+
+<<< 27-62
+
+<<< 66-89
+
+### in practice
+
+<<< 103-122
+
+### watch out for
+
+<<< 143-143
+
+### the takeaway
+
+views are lazy and cheap: a pipeline is a recipe that runs element by element when you iterate it, so put cheap filters first, keep transforms pure, and materialize the result explicitly.
+
+### optional challenge
+
+what does this print, and why does it terminate even though `std::views::iota(1)` never ends?
+
+```cpp
+auto odd = [](int x) { return x % 2 == 1; };
+for (int x : std::views::iota(1) | std::views::filter(odd) | std::views::take(3))
+    std::printf("%d ", x);
+```
+
+<details>
+<summary>answer</summary>
+
+it prints `1 3 5`. `iota(1)` is an unbounded range, which is fine because nothing is computed up front: the loop pulls one element at a time through `take`, which pulls through `filter`, which pulls from `iota`. after the third element, `take` reports the end and the loop stops, so `iota` is asked for only five numbers. an eager pipeline (build a container, then filter it, then truncate it) could not even start.
+
+</details>
+
+### going deeper
+
+#### sorting before filtering
+
+<<< 64-64
+>>> view-lifetimes
+---
+title: views and lifetimes: what a pipeline refers to
+standard: C++20
+objective: tell which views refer to their data and which own it, and avoid pipelines that outlive their source or a modification of it
+prerequisites: views
+difficulty: 3
+---
+
+### the idea
+
+this function compiles without a warning on GCC 12, returns a perfectly ordinary-looking pipeline, and every use of its result is undefined behavior:
+
+```cpp
+auto strong_ids() {
+    std::vector<int> ids = load();
+    return ids | std::views::filter([](int i) { return i > 2; });   // BUG: refers to a dead local
+}
+```
+
+a view is closer to a reference than to a container: it stores *how* to produce elements, not the elements. knowing exactly what each pipeline refers to is the price of laziness.
+
+### understanding the concept
+
+<<< 21-21
+
+<<< 99-99
+
+### in code
+
+<<< 135-135
+
+the fixed version moves the vector into the pipeline, so the returned view owns it:
+
+```cpp
+auto strong_ids_fixed() {
+    std::vector<int> ids = load();
+    return std::move(ids) | std::views::filter([](int i) { return i > 2; });   // owning_view
+}
+```
+
+returning the filtered *container* is often clearer still: callers then hold ordinary data with no lifetime puzzle attached.
+
+### in practice
+
+a robust convention for APIs that use ranges: **accept views, return owning data.** a function that consumes a sequence takes its parameter as `auto&&` or a constrained template (`std::ranges::input_range auto&& r`), so callers can pass containers, views, or pipelines without copying. a function that produces a sequence returns a container, or a view only when the view's source is clearly owned by something longer-lived, such as a member of the object the function is called on, and that relationship is documented. pipelines then live as local variables in the code that iterates them, which is exactly the scope in which their references are obviously valid.
+
+### watch out for
+
+<<< 137-141
+
+### the takeaway
+
+views over lvalues refer to their source and views over rvalues own it; keep pipelines local to the code that iterates them, do not keep a view across modifications of what it views, and return owning data from functions.
+
+### optional challenge
+
+<<< 151-167

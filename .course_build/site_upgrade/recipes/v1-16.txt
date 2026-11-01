@@ -1,0 +1,48 @@
+source: day-16
+refs: 17=lambdas 29=concepts
+>>> algorithms
+---
+title: iterators and algorithms over raw loops
+standard: C++17
+objective: use standard algorithms over half-open iterator ranges to state intent, and apply the erase-remove idiom correctly
+prerequisites: sequence-containers
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-15
+
+### understanding the concept
+
+<<< 19-35
+
+### in code
+
+<<< 39-93
+
+### in practice
+
+<<< 119-119
+
+### watch out for
+
+<<< 125-132
+
+### the takeaway
+
+<<< 136-136
+
+### optional challenge
+
+<<< 140-153
+
+### going deeper
+
+#### partition and stable sort
+
+<<< 95-115
+
+#### parallel execution policies
+
+<<< 121-121

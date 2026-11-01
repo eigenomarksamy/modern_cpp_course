@@ -1,0 +1,131 @@
+source: day-11
+refs: 10=move-semantics 13=virtual-destructors-slicing
+>>> special-members
+---
+title: the special member functions and when the compiler writes them
+standard: C++17
+objective: predict which special members a class gets, and recognize when a declaration silently turns moves into copies
+prerequisites: noexcept-moves
+difficulty: 2
+---
+
+### the idea
+
+for every class you define, the compiler is prepared to write up to six member functions on your behalf. which ones it writes, and when it quietly stops, follows a short set of rules. they are worth learning once, because the most expensive mistake they allow (a move that has silently become a copy) produces no error, no warning, and correct output.
+
+### understanding the concept
+
+<<< 13-29
+
+### in code
+
+the type traits make the rules visible. a destructor written for logging removes the implicit move constructor, and the "move" that remains is the copy constructor:
+
+```cpp
+#include <type_traits>
+#include <vector>
+
+struct Plain  { std::vector<int> v; };
+struct Logged { std::vector<int> v; ~Logged() {} };
+
+static_assert(std::is_nothrow_move_constructible_v<Plain>);    // a real, noexcept move
+static_assert(std::is_move_constructible_v<Logged>);           // true, but it is a copy
+static_assert(!std::is_nothrow_move_constructible_v<Logged>);  // copying a vector can throw
+```
+
+`std::is_move_constructible_v` only asks whether an rvalue can construct the type, and the copy constructor's `const T&` parameter accepts one. the `nothrow` trait gives the game away, and it is exactly the property `std::vector` checks before deciding to move ([[noexcept-moves]]).
+
+### in practice
+
+<<< 160-160
+
+in the base class, that looks like this:
+
+```cpp
+class Sensor {
+public:
+    virtual ~Sensor() = default;
+    Sensor() = default;
+    Sensor(Sensor&&) = default;
+    Sensor& operator=(Sensor&&) = default;
+protected:
+    Sensor(const Sensor&) = default;              // derived classes may copy their base part
+    Sensor& operator=(const Sensor&) = default;   // but outside code cannot slice
+};
+```
+
+writing all five explicitly costs five lines and documents a decision; leaving them implicit after declaring the destructor costs every derived class its moves.
+
+### watch out for
+
+<<< 139-158
+
+### the takeaway
+
+declaring any of the destructor, copy, or move operations (even as `= default`) changes what else the compiler generates; when you declare one, decide about all five.
+
+### optional challenge
+
+<<< 168-192
+>>> rule-of-zero
+---
+title: the rule of zero
+standard: C++17
+objective: design classes that need no hand-written special members by composing types that manage themselves
+prerequisites: special-members
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 31-35
+
+### in code
+
+<<< 39-58
+
+### in practice
+
+<<< 95-135
+
+### watch out for
+
+**`const` and reference members quietly delete assignment.** a rule-of-zero class inherits its members' limitations:
+
+```cpp
+#include <vector>
+
+struct Track {
+    const int id;                    // looks like good hygiene
+    std::vector<double> ranges;
+};
+
+void sort_by_id(std::vector<Track>& tracks);   // std::sort needs move assignment: does not compile
+```
+
+a `const` member cannot be assigned, so `Track` has no copy or move assignment, and anything that reassigns elements (`std::sort`, `std::remove_if`, `tracks[i] = other`) fails to compile. a type meant to behave like a value should keep its members non-`const` and private, and expose them through `const` accessors; the immutability belongs to the interface, not the storage.
+
+### the takeaway
+
+<<< 164-164
+
+### optional challenge
+
+which special members does `LidarDriver` from the practice section have? can it be copied, moved, and stored in a `std::vector` that reallocates efficiently?
+
+<details>
+<summary>answer</summary>
+
+it has a user-declared constructor, so no default constructor. the destructor and the move operations are implicitly defaulted, and the moves are `noexcept`, because every member (`std::string`, `UniqueFd`, `std::vector`, `std::unique_ptr`) has a `noexcept` move. the copy operations are implicitly deleted, because `UniqueFd` and `std::unique_ptr` are not copyable. so: not copyable, movable, and a `std::vector<LidarDriver>` moves its elements on reallocation. all of that without declaring a single special member.
+
+</details>
+
+### going deeper
+
+#### copy-and-swap
+
+<<< 60-91

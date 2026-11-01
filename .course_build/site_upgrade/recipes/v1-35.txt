@@ -1,0 +1,174 @@
+source: day-35
+refs: 18=function-templates 31=span 30=views 26=string-view 10=noexcept-moves 34=format
+>>> review-cpp20-generic
+---
+title: review: concepts, ranges, and span
+kind: review
+standard: C++20
+objective: consolidate concepts, range algorithms, view pipelines and their lifetimes, and std::span
+prerequisites: concepts, writing-concepts, range-algorithms, views, view-lifetimes, span
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[concepts]] | requirements move from the template body into its signature; errors name the unmet concept at the call site. |
+| [[writing-concepts]] | a requires expression states a contract; build on standard concepts so subsumption works, and `static_assert` types against it. |
+| [[range-algorithms]] | pass whole ranges and use projections instead of comparison lambdas. |
+| [[views]] | pipelines are lazy recipes: callables run per element, on iteration, possibly more than once. |
+| [[view-lifetimes]] | views over lvalues refer, views over rvalues own; keep pipelines local and return owning data. |
+| [[span]] | pointer plus length as one value: `span<const T>` to read, `span<T>` to write, static extent as a contract. |
+
+### review questions
+
+<<< 22-22
+<<< 24-34
+3. two overloads are constrained with `requires std::is_integral_v<T>` and `requires std::is_integral_v<T> && (sizeof(T) == 4)`. why is `g(1)` ambiguous, and what one change makes the second overload win?
+4. from [[string-view]]: `std::string_view name = make_name();` (where `make_name` returns `std::string`) and `std::span<const float> s = make_samples();` (returning `std::vector<float>`) both compile. what is the shared problem, and why does `std::span<float> s = make_samples();` not compile?
+5. from [[noexcept-moves]]: `Frame` has a user-written move constructor without `noexcept` and a copy constructor. when a `std::vector<Frame>` reallocates, are the elements moved or copied, and why?
+
+### mini exercise
+
+rewrite this C++17 helper with a range algorithm and a projection, and constrain it so that calling it with a range of something other than `Track` fails at the call site:
+
+```cpp
+const Track* most_confident(const std::vector<Track>& tracks) {
+    if (tracks.empty()) return nullptr;
+    auto it = std::max_element(tracks.begin(), tracks.end(),
+        [](const Track& a, const Track& b) { return a.confidence < b.confidence; });
+    return &*it;
+}
+```
+
+### answers
+
+<details>
+<summary>answer 1: concept satisfied, body fails</summary>
+
+<<< 55-55
+
+</details>
+
+<details>
+<summary>answer 2: owning versus referencing views</summary>
+
+<<< 62-64
+
+</details>
+
+<details>
+<summary>answer 3: subsumption needs named concepts</summary>
+
+subsumption compares constraints as atomic pieces, and two atomic constraints are the same only if they come from the same expression in the source. the two `std::is_integral_v<T>` are different expressions, so neither overload is more constrained than the other and the call is ambiguous. write `std::integral<T>` in both: the second overload's constraint then contains the first's, subsumes it, and wins for 32-bit types.
+
+</details>
+
+<details>
+<summary>answer 4: views into temporaries</summary>
+
+<<< 94-94
+
+</details>
+
+<details>
+<summary>answer 5: noexcept and reallocation</summary>
+
+<<< 101-101
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+```cpp
+#include <algorithm>
+#include <ranges>
+
+template <std::ranges::forward_range R>
+    requires std::same_as<std::ranges::range_value_t<R>, Track>
+const Track* most_confident(const R& tracks) {
+    auto it = std::ranges::max_element(tracks, {}, &Track::confidence);
+    return it == std::ranges::end(tracks) ? nullptr : &*it;
+}
+```
+
+the projection replaces the comparison lambda, the empty case falls out of the algorithm (it returns the end iterator), and the function now accepts any forward range of `Track`: a vector, a `std::span<const Track>`, or a filtered view of confirmed tracks (taken by `const&`, which a `filter_view` does not support, so pass such a view by value or `auto&&` in real code). a constraint like `std::same_as<..., Track>` is deliberately narrow; widening it is a design decision, not a default.
+
+</details>
+
+### connections
+
+this module turned templates from a mechanism into an interface: concepts are what makes generic code readable at the call site, and ranges and span are the standard library's best examples of borrowing data instead of owning it. the next module rounds out the C++20 toolbox with comparisons, compile-time evaluation, and formatting, and then the course moves to threads, where every lifetime rule from these modules gets less forgiving.
+>>> review-cpp20-everyday
+---
+title: review: comparisons, compile time, and formatting
+kind: review
+standard: C++20
+objective: consolidate defaulted comparisons and categories, constexpr, consteval and constinit, std::format, and the small C++20 features
+prerequisites: defaulted-comparisons, comparison-categories, constexpr-evolution, consteval-constinit, format, cpp20-small-features
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[defaulted-comparisons]] | one defaulted `<=>` gives every relational operator and a defaulted `==`; declaration order is behavior. |
+| [[comparison-categories]] | strong, weak, partial: a `float` member makes ordering partial, and NaN breaks algorithms that need a strict weak ordering. |
+| [[constexpr-evolution]] | `constexpr` may run at compile time, including transient allocation; force it and test it with `static_assert`. |
+| [[consteval-constinit]] | `consteval` must run at compile time; `constinit` initializes a mutable global before any constructor runs. |
+| [[format]] | type-safe, compile-time checked formatting; keep the check in wrappers with `std::format_string`. |
+| [[cpp20-small-features]] | small additions that each remove a bug pattern: designated initializers, `contains`, `erase_if`, `midpoint`, `ssize`. |
+
+### review questions
+
+1. a tracker keeps `std::set<Detection>`, where `Detection` has a `float range_m` member and `auto operator<=>(const Detection&) const = default;`. one radar frame contains a NaN range. what is wrong, precisely, and what are two reasonable fixes?
+<<< 38-40
+4. from [[integer-types]]: `for (std::size_t i = v.size() - 1; i >= 0; --i)` never terminates. why, and how does a C++20 helper make the reverse loop correct?
+
+### mini exercise
+
+<<< 48-48
+
+### answers
+
+<details>
+<summary>answer 1: NaN in a set</summary>
+
+<<< 71-73
+
+</details>
+
+<details>
+<summary>answer 2: compile-time keywords</summary>
+
+<<< 80-80
+
+</details>
+
+<details>
+<summary>answer 3: format_string in wrappers</summary>
+
+<<< 87-87
+
+</details>
+
+<details>
+<summary>answer 4: the reverse loop</summary>
+
+`i` is unsigned, so `i >= 0` is always true: after `i` reaches 0, `--i` wraps to the largest `std::size_t` and the loop indexes far out of bounds (and for an empty `v`, it starts there). use a signed index: `for (auto i = std::ssize(v) - 1; i >= 0; --i)`, where `std::ssize` returns `std::ptrdiff_t`.
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+<<< 108-142
+
+</details>
+
+### connections
+
+with this module the C++20 toolbox is complete: constrained templates, ranges and views, span, comparisons, compile-time evaluation, and formatting. none of it changes the foundations from the first modules; each feature makes an existing intent checkable. the next two modules are about threads, where the ownership and lifetime rules from the whole course meet a new kind of undefined behavior: data races ([[data-races]]).

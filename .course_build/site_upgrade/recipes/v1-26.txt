@@ -1,0 +1,105 @@
+source: day-26
+refs: 03=temporaries-dangling 04=pointers-references 15=sequence-containers 22=structured-bindings 30=views 52=allocation-costs
+>>> string-view
+---
+title: std::string_view: borrowing characters
+standard: C++17
+objective: use std::string_view for read-only string parameters, and avoid the null-terminator and lifetime traps of a non-owning view
+prerequisites: optional, temporaries-dangling
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-19
+
+### in code
+
+<<< 25-67
+
+### in practice
+
+moving an existing library to `std::string_view` parameters is a mechanical change with one judgment call per function. a function that only reads its argument during the call (`has_prefix`, `log_topic`, a lookup key) takes `std::string_view`, and every caller that passed a literal or a slice stops allocating. a function that *stores* the string (a setter, a constructor that keeps a name) should take `std::string` by value and move it into the member, so the class owns its characters. a function that hands the text to a C API that needs a terminator keeps `const std::string&` or `const char*`. changing a parameter from `const std::string&` to `std::string_view` is source compatible for callers, because `std::string` converts implicitly; it is not ABI compatible, so a shared library changing its exported functions needs a new version.
+
+### watch out for
+
+<<< 104-124
+
+### the takeaway
+
+<<< 128-128
+
+### optional challenge
+
+<<< 132-145
+>>> parsing-with-views
+---
+title: parsing without allocation: views and from_chars
+standard: C++17
+objective: parse and format text without allocating, using string_view slicing with std::from_chars and std::to_chars
+prerequisites: string-view, structured-bindings
+difficulty: 2
+---
+
+### the idea
+
+a log-analysis tool ingests hours of GNSS data: millions of short comma-separated NMEA sentences. the obvious parser splits each line into `std::string` fields and calls `std::stod` on the ones it needs, allocating and copying for every field of every line, and consulting the global locale on every number. none of that work is needed to read a few digits out of a buffer you already hold. views for slicing and `<charconv>` for numbers do the same job touching each byte once.
+
+### understanding the concept
+
+<<< 21-21
+
+the slicing half of the toolkit is `std::string_view` itself: a tokenizer holds the unparsed remainder as a view, finds the next delimiter, returns the field as a view, and shortens the remainder with `remove_prefix`. nothing is copied, and every field is a window into the original line, so the whole parse is valid exactly as long as that line is.
+
+### in code
+
+<<< 71-100
+
+### in practice
+
+`std::to_chars` is the formatting half, for producing telemetry lines without allocating:
+
+```cpp
+#include <charconv>
+#include <string_view>
+
+std::string_view format_altitude(char (&buf)[32], double altitude_m) {
+    auto [end, ec] = std::to_chars(buf, buf + sizeof buf, altitude_m);
+    if (ec != std::errc{}) return {};               // buffer too small
+    return std::string_view(buf, end - buf);       // a view into the caller's buffer
+}
+```
+
+with no precision argument, floating-point `to_chars` produces the *shortest* text that reads back to exactly the same `double` through `from_chars`, which makes round-tripping values through text lossless without guessing a precision. the returned view borrows the caller's buffer, so the caller decides how long the text lives; formatting into a `std::string` is one explicit copy away when it must be kept.
+
+### watch out for
+
+**`from_chars` parses a prefix and stops.** it reports success as long as it could read *something*, and tells you where it stopped:
+
+```cpp
+double v{};
+std::string_view s = "12.5abc";
+auto [ptr, ec] = std::from_chars(s.data(), s.data() + s.size(), v);
+// ec == std::errc{}, v == 12.5, ptr points at 'a'
+```
+
+checking only `ec` accepts `"12.5abc"` as 12.5, which is why `to_double` also compares `ptr` with the end of the input. the other differences from `strtod` and `std::stod` matter just as much when porting a parser: no leading whitespace is skipped, a leading `+` is rejected, and an out-of-range value reports `std::errc::result_out_of_range` instead of returning infinity.
+
+### the takeaway
+
+slice with `std::string_view`, convert numbers with `from_chars` and `to_chars`, and check both the error code and the end pointer; the parse is then allocation-free and locale-free, and valid exactly as long as the buffer it borrows.
+
+### optional challenge
+
+using `to_double` from the code above, what do these return: `to_double("545.4")`, `to_double(" 12")`, `to_double("+5")`, `to_double("1e3")`, `to_double("")`?
+
+<details>
+<summary>answer</summary>
+
+`545.4`, empty, empty, `1000`, and empty. `" 12"` fails because `from_chars` does not skip whitespace; `"+5"` fails because a leading plus sign is not accepted; `"1e3"` is valid scientific notation in the default general format; and an empty range reports `std::errc::invalid_argument`. if the input really can contain leading spaces or a plus sign, strip them explicitly before calling `from_chars`, so the accepted format is written down in your code.
+
+</details>

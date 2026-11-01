@@ -1,0 +1,142 @@
+source: day-48
+refs: 01=build-pipeline 08=raii
+>>> modules
+---
+title: C++20 modules: a practical first look
+standard: C++20
+objective: read and write a named module with interface and implementation units, and judge when the tooling makes adoption worthwhile
+prerequisites: linkage-odr, coupling-cohesion
+difficulty: 2
+---
+
+### the idea
+
+`#include` is a sixty-year-old idea: paste the text of another file here. every translation unit reparses the same headers, macros leak from one header into everything included after it, and the one definition rule quietly depends on every pasted copy being identical. C++20 modules replace pasting with importing a compiled interface. the language feature is real and usable; the tooling around it is still arriving, and both facts matter for when you adopt it.
+
+### understanding the concept
+
+<<< 13-20
+
+### in code
+
+<<< 28-58
+
+### in practice
+
+<<< 129-129
+
+### watch out for
+
+**includes belong in the global module fragment.** a header included *after* the module declaration becomes part of the module's purview:
+
+```cpp
+export module robotics.geometry;
+#include <cmath>          // BUG: <cmath>'s declarations now belong to this module
+```
+
+the declarations from that header are attached to `robotics.geometry`, which can conflict with the same header included normally elsewhere in the program and produces confusing errors or ODR problems. legacy includes go between `module;` and the module declaration, exactly as in `geometry.cpp`; `import` declarations and the module's own code come after it.
+
+### the takeaway
+
+modules fix textual inclusion and macro leakage, but adoption is gated by build-system and compiler support, so introduce them from the leaves inward and measure where your build time goes before expecting a speedup.
+
+### optional challenge
+
+in `main.cpp`, which of these compile: `geo::norm(v)`, `geo::Vec2{1, 2}`, `square(2.0)`, `std::sqrt(2.0)` (with no `#include <cmath>` in `main.cpp`)?
+
+<details>
+<summary>answer</summary>
+
+`geo::norm` and `geo::Vec2` compile: both are declared inside the `export namespace geo` block. `square` does not: it is not exported, so it is visible only inside the module. `std::sqrt` does not either: `<cmath>` was included in the implementation unit's global module fragment, and nothing from it is exported to importers. unlike an `#include`, importing a module brings in exactly what the module exports, so `main.cpp` must include `<cmath>` itself if it needs it.
+
+</details>
+>>> coroutines
+---
+title: coroutines: functions that suspend
+standard: C++20
+objective: read and use a coroutine that yields values, explain where its state lives, and avoid parameters that dangle across suspension points
+prerequisites: raii, temporaries-dangling, lambdas
+difficulty: 3
+---
+
+### the idea
+
+a radar steers its beam in a serpentine raster: left to right on even rows, right to left on odd rows. as an iterator, that needs the row, the column, and the direction stored as members, plus an `increment()` that reconstructs where the two nested loops were. as a coroutine, it is two nested loops with a `co_yield` in the middle. coroutines let a function pause and resume, so a state machine can be written as straight-line code, and the compiler keeps the state for you.
+
+### understanding the concept
+
+<<< 22-24
+
+### in code
+
+`Generator<T>` below is a small generator type; [[coroutine-generator]] builds it line by line. using it looks like this:
+
+<<< 104-125
+
+### in practice
+
+<<< 131-131
+
+### watch out for
+
+<<< 135-144
+
+### the takeaway
+
+a coroutine keeps its state in a frame that outlives each suspension, so take parameters by value, let an RAII return type own the frame, and use a library's coroutine types for asynchronous work.
+
+### optional challenge
+
+`auto scan = serpentine_scan(rows, cols);` is called with two local `int` variables, and the caller then changes `rows` before calling `scan.next()`. does the scan see the new value?
+
+<details>
+<summary>answer</summary>
+
+no. parameters of a coroutine are copied (or moved) into the coroutine frame when it is called, and the body uses those copies. because the parameters are taken by value, later changes to the caller's variables do not affect the scan. had they been `const int&`, the frame would hold references to the caller's variables: the scan would see the change, and if those variables went out of scope before the scan finished, it would read dangling references.
+
+</details>
+>>> coroutine-generator
+---
+title: inside a coroutine: writing a generator type
+standard: C++20
+objective: implement a minimal generator by providing a promise_type, and explain each step the compiler takes when a coroutine starts, yields, and finishes
+prerequisites: coroutines, move-semantics
+difficulty: 3
+---
+
+### the idea
+
+C++20 ships the coroutine *machinery* and almost no coroutine *types*: there is no `std::generator` until C++23 and no standard task type at all. that makes the contract between the compiler and a coroutine's return type worth understanding once, even if you will mostly use a library: it is what you read in a debugger, what decides when a coroutine runs, and what owns its frame.
+
+### understanding the concept
+
+<<< 100-100
+
+### in code
+
+<<< 60-98
+
+### in practice
+
+<<< 146-146
+
+### watch out for
+
+**resuming a finished coroutine is undefined behavior.** `next()` above resumes unconditionally. after it has returned `false` once, the coroutine is suspended at its final suspend point, and calling `next()` again calls `resume()` on it:
+
+```cpp
+auto scan = serpentine_scan(1, 1);
+scan.next();   // true: (0,0)
+scan.next();   // false: done
+scan.next();   // BUG: resumes a coroutine at its final suspend point
+```
+
+a robust wrapper checks `h_.done()` before resuming (and returns `false` again), or exposes an iterator interface whose `end()` makes the misuse impossible. it should also check for a null handle, which a moved-from `Generator` holds.
+
+### the takeaway
+
+a coroutine's return type defines its behavior through `promise_type`: when it starts, what `co_yield` does, and who destroys the frame; design the suspend points and the wrapper's API together, and guard every resume.
+
+### optional challenge
+
+<<< 154-161

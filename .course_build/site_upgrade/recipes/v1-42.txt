@@ -1,0 +1,170 @@
+source: day-42
+refs: 09=construction-order 12=shared-ptr 31=span 36=jthread 37=mutexes 38=condition-variables 39=async 40=memory-model 41=deadlocks
+>>> review-threads
+---
+title: review: threads and synchronization
+kind: review
+standard: C++20
+objective: consolidate thread ownership, jthread and stop tokens, data races, mutexes, condition variables, and the bounded queue
+prerequisites: threads, jthread, data-races, mutexes, condition-variables, blocking-queue
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[threads]] | a joinable `std::thread` terminates the program on destruction; arguments are copied in, and references must outlive the thread. |
+| [[jthread]] | `std::jthread` stops and joins in its destructor; cancellation is cooperative through stop tokens and callbacks. |
+| [[data-races]] | conflicting non-atomic accesses without happens-before are undefined behavior; race conditions are a separate bug. |
+| [[mutexes]] | bundle each mutex with its data, make each method one transaction, and never let guarded data escape the lock. |
+| [[condition-variables]] | sleep until shared state changes: modify it under the mutex, and always wait with a predicate. |
+| [[blocking-queue]] | a bounded queue with `close()` makes back-pressure and shutdown explicit. |
+
+### review questions
+
+<<< 22-22
+2. a `TrackTable` offers a locked `contains(id)` and a locked `insert(id, track)`, and callers write `if (!t.contains(id)) t.insert(id, track);`. is there a data race? is the code correct?
+<<< 35-47
+4. from [[span]]: what is wrong here, and what are two fixes?
+
+<<< 59-65
+
+5. from [[shared-ptr]]: threads a and B each hold their own copy of a `std::shared_ptr<const Config>` and reset it at the same time. threads C and D share one global `std::shared_ptr<const Config> g_config`; C assigns a new config to it while D copies it. which pair is safe?
+
+### mini exercise
+
+this class hands the latest reading from a sensor thread to a consumer. find two bugs, then fix them.
+
+```cpp
+#include <condition_variable>
+#include <mutex>
+
+class LatestReading {
+public:
+    void publish(double v) { value_ = v; ready_ = true; cv_.notify_one(); }
+    double wait() {
+        std::unique_lock lock(m_);
+        cv_.wait(lock, [&] { return ready_; });
+        ready_ = false;
+        return value_;
+    }
+private:
+    std::mutex m_;
+    std::condition_variable cv_;
+    double value_ = 0.0;
+    bool ready_ = false;
+};
+```
+
+### answers
+
+<details>
+<summary>answer 1: member order and jthread</summary>
+
+<<< 108-108
+
+</details>
+
+<details>
+<summary>answer 2: locked steps are not a transaction</summary>
+
+there is no data race: every access to the table happens under its mutex. the code is still wrong: another thread can insert the same id between `contains` and `insert`, so two threads both see "absent" and one insertion overwrites the other. that is a race condition, and the fix is an API change: a single locked `insert_if_absent` (or `try_emplace`-style) operation that checks and inserts in one critical section.
+
+</details>
+
+<details>
+<summary>answer 3: lost wakeup</summary>
+
+<<< 122-122
+
+</details>
+
+<details>
+<summary>answer 4: a span handed to a thread</summary>
+
+<<< 143-143
+
+</details>
+
+<details>
+<summary>answer 5: shared_ptr and threads</summary>
+
+<<< 150-150
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+`publish` writes `value_` and `ready_` without the mutex while `wait` reads them under it: a data race, which is undefined behavior. and because the state changes outside the mutex, the notification can arrive after the consumer checked the predicate but before it went to sleep: a lost wakeup. the fix makes the state change under the same mutex, then notifies:
+
+```cpp
+void publish(double v) {
+    {
+        std::lock_guard lock(m_);
+        value_ = v;
+        ready_ = true;
+    }
+    cv_.notify_one();
+}
+```
+
+note the policy this class implements: a second `publish` before the consumer wakes overwrites the first value, which is right for "latest reading" and wrong for anything that must not be dropped; for that, use the bounded queue.
+
+</details>
+
+### connections
+
+this module was about owning threads and protecting what they share. the next one covers the other tools: futures for one-shot results, atomics and the memory model that explains every "synchronizes with" used so far, and the design rules that keep deadlocks out. underneath all of it is the same idea as [[ownership-in-interfaces]]: decide who owns each piece of state, and the synchronization follows from that decision.
+>>> review-async
+---
+title: review: futures, atomics, and concurrency design
+kind: review
+standard: C++20
+objective: consolidate futures and async, atomics and memory orders, atomic waits, deadlock avoidance, and C++20 coordination primitives
+prerequisites: futures, async, atomics, memory-model, atomic-waiting, deadlocks, sync-primitives
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[futures]] | a one-shot channel for a value or an exception, synchronizing like `join`. |
+| [[async]] | name the launch policy, and keep the futures alive: a discarded `std::async` future blocks. |
+| [[atomics]] | single operations are indivisible; anything spanning two operations needs a CAS loop or a mutex. |
+| [[memory-model]] | release/acquire pairs build happens-before edges for the surrounding data; `relaxed` builds none. |
+| [[atomic-waiting]] | wait and notify instead of spinning, keep hot atomics on separate cache lines, assert lock-freedom. |
+| [[deadlocks]] | break the cycle: `std::scoped_lock`, no unknown code or blocking waits under a lock. |
+| [[sync-primitives]] | latch for startup, barrier for phases, semaphore for limits; prefer existing executors. |
+
+### review questions
+
+<<< 24-33
+<<< 49-54
+<<< 56-56
+4. from [[mutexes]]: a component calls registered callbacks while holding its mutex, and one callback calls back into the component. what happens, and what is the fix?
+
+### mini exercise
+
+<<< 71-101
+
+### answers
+
+<<< 112-117
+
+<<< 126-138
+
+<details>
+<summary>answer 4: callbacks under a lock</summary>
+
+the callback runs on the same thread that already holds the component's `std::mutex`, so its call back into the component tries to lock it again: undefined behavior, in practice usually a self-deadlock. `std::recursive_mutex` would hide the symptom and run the callback against half-updated state. copy what the callbacks need (including the list of callbacks) under the lock, release it, and then call them.
+
+</details>
+
+<<< 154-193
+
+### connections
+
+with this module, the concurrency toolbox is complete: threads and their ownership, mutexes and condition variables, futures, atomics and the memory model, and the C++20 coordination primitives. the recurring design lesson is that the best synchronization is the one you do not need: confinement, message passing, and immutable shared data. the next module steps back from mechanisms to design: SOLID, coupling and cohesion, dependency injection, and patterns, where ownership and lifetimes decide how components are wired together.

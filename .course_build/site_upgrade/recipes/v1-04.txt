@@ -1,0 +1,105 @@
+source: day-04
+refs: 03=temporaries-dangling 10=move-semantics 12=ownership-in-interfaces
+>>> pointers-references
+---
+title: pointers and references
+standard: C++17
+objective: choose between a pointer and a reference by what each can express (null, rebinding, arithmetic), and avoid losing an array's size
+prerequisites: storage-duration, temporaries-dangling
+difficulty: 1
+---
+
+### the idea
+
+`float mean(const float samples[64])` looks like a function that takes 64 floats. it takes a pointer, and inside it `sizeof(samples)` is 8. pointers and references look like small syntax variations on "refer to something elsewhere", but they follow different rules about null, rebinding, arithmetic, and how much of the original type they remember. choosing well starts with knowing those rules precisely.
+
+### understanding the concept
+
+<<< 13-15
+
+<<< 30-32
+
+### in code
+
+<<< 36-92
+
+### in practice
+
+C APIs and hardware drivers speak in pointers and lengths: `read(fd, buf, len)`, a DMA descriptor's base address and byte count, a callback that receives `void* user_data`. keep that style at the boundary and convert to sized types as soon as you are inside your own code. a fixed buffer is better as `std::array<std::uint8_t, 256>` than as a C array, because `std::array` does not decay, can be passed by reference or returned by value, and knows its `size()`. when you do need the length of a built-in array, C++17's `std::size(arr)` refuses to compile on a decayed pointer, where `sizeof(arr) / sizeof(arr[0])` silently computes nonsense. the pointer-plus-length pair that is left over at the boundary is exactly what C++20's `std::span` ([[span]]) packages into one parameter.
+
+### watch out for
+
+**reference members make a class awkward to copy and easy to dangle.** a reference cannot be rebound, so a class that stores one gets no copy assignment:
+
+```cpp
+struct Sensor { int id = 0; };
+
+struct Filter {
+    Sensor& sensor;                 // must be bound at construction, forever
+};
+
+void reassign(Filter& a, const Filter& b) {
+    // a = b;                       // error: copy assignment is implicitly deleted
+}
+```
+
+such a class cannot be reassigned, sorted in a `std::vector`, or reset, and it silently relies on the referenced object outliving it. if the relationship can change or the object must be assignable, store a pointer (`Sensor*`, documented as non-owning) or `std::reference_wrapper<Sensor>` instead. reference members are fine for short-lived helper objects that live entirely inside one function call.
+
+### the takeaway
+
+a reference is a non-null, non-rebindable alias; a pointer is a nullable, rebindable object that may do arithmetic within one array. pick the one whose rules match what you mean, keep sizes in the type where you can, and write `nullptr`.
+
+### optional challenge
+
+which of these lines have undefined behavior?
+
+```cpp
+int a[4] = {};
+int* p = a + 4;             // (1)
+bool at_end = (p == a + 4); // (2)
+int x = *(a + 4);           // (3)
+int* q = a - 1;             // (4)
+```
+
+<details>
+<summary>answer</summary>
+
+(3) and (4). forming the one-past-the-end pointer (1) is allowed, and so is comparing it (2), which yields `true`. dereferencing it (3) is undefined behavior. computing `a - 1` (4) is undefined even if `q` is never used, because pointer arithmetic is only defined from the first element to one past the last. in practice (4) "works" almost everywhere, which is why sanitizers and compiler warnings matter more than intuition here.
+
+</details>
+>>> const-correctness
+---
+title: const as a contract
+standard: C++17
+objective: read and apply const on pointers, references, and member functions, and choose parameter types that state a function's contract
+prerequisites: pointers-references
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 17-28
+
+### in code
+
+<<< 94-124
+
+### in practice
+
+<<< 128-141
+
+### watch out for
+
+<<< 145-164
+
+### the takeaway
+
+<<< 168-168
+
+### optional challenge
+
+<<< 172-198

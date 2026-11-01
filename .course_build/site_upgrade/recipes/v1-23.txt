@@ -1,0 +1,106 @@
+source: day-23
+refs: 06=ub-usual-suspects 19=variadic-templates 25=variant 33=constexpr-evolution
+>>> if-constexpr
+---
+title: compile-time branching with if constexpr
+standard: C++17
+objective: replace SFINAE overload sets with if constexpr, and know exactly what a discarded branch skips
+prerequisites: class-templates, variadic-templates
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-20
+
+### in code
+
+<<< 37-86
+
+### in practice
+
+<<< 137-137
+
+### watch out for
+
+<<< 141-151
+
+### the takeaway
+
+`if constexpr` skips instantiation, not parsing, and only inside templates; it puts a closed set of type-dependent cases in one readable place, which is right when you own the set and wrong when users need to extend it.
+
+### optional challenge
+
+with a plain `if`, does this compile for `T = int`? what changes with `if constexpr`?
+
+```cpp
+#include <type_traits>
+
+template <class T>
+auto count_of(const T& v) {
+    if (std::is_integral_v<T>) return 1;
+    else return v.size();
+}
+```
+
+<details>
+<summary>answer</summary>
+
+with a plain `if` it fails twice for `int`: both branches are instantiated, so `v.size()` is compiled for an `int`, and the two `return` statements deduce different types (`int` and `std::size_t`) for one `auto` function. with `if constexpr`, the discarded branch is not instantiated and its `return` does not take part in return type deduction, so `count_of(42)` returns `int` and `count_of(std::string("ab"))` returns `std::size_t`. whether a function that returns different types per `T` is good API design is a separate question; here returning `std::size_t` from both branches would be kinder to callers.
+
+</details>
+
+### going deeper
+
+#### what a `constexpr` function may do in C++17
+
+<<< 33-33
+>>> fold-expressions
+---
+title: fold expressions
+standard: C++17
+objective: apply an operator across a parameter pack with the right fold form, and use the comma fold for ordered per-argument work
+prerequisites: if-constexpr
+difficulty: 2
+---
+
+### the idea
+
+before C++17, doing something for every element of a parameter pack meant recursion: a function that handles the first argument and calls itself with the rest, plus a base case for the empty pack. it works, it instantiates one function per pack length, and it hides a one-line intent ("log each field", "check that all values are finite") in a small machine. fold expressions write that intent as one expression.
+
+### understanding the concept
+
+<<< 22-31
+
+### in code
+
+<<< 88-114
+
+### in practice
+
+<<< 118-135
+
+### watch out for
+
+**the operand of a fold must be a single cast-expression.** anything with a binary operator inside needs its own parentheses:
+
+```cpp
+template <class... Ts> auto doubled_sum(Ts... xs) {
+    // return (xs * 2 + ...);      // error: binary expression in the fold operand
+    return ((xs * 2) + ... + 0);   // OK: the operand is parenthesized
+}
+```
+
+the outer parentheses belong to the fold syntax, and the inner ones make `xs * 2` one operand. the same applies to the comma fold, which is why the logging example writes `((std::cout << xs << ' '), ...)`. with mixed argument types, also check what type the accumulation runs in: in `(xs + ... + 0)` the first step adds the init value's type to the last element's type, and the usual arithmetic conversions from [[integer-types]] apply at every step.
+
+### the takeaway
+
+a fold turns "for each argument" into one expression; choose left or right and unary or binary deliberately, give non-`&&`/`||`/comma folds an initial value, and use the comma fold when order matters.
+
+### optional challenge
+
+<<< 159-172

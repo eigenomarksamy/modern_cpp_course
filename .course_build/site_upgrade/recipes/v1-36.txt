@@ -1,0 +1,111 @@
+source: day-36
+refs: 08=raii 09=construction-order 38=condition-variables 39=futures 40=memory-model 41=sync-primitives
+>>> threads
+---
+title: std::thread: starting, joining, and passing arguments
+standard: C++17
+objective: start and join threads safely, explain why a joinable std::thread terminates the program on destruction, and pass arguments without dangling
+prerequisites: raii, construction-order, callbacks
+difficulty: 2
+---
+
+### the idea
+
+you have a sensor driver that polls an IMU every 10 ms on its own thread. starting the thread is one line. stopping it correctly, on every path including exceptions and early returns, is where the bugs live. if a `std::thread` object is destroyed while it still represents a running thread, your process does not leak or hang: it calls `std::terminate`. sharing data between threads comes later; it starts with owning threads safely.
+
+### understanding the concept
+
+<<< 13-21
+
+### in code
+
+**how arguments travel.**
+
+<<< 93-114
+
+**a member thread, started too early.**
+
+<<< 37-61
+
+members are initialized in declaration order ([[construction-order]]), so the thread starts before `running_` exists. initializing an atomic is not an atomic operation, so the thread's load races with it: undefined behavior. declaring `running_` first fixes that, but the class still needs a hand-written destructor that stops and joins, and every author writes that shutdown logic slightly differently. [[jthread]] removes it.
+
+### in practice
+
+<<< 148-148
+
+### watch out for
+
+**an exception between starting and joining terminates the program.**
+
+```cpp
+#include <thread>
+
+void process() {
+    std::thread worker(compute);
+    prepare_output();     // if this throws, ~thread runs on a joinable thread: std::terminate
+    worker.join();
+}
+```
+
+the `join` is skipped by the exception, the destructor finds a joinable thread, and the process ends with no stack unwinding report from your code. this is the same "cleanup on every exit path" problem that [[raii]] solved for files, and the same solution applies: a guard that joins in its destructor, which is exactly what `std::jthread` is.
+
+### the takeaway
+
+a `std::thread` must be joined (or, rarely, detached) before it is destroyed, its arguments are copied into the new thread, and anything it references must outlive it; let an RAII owner do the joining.
+
+### optional challenge
+
+what is wrong with this function, and what are two ways to fix it?
+
+```cpp
+void start_logging(const std::vector<Sample>& samples) {
+    std::vector<Sample> buffer = samples;
+    std::thread t([&] { write_all(buffer); });
+    t.detach();
+}
+```
+
+<details>
+<summary>answer</summary>
+
+the lambda captures `buffer` by reference, and `buffer` is destroyed when `start_logging` returns, almost certainly while the detached thread is still writing: undefined behavior. one fix moves the data into the closure, `std::thread t([buf = std::move(buffer)] { write_all(buf); });`, so the thread owns what it uses (and then ask whether detaching is still right at shutdown). the other keeps ownership with the caller: return the thread, or a `std::jthread`, so someone joins it before the data goes away.
+
+</details>
+>>> jthread
+---
+title: std::jthread and cooperative cancellation
+standard: C++20
+objective: own threads with std::jthread, stop them cooperatively with stop tokens, and wake blocked work with stop_callback
+prerequisites: threads
+difficulty: 2
+---
+
+### the idea
+
+every class that owns a `std::thread` ends up with the same hand-written destructor: set a flag, wake the thread if it is waiting, join it. every author gets one detail slightly wrong, and the failure is a hang or a `std::terminate` at shutdown, the least tested path in most programs. C++20's `std::jthread` makes "stop, then join" the default behavior of the thread object itself, and adds a standard vocabulary for asking a thread to stop.
+
+### understanding the concept
+
+<<< 23-31
+
+### in code
+
+<<< 65-89
+
+<<< 116-140
+
+### in practice
+
+<<< 144-146
+
+### watch out for
+
+<<< 152-152
+
+### the takeaway
+
+<<< 156-156
+
+### optional challenge
+
+<<< 162-180

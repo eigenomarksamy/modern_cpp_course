@@ -1,0 +1,106 @@
+source: day-08
+refs: 10=copy-semantics 11=special-members 12=unique-ptr
+>>> raii
+---
+title: RAII: let scope do the cleanup
+standard: C++17
+objective: tie a resource's lifetime to an object so every exit path releases it, and know which exits skip destructors
+prerequisites: storage-duration, undefined-behavior
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 15-25
+
+### in code
+
+<<< 31-81
+
+### in practice
+
+<<< 120-141
+
+### watch out for
+
+**destructors must not throw, and release can fail anyway.**
+
+<<< 27-27
+
+<<< 145-145
+
+### the takeaway
+
+<<< 158-158
+
+### optional challenge
+
+<<< 162-192
+>>> scope-guards
+---
+title: scope guards: cleanup without a new class
+standard: C++17
+objective: use a scope guard for one-off cleanup and commit-or-rollback logic, and avoid the unnamed-guard trap
+prerequisites: raii
+difficulty: 1
+---
+
+### the idea
+
+not every cleanup deserves its own class. restoring a flag after a calibration routine, unregistering a callback, rolling back the first two steps of a three-step configuration change when the third fails: each happens once, in one function, and still has to happen on every exit path. writing a dedicated RAII type for each is ceremony; writing the cleanup by hand at every `return` is the bug RAII exists to prevent. a scope guard sits in between.
+
+### understanding the concept
+
+<<< 83-83
+
+a scope guard is a tiny RAII type whose "resource" is an arbitrary callable. its destructor runs the callable unless the guard has been *dismissed*. that one extra bit of state gives two useful shapes:
+
+- **always run:** arm the guard right after acquiring something, and the cleanup runs however the scope ends.
+- **commit or roll back:** arm a rollback before a multi-step change, and dismiss it after the last step succeeds. if anything throws or returns early, the destructor undoes the partial work.
+
+### in code
+
+<<< 85-116
+
+### in practice
+
+applying a new configuration to a running sensor driver touches several pieces of state, and a half-applied configuration is worse than the old one:
+
+```cpp
+void Driver::apply(const Config& next) {
+    const Config previous = config_;
+    ScopeGuard rollback{[&] { config_ = previous; push_to_hardware(config_); }};
+
+    config_ = next;
+    push_to_hardware(config_);   // may throw: device rejected a register write
+    restart_streams();           // may throw: stream did not come back
+    rollback.dismiss();          // every step succeeded: keep the new config
+}
+```
+
+the rollback lambda captures by reference, which is safe here because the guard cannot outlive the function's locals. the order of the code now reads like the intent: remember, arm the undo, do the work, commit. note that the rollback itself calls `push_to_hardware`, which can throw; a destructor that throws during unwinding terminates the program, so a production guard would catch and log inside the rollback.
+
+### watch out for
+
+**an unnamed guard guards nothing.**
+
+<<< 149-154
+
+### the takeaway
+
+when cleanup or rollback is needed once, in one place, arm a named scope guard next to the code that creates the need, and dismiss it at the point of commit.
+
+### optional challenge
+
+a function locks a mutex with `std::lock_guard<std::mutex> lock{m};` and then arms `ScopeGuard g{[&] { log_state(); }};`, where `log_state()` reads data protected by `m`. when the function returns, is the data still protected while `log_state()` runs?
+
+<details>
+<summary>answer</summary>
+
+yes. automatic objects are destroyed in reverse order of construction, so `g` (constructed second) runs its callable first, while `lock` still holds the mutex, and only then is `lock` destroyed. if the declarations were swapped, the mutex would be released before `log_state()` ran, and the read would race with other threads. with several guards in one scope, the declaration order *is* the cleanup order, so declare them in the order of acquisition.
+
+</details>

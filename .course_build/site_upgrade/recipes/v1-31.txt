@@ -1,0 +1,70 @@
+source: day-31
+refs: 04=const-correctness 26=string-view 30=views
+>>> span
+---
+title: std::span: views over contiguous memory
+standard: C++20
+objective: replace pointer-plus-length parameters with std::span, use static extents as contracts, and keep spans from outliving their buffers
+prerequisites: string-view, view-lifetimes
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 15-24
+
+### in code
+
+<<< 28-76
+
+### in practice
+
+<<< 99-100
+```cpp
+class RangeDopplerFrame {
+public:
+    RangeDopplerFrame(std::size_t doppler_bins, std::size_t range_bins)
+        : range_bins_(range_bins), cells_(doppler_bins * range_bins) {}
+    std::span<float> row(std::size_t d) {                 // borrow one row, no copy
+        return std::span(cells_).subspan(d * range_bins_, range_bins_);
+    }
+    std::span<const float> cells() const { return cells_; }
+private:
+    std::size_t range_bins_;
+    std::vector<float> cells_;
+};
+
+float peak(std::span<const float> cells);   // CFAR, FFT, stats: none know about the frame
+```
+
+<<< 126-126
+
+### watch out for
+
+<<< 132-140
+
+### the takeaway
+
+<<< 146-146
+
+### optional challenge
+
+<<< 150-165
+
+### going deeper
+
+#### bytes for serialization
+
+<<< 80-95
+
+#### span, string_view, and range views
+
+<<< 128-128
+
+#### a `const` span is not a span of `const`
+
+<<< 142-142

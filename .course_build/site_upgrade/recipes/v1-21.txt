@@ -1,0 +1,90 @@
+source: day-21
+refs: 15=associative-containers 17=lambdas 11=special-members
+>>> review-library
+---
+title: review: containers, algorithms, and lambdas
+kind: review
+standard: C++17
+objective: consolidate container choice and invalidation, algorithms over iterator ranges, and lambda captures and lifetimes
+prerequisites: sequence-containers, associative-containers, algorithms, lambdas, callbacks
+difficulty: 1
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[sequence-containers]] | start with `std::vector`; complexity, memory layout, and invalidation rules are all part of a container's contract. |
+| [[associative-containers]] | ordered map for order and stable references, hash map for fast lookups, sorted vector for read-mostly data; `operator[]` inserts. |
+| [[algorithms]] | algorithms see iterators, never containers: half-open ranges, erase-remove, `back_inserter`, and why `std::sort` cannot sort a list. |
+| [[lambdas]] | a lambda is an object whose members are its captures; by-value captures are snapshots. |
+| [[callbacks]] | a stored lambda must not capture what it outlives; `std::function` erases the type at the cost of an indirect call and a copyable callable. |
+
+### review questions
+
+<<< 22-22
+2. predict the output:
+
+   ```cpp
+   std::vector<int> v{5, 1, 4, 2, 3};
+   int threshold = 2;
+   auto above = [threshold](int x) { return x > threshold; };
+   threshold = 4;
+   std::cout << std::count_if(v.begin(), v.end(), above) << '\n';
+   ```
+
+3. why does `std::transform(in.begin(), in.end(), out.begin(), f)` with an empty `out` corrupt memory, while the same call with `std::back_inserter(out)` works?
+4. a per-point filter in a hot loop takes `const std::function<bool(const Point&)>&`. a profiler shows the call overhead. what changes, and what do you give up?
+5. from [[special-members]]: a teammate adds `~Telemetry() { log("closed"); }` to an otherwise rule-of-zero class holding a `std::vector<Sample>`. everything still compiles. what did that change cost?
+
+### mini exercise
+
+<<< 62-82
+
+### answers
+
+<details>
+<summary>answer 1: rehash versus vector</summary>
+
+<<< 89-89
+
+</details>
+
+<details>
+<summary>answer 2: predict the output</summary>
+
+<<< 96-96
+
+</details>
+
+<details>
+<summary>answer 3: algorithms cannot grow containers</summary>
+
+an algorithm only has iterators, so it cannot add elements. with an empty `out`, `out.begin()` equals `out.end()`, and `transform` writes past the end: undefined behavior. `std::back_inserter(out)` is an output iterator whose assignment calls `out.push_back`, so the container grows through an adaptor the caller chose. `out.resize(in.size())` before the call also works.
+
+</details>
+
+<details>
+<summary>answer 4: std::function versus a template</summary>
+
+make the filter a template parameter (`template <typename Pred> ... Pred&& keep`). the compiler then knows the callable's type, can inline it into the loop, and may vectorize the loop. you give up a single compiled function in a `.cpp` file: the template must live in a header, is instantiated per callable type, and adds compile time. keep `std::function` for low-frequency boundaries such as per-frame callbacks.
+
+</details>
+
+<details>
+<summary>answer 5: a user-declared destructor</summary>
+
+<<< 124-124
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+<<< 131-160
+
+</details>
+
+### connections
+
+this module put the first two modules to work: iterator invalidation is the lifetime rules of [[temporaries-dangling]] applied to containers, the vector's copy-or-move choice is [[noexcept-moves]], and a lambda's captures are ownership decisions like any other members. the next module looks inside the machinery the library is built from: templates, deduction, and perfect forwarding, which is how `emplace_back` passes its arguments through.

@@ -1,0 +1,52 @@
+source: day-24
+refs: 22=init-statements 04=pointers-references 10=move-semantics 20=error-strategy 25=variant
+>>> optional
+---
+title: std::optional: modeling "maybe"
+standard: C++17
+objective: use std::optional for values whose absence is a normal outcome, and avoid its unchecked access, comparison, and bool traps
+prerequisites: error-strategy, init-statements
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-32
+
+### in code
+
+<<< 36-86
+
+### in practice
+
+<<< 108-120
+
+### watch out for
+
+<<< 126-138
+
+### the takeaway
+
+<<< 144-144
+
+### optional challenge
+
+<<< 148-155
+
+### going deeper
+
+#### in-place construction
+
+<<< 88-104
+
+#### optional parameters
+
+<<< 122-122
+
+#### C++23 monadic operations
+
+<<< 140-140

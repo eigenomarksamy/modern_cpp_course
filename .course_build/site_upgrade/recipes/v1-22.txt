@@ -1,0 +1,104 @@
+source: day-22
+refs: 03=temporaries-dangling 06=undefined-behavior 15=associative-containers 24=optional
+>>> structured-bindings
+---
+title: structured bindings
+standard: C++17
+objective: name the parts of pairs, tuples, arrays, and aggregates with structured bindings, and know what the qualifiers and names really refer to
+prerequisites: associative-containers, temporaries-dangling
+difficulty: 2
+---
+
+### the idea
+
+look at a typical pre-C++17 map loop or insertion: `it->first`, `it->second`, `result.first->second`, and `result.second` sprinkled through the body. nothing is wrong with it, but the names say nothing (`first` of what?), and every reader has to decode them again. structured bindings let you name the parts of a result where you receive it. the syntax is small; what it actually declares is less obvious than it looks.
+
+### understanding the concept
+
+<<< 13-34
+
+### in code
+
+<<< 48-68
+
+### in practice
+
+<<< 140-157
+
+### watch out for
+
+<<< 161-171
+
+### the takeaway
+
+a structured binding names the parts of one hidden object: the qualifiers apply to that object, and the names follow member order, so use them freely for pairs, tuples, and map entries, and prefer member access for structs that may evolve.
+
+### optional challenge
+
+<<< 179-194
+>>> init-statements
+---
+title: if and switch initializers, and attributes that catch mistakes
+standard: C++17
+objective: scope helper variables to the decision they serve with if and switch initializers, and use nodiscard, maybe_unused, and fallthrough to make intent checkable
+prerequisites: structured-bindings
+difficulty: 1
+---
+
+### the idea
+
+an iterator declared at function scope for one lookup stays in scope for the rest of the function, where it can be reused by mistake. a function whose result must be checked returns a `bool` that callers forget to look at. a `switch` case falls through to the next one, and nobody can tell whether that was intended. none of these is a bug yet; each is a place where intent lives in the author's head instead of in the code. C++17 added small features that move it into the code, where the compiler can check it.
+
+### understanding the concept
+
+<<< 36-44
+
+### in code
+
+<<< 70-103
+
+<<< 105-136
+
+### in practice
+
+`[[nodiscard]]` pays off most when it is applied consistently rather than occasionally. good candidates: functions that return an error code or status, functions with no side effects (computing a value and dropping it is always a bug), `try_`-style operations whose result says whether anything happened, and factories that return a resource the caller must own. C++20 applied the same reasoning to the standard library: `empty()` on every container is `[[nodiscard]]`, which turns the classic slip `v.empty();` (meant: `v.clear();`) into a warning. building with `-Werror=unused-result` (GCC) or treating the corresponding warning as an error makes the attribute a rule instead of a suggestion.
+
+### watch out for
+
+**an initializer lives for the whole statement, `else` included.** that is what makes it useful, and it also means a resource acquired there is held across every branch:
+
+```cpp
+#include <mutex>
+
+void drain(std::mutex& m, bool& ready) {
+    if (std::lock_guard lock{m}; ready) {
+        ready = false;
+    } else {
+        slow_retry();      // still holding the lock: probably not what was meant
+    }
+}
+```
+
+the lock is released only at the end of the whole `if` statement. when a branch must run without the resource, keep the acquisition in a narrower scope of its own instead of the `if` initializer.
+
+### the takeaway
+
+declare helper variables in the `if` or `switch` that uses them, so a reader knows they cannot leak into the rest of the function, and mark results that must not be ignored with `[[nodiscard]]`.
+
+### optional challenge
+
+in which of the blocks `A`, `B`, `C`, and `D` are `it` and `jt` visible?
+
+```cpp
+if (auto it = m.find(k1); it != m.end()) { /* A */ }
+else if (auto jt = m.find(k2); jt != m.end()) { /* B */ }
+else { /* C */ }
+/* D */
+```
+
+<details>
+<summary>answer</summary>
+
+`it` is visible in `A`, `B`, and `C`, because the `else if` is a nested `if` statement inside the first one's `else` branch. `jt` is visible in `B` and `C`. neither exists in `D`. that nesting is also why a chain of `else if` initializers can see all of the earlier ones.
+
+</details>

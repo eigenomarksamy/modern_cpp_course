@@ -1,0 +1,89 @@
+source: day-53
+refs: 06=ub-usual-suspects 08=raii 34=format 40=memory-model 41=deadlocks 44=dependency-injection 50=benchmarking 52=allocation-costs
+>>> testing
+---
+title: testing that catches real bugs
+standard: C++20
+objective: structure tests by the test pyramid, test behavior through injected seams, and add property tests, fuzzing, and sanitizer builds where they pay off
+prerequisites: test-seams, cpp20-small-features
+difficulty: 2
+---
+
+### the idea
+
+tests tell you the code did what you expected on inputs you thought of. the useful questions are which inputs, at which level, and against what: a test that pins down the exact boundary of a watchdog's timeout catches more bugs than a dozen tests of the happy path, and a test that asserts how a function did its job breaks on every refactor while catching nothing.
+
+### understanding the concept
+
+<<< 13-17
+
+### in code
+
+<<< 27-81
+
+### in practice
+
+<<< 155-171
+
+### watch out for
+
+**tests that sleep.** the tempting way to test a timeout uses real time:
+
+```cpp
+Watchdog dog(system_clock_adapter, 100ms);
+std::this_thread::sleep_for(150ms);
+check(dog.expired(), "trips after the timeout");   // slow, and flaky on a loaded CI machine
+```
+
+every such test adds real seconds to the suite, and the margins that make it pass on a laptop fail on a busy CI runner, where the thread may be descheduled for longer than the margin. it also cannot test the exact boundary. inject the clock and advance it explicitly, as the fake-clock test above does: the test becomes instant, deterministic, and precise.
+
+### the takeaway
+
+push each check as low in the pyramid as it can go, test behavior rather than call sequences, inject time and I/O so tests are deterministic, and let sanitizers and fuzzers search the inputs you did not think of.
+
+### optional challenge
+
+<<< 185-192
+>>> observability
+---
+title: observability: logs, metrics, and traces
+standard: C++20
+objective: instrument production code with structured logs, cheap metrics, and spans, without letting the instrumentation disturb the code it observes
+prerequisites: testing, atomics, raii
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 19-23
+
+### in code
+
+<<< 83-151
+
+### in practice
+
+<<< 173-173
+
+### watch out for
+
+<<< 177-177
+
+### the takeaway
+
+design for "what is it doing?" from the start: structured logs for events, counters and histograms for rates and latencies, spans for where time went, all built so that observing the system does not change it.
+
+### optional challenge
+
+with `LatencyHistogram`'s log2 buckets, which bucket does a 5 µs cycle land in, and which does a 1 ms cycle land in? what does that bucketing make easy, and what does it give up?
+
+<details>
+<summary>answer</summary>
+
+5 µs: `std::bit_width(5)` is 3, so bucket 3, covering [4, 8) µs. 1 ms is 1000 µs: `std::bit_width(1000)` is 10, so bucket 10, covering [512, 1024) µs. log2 buckets cover microseconds to seconds with a couple of dozen counters and one cheap instruction per record, which is what makes them safe in a control loop, and percentiles such as p99 can be estimated from them. what they give up is resolution: within a bucket, 520 µs and 1000 µs are indistinguishable, so a regression from 600 to 900 µs is invisible. finer buckets (or several sub-buckets per power of two) trade memory for precision.
+
+</details>

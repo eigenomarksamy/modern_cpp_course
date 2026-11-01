@@ -1,0 +1,93 @@
+source: day-46
+refs: 25=variant-design 52=allocation-costs
+>>> static-polymorphism
+---
+title: one call, many types: choosing a polymorphism mechanism
+standard: C++20
+objective: compare virtual functions, templates with concepts, std::variant, and type erasure, and use static polymorphism where the choice is made at compile time
+prerequisites: strategy, writing-concepts, variant-design
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 15-27
+
+### in code
+
+<<< 33-64
+
+### in practice
+
+<<< 141-146
+
+### watch out for
+
+**the CRTP copy-paste bug.** the base trusts its template argument completely:
+
+```cpp
+class StrainGauge : public SensorBase<Thermistor> {   // BUG: copied from Thermistor
+public:
+    int raw() const { return 512; }
+    double scale() const { return 0.2; }
+};
+```
+
+`StrainGauge{}.read_si()` compiles and casts a `StrainGauge` to `const Thermistor&`, which it is not: undefined behavior. a common guard is a private constructor in the base with `friend Derived;`, so only the class named in the template argument can construct it, and the mistake fails to compile. the concept-based version has no such hole, which is one more reason to prefer it in C++20.
+
+### the takeaway
+
+choose by the shape of the problem: virtual functions for open sets behind pointers and binary boundaries, templates and concepts for compile-time choice and speed, `std::variant` for closed sets, and type erasure for open sets with value semantics; measure before choosing on performance.
+
+### optional challenge
+
+the telemetry recorder from the opening must store IMU samples (your type), battery states (another team's type, which you can change), and GPS fixes (a vendor type you cannot change), by value, in one container, and new record types are added every few months. which of the four options fits, and why do the others not?
+
+<details>
+<summary>answer</summary>
+
+type erasure. a virtual base class fails on the vendor type, which cannot inherit from it, and forces pointer semantics. templates and concepts give no single type to store in one container. a `std::variant` could hold the three types, but the set keeps growing, and every addition changes the variant type and every visitor; that is acceptable for a protocol you own, less so for an open-ended set. type erasure keeps an open set, value semantics, and requires nothing of the stored types except the operations the wrapper uses, which [[type-erasure]] builds.
+
+</details>
+>>> type-erasure
+---
+title: type erasure: value semantics without inheritance
+standard: C++20
+objective: implement a small type-erased wrapper with an internal concept and model, and know its costs compared with a plain virtual interface
+prerequisites: static-polymorphism, callbacks, rule-of-zero
+difficulty: 3
+---
+
+### the idea
+
+`std::function<void()>` holds a lambda, a function pointer, or your own function object, and none of them inherits from anything. you store them by value, copy them, and put them in a vector. the trick behind it is not specific to callables: any set of operations can be wrapped this way, which lets a library accept types it has never seen without asking them to derive from its base class.
+
+### understanding the concept
+
+<<< 29-29
+
+### in code
+
+<<< 66-137
+
+### in practice
+
+<<< 148-148
+
+the same structure appears wherever a library must accept arbitrary user types by value: `std::function` for callables, `std::any` for anything copyable, custom wrappers for "anything drawable", "anything serializable", or "anything that can be a task". writing one is a deliberate trade: forty lines of wrapper code, written once, against a constraint imposed on every user type forever.
+
+### watch out for
+
+<<< 152-154
+
+### the takeaway
+
+type erasure hides inheritance inside a wrapper: a template constructor captures the concrete type in a private model, and users get plain value types; use it when you need value semantics or must accept types that cannot inherit, and prefer a simple virtual interface otherwise.
+
+### optional challenge
+
+<<< 162-169

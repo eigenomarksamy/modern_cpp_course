@@ -1,0 +1,86 @@
+source: day-43
+refs: 13=composition-over-inheritance 44=dependency-injection 47=api-stability
+>>> solid
+---
+title: SOLID as heuristics, not rules
+standard: C++17
+objective: read the five SOLID principles as predictions about the cost of change, and separate responsibilities where change actually happens
+prerequisites: composition-over-inheritance, ownership-in-interfaces
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 15-23
+
+### in code
+
+<<< 31-71
+
+### in practice
+
+<<< 141-150
+
+### watch out for
+
+<<< 154-156
+
+### the takeaway
+
+SOLID is a set of tools for predicting the cost of change: use them to place seams where change actually happens, let the consumer own the interface, and keep everything else concrete and boring.
+
+### optional challenge
+
+<<< 164-171
+>>> coupling-cohesion
+---
+title: coupling, cohesion, and physical design
+standard: C++17
+objective: judge a design by what must change and what must recompile together, invert dependencies with consumer-owned interfaces, and keep headers light
+prerequisites: solid, linkage-odr
+difficulty: 2
+---
+
+### the idea
+
+two modules that look independent on an architecture diagram can still be welded together: change one header, and four hundred files recompile; change one data format, and three teams edit the same file. the vocabulary for this is older than SOLID and more general: coupling and cohesion. C++ adds a dimension that most languages hide, because its build model makes every `#include` a dependency you pay for in compile time.
+
+### understanding the concept
+
+<<< 25-27
+
+### in code
+
+<<< 73-137
+
+### in practice
+
+in a large C++ codebase, the build graph is something you can measure and manage like any other architecture. the questions worth asking of a widely included header are: what does it include, and does each include provide something the header itself uses by size or by member? replace includes with forward declarations where a pointer, reference, or function declaration suffices; move implementation-only includes into the `.cpp`; and split headers that serve unrelated clients (a header with both the public API and the test helpers forces both on everyone). GCC's `-H` flag prints the include tree of a translation unit, and Clang's `-ftime-trace` shows where compile time goes, which turns "this build feels slow" into a list of specific headers.
+
+### watch out for
+
+**relying on transitive includes.** a file that uses `std::vector` but compiles only because some other header it includes happens to include `<vector>` is coupled to that other header's private choices. the day that header switches to a forward declaration (exactly the improvement this lesson recommends), unrelated files stop compiling. "include what you use": every file includes the headers for the names it uses directly. tools such as include-what-you-use and `clang-tidy`'s `misc-include-cleaner` check it mechanically.
+
+### the takeaway
+
+coupling is what must change together and cohesion is what belongs together; in C++, also ask what must recompile together, because your header graph is part of your design.
+
+### optional challenge
+
+`tracker.h` is included by 300 files. which of these edits to it force all 300 to recompile, and which change the class layout that compiled clients depend on?
+
+1. adding a private data member to `Tracker`
+2. adding a private non-virtual member function declaration
+3. changing a member function's body, which is defined in `tracker.cpp`
+4. changing the default argument of a public member function
+
+<details>
+<summary>answer</summary>
+
+with a typical timestamp-based build, (1), (2), and (4) recompile all 300 files, because the header's text changed; (3) recompiles only `tracker.cpp`. of those, only (1) changes the layout: `sizeof(Tracker)` and member offsets are baked into every client that creates or embeds a `Tracker`, so a client compiled against the old header and linked with the new `.cpp` would be broken. (2) changes no layout, and (4) changes only call sites (default arguments are substituted by the caller), but both still trigger rebuilds. the pimpl idiom in [[api-stability]] moves private members out of the header so that edits like (1) and (2) stop rippling.
+
+</details>

@@ -1,0 +1,93 @@
+source: day-41
+refs: 37=mutexes 38=blocking-queue 39=futures 45=observer
+>>> deadlocks
+---
+title: deadlocks: breaking the cycle
+standard: C++17
+objective: recognize the conditions for deadlock, take multiple locks safely, and keep unknown code and blocking waits out of critical sections
+prerequisites: mutexes, condition-variables
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-19
+
+### in code
+
+<<< 31-88
+
+### in practice
+
+<<< 164-170
+
+### watch out for
+
+**waiting while holding a lock.** a deadlock does not need two mutexes. any blocking wait performed under a lock can close a cycle:
+
+```cpp
+void Driver::stop() {
+    std::lock_guard lock(m_);
+    running_ = false;
+    worker_.join();        // BUG: if the worker needs m_ to finish its iteration, both wait forever
+}
+```
+
+the worker is blocked on `m_`, and the thread holding `m_` is blocked on the worker. the same shape appears with `future::get()`, a condition variable on a different mutex, or a synchronous call into another component. update the shared state under the lock, release it, and only then wait.
+
+### the takeaway
+
+<<< 178-178
+
+### optional challenge
+
+<<< 182-189
+>>> sync-primitives
+---
+title: latches, barriers, semaphores, and thread pools
+standard: C++20
+objective: coordinate threads with std::latch, std::barrier, and std::counting_semaphore, and understand what a minimal thread pool does and lacks
+prerequisites: deadlocks, blocking-queue, futures
+difficulty: 2
+---
+
+### the idea
+
+"wait until every driver has initialized", "let all four simulation threads finish this step before anyone starts the next", "never run more than four uploads at once": these are common coordination needs, and before C++20 each one was a hand-written mix of a mutex, a condition variable, and a counter, with the usual opportunities for lost wakeups. C++20 standardized three small primitives for exactly these shapes, and they compose naturally with the queue you already have into the simplest kind of thread pool.
+
+### understanding the concept
+
+<<< 21-27
+
+### in code
+
+<<< 90-133
+
+<<< 135-160
+
+### in practice
+
+how many threads should a pool have? for CPU-bound work, about one per core is the usual starting point, and `std::thread::hardware_concurrency()` is a hint for that (it may return 0). for work that blocks on I/O, more threads keep the cores busy while others wait, and the right number is found by measuring. two rules hold in either case. keep latency-critical threads, such as a control loop, out of general-purpose pools, so a burst of background work cannot delay them; give them their own dedicated thread. and prefer an existing executor in production: the hard parts (results, exceptions, fairness, nested tasks, shutdown) are already solved there.
+
+### watch out for
+
+<<< 174-174
+
+### the takeaway
+
+use a latch for one-time startup synchronization, a barrier for lock-step phases, and a semaphore to bound concurrency, each wrapped so it cannot be left in the wrong state; and keep blocking waits out of pool tasks.
+
+### optional challenge
+
+in `start_drivers`, why must the latch be declared before the vector of `std::jthread`s? what could go wrong if the declarations were swapped?
+
+<details>
+<summary>answer</summary>
+
+locals are destroyed in reverse order of declaration. with the latch declared first, the vector is destroyed first: every `jthread` requests stop and joins, so no driver thread can still be using the latch when it is destroyed. swapped, the latch would be destroyed before the threads are joined, and a driver that is slow to initialize could call `count_down()` on a destroyed object, which is undefined behavior. it is the same rule as declaring a `jthread` member last in [[jthread]].
+
+</details>

@@ -1,0 +1,116 @@
+source: day-01
+refs: 01=build-pipeline
+>>> build-pipeline
+---
+title: from source file to running program
+standard: C++17
+objective: trace how source files become a program, and tell which build stage produced an error
+prerequisites: none
+difficulty: 1
+---
+
+### the idea
+
+you add a call to a function declared in a header, the file compiles without a murmur, and the build fails at the very last step: `undefined reference to 'calibrate(Sensor&)'`. the compiler was satisfied and the linker was not, because they answer different questions. most build errors that feel mysterious stop being mysterious once you know which stage produced them and how little each stage can see.
+
+### understanding the concept
+
+<<< 13-37
+
+<<< 51-51
+
+### in code
+
+**a missing definition.** a declaration is all the compiler needs to emit a call:
+
+```cpp
+// calib.h
+struct Sensor;
+void calibrate(Sensor& s);               // declaration only
+
+// main.cpp
+#include "calib.h"
+void run(Sensor& s) { calibrate(s); }    // compiles: the declaration is enough
+```
+
+```text
+main.o: in function `run(Sensor&)': undefined reference to `calibrate(Sensor&)'
+```
+
+the compiler emitted a call to a symbol named `calibrate(Sensor&)` (mangled as `_Z9calibrateR6Sensor`) and moved on. the linker searched every object file and library on its command line and found no definition. it cannot tell you why, only that the name is missing.
+
+<<< 55-69
+
+the guard did its job (one copy per translation unit), and the result is still two definitions in the program. the plain fix is to declare the function in the header and define it in one `.cpp`. the other fixes, `inline` and `static`, change the function's linkage, which is the subject of [[linkage-odr]].
+
+### in practice
+
+in a CMake project, the link errors you meet most often point at build configuration rather than code. "undefined reference" usually means a source file or library is missing from a target: a `.cpp` left out of `add_library`, or a forgotten `target_link_libraries`. "multiple definition" usually means a header defines something it should only declare. and an undefined reference to a function you can *see* defined usually means the declaration and the definition disagree: a missing `const` on a reference parameter, a different namespace, or C code called without `extern "C"`. in each case the two mangled names differ, so to the linker they are unrelated. read the demangled name in the error character by character (`c++filt` turns `_Z9calibrateR6Sensor` back into `calibrate(Sensor&)`) and compare it with the definition; that answers most of these in seconds.
+
+### watch out for
+
+**the linker checks names, not types.** declaring someone else's function by hand instead of including its header can link and still be wrong:
+
+```cpp
+// parse.cpp
+#include <cstdlib>
+long parse_count(const char* text) { return std::strtol(text, nullptr, 10); }
+
+// main.cpp: declares it by hand instead of including a header
+int parse_count(const char* text);       // BUG: wrong return type, links anyway
+```
+
+on the Itanium C++ ABI used by GCC and Clang on Linux and macOS, the mangled name of an ordinary function encodes its name, namespace, and parameter types, but not its return type. both declarations produce the same symbol, so the program links, and every call reads an `int` where the function returned a `long`. the standard calls this ill-formed, no diagnostic required: the program has no defined meaning, and nothing is obliged to tell you. the defense is a habit. declare each function in exactly one header, include that header in the `.cpp` that defines it (so the compiler compares the two), and never re-declare a function by hand.
+
+### the takeaway
+
+the compiler checks one translation unit against the declarations it can see; the linker only matches names. a link error is a question about which definitions are in the program, not about your code's logic.
+
+### optional challenge
+
+`sensors.h` declares `namespace sensors { void reset_all(); }`. `sensors.cpp` includes it and defines `void reset_all() { /* ... */ }`. `main.cpp` calls `sensors::reset_all()`. every file compiles. what does the linker report, and why did the compiler not catch the mistake?
+
+<details>
+<summary>answer</summary>
+
+`undefined reference to 'sensors::reset_all()'`. `sensors.cpp` defined a different function, `::reset_all()` in the global namespace. that is a perfectly legal new function, so the compiler had nothing to complain about, and the symbol `main.o` needs is defined nowhere.
+
+writing the definition with a qualified name, `void sensors::reset_all() { ... }`, makes the compiler check that a matching declaration exists in `sensors`, which turns this whole class of mistake into a compile error in the file that made it.
+
+</details>
+>>> linkage-odr
+---
+title: linkage and the one definition rule
+standard: C++17
+objective: predict whether a name in two translation units is one entity or two, and keep header definitions ODR-safe
+prerequisites: build-pipeline
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 39-49
+
+### in code
+
+<<< 72-110
+
+### in practice
+
+<<< 114-124
+
+### watch out for
+
+<<< 128-135
+
+### the takeaway
+
+<<< 139-139
+
+### optional challenge
+
+<<< 143-161

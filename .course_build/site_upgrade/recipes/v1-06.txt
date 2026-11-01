@@ -1,0 +1,97 @@
+source: day-06
+refs: 01=linkage-odr 03=temporaries-dangling 40=atomics
+>>> undefined-behavior
+---
+title: undefined behavior and the optimizer
+standard: C++17
+objective: tell undefined, unspecified, and implementation-defined behavior apart, and explain how the optimizer turns UB into deleted checks
+prerequisites: integer-types, pointers-references
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-23
+
+### in code
+
+<<< 39-67
+
+### in practice
+
+<<< 114-128
+
+### watch out for
+
+**"it works on my machine" is the defining property of UB, not a defense against it.** a program with undefined behavior can produce the right answer in every test, then change behavior after a compiler upgrade, a new optimization level, or an unrelated edit that changes inlining. passing tests prove that the paths you ran did what you expected, on that build. they say nothing about what the program means.
+
+<<< 136-136
+
+### the takeaway
+
+<<< 140-140
+
+### optional challenge
+
+<<< 144-163
+>>> ub-usual-suspects
+---
+title: the usual suspects: aliasing, punning, and evaluation order
+standard: C++17
+objective: recognize the everyday patterns that cause undefined or unspecified behavior, and use the safe spelling of each
+prerequisites: undefined-behavior
+difficulty: 2
+---
+
+### the idea
+
+most undefined behavior in production code comes from a handful of patterns that look completely ordinary: a cast that reinterprets a byte buffer as a struct, an index one past the end, an argument list with two calls that touch the same state. you do not need to memorize the standard's whole list. you need to recognize these patterns on sight and know the safe way to write each one.
+
+### understanding the concept
+
+<<< 25-35
+
+<<< 91-91
+
+### in code
+
+<<< 69-89
+
+### in practice
+
+<<< 95-112
+
+### watch out for
+
+<<< 132-134
+
+### the takeaway
+
+reinterpret bytes with `std::memcpy` or `std::bit_cast`, never through a cast pointer; never let a result depend on the order in which function arguments are evaluated; and for every other suspect, know which sanitizer catches it.
+
+### optional challenge
+
+classify each line as well-defined, unspecified, or undefined. `v` is a `std::vector<int>` holding three elements and `next()` returns an increasing counter.
+
+```cpp
+int a = v[v.size()];                                      // (1)
+float f = 1.0f;
+unsigned char b = *reinterpret_cast<unsigned char*>(&f);  // (2)
+std::printf("%d %d\n", next(), next());                   // (3)
+int* p = new int[4];
+delete p;                                                 // (4)
+```
+
+<details>
+<summary>answer</summary>
+
+1. undefined: `operator[]` does not check bounds, and index 3 is past the end. `v.at(v.size())` would throw `std::out_of_range` instead.
+2. well-defined: any object may be read through `char`, `unsigned char`, or `std::byte`. *which* byte you get depends on the platform's byte order, which is implementation-defined, but the access itself is fine.
+3. unspecified: the two calls happen in some order, each completely before the other, so the program may print `1 2` or `2 1`, but nothing worse.
+4. undefined: memory from `new[]` must be released with `delete[]`. this "works" on many allocators for `int`, and corrupts the heap for types with destructors.
+
+</details>

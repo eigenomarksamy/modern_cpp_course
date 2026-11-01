@@ -1,0 +1,85 @@
+source: day-32
+refs: 09=constructors 29=writing-concepts
+>>> defaulted-comparisons
+---
+title: defaulted comparisons and the spaceship operator
+standard: C++20
+objective: replace hand-written comparison operators with a defaulted operator<=> and operator==, and know how C++20 rewrites comparison expressions
+prerequisites: writing-concepts, object-layout
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 15-21
+
+### in code
+
+<<< 35-58
+
+### in practice
+
+defaulted comparisons pay off in the types that are compared most: keys in `std::set` and `std::map`, values checked in unit tests, messages deduplicated in a cache. one line gives a struct a complete, consistent set of operators, and when someone adds a field, equality and ordering include it automatically instead of silently ignoring it, as a forgotten line in a hand-written `operator<` would. that automatic inclusion deserves a moment in code review: adding a `last_seen_s` timestamp to a track that is used as a map key changes which tracks compare equal. whether a field participates in a type's identity is a design decision, and with defaulted comparisons the declaration is where that decision lives.
+
+### watch out for
+
+**declaration order is behavior.**
+
+<<< 60-60
+
+<<< 140-140
+
+### the takeaway
+
+default `<=>` (and get `==` with it) when member-wise comparison in declaration order is what you mean; then the compiler writes every operator, consistently, and keeps them up to date.
+
+### optional challenge
+
+<<< 148-159
+>>> comparison-categories
+---
+title: comparison categories and custom orderings
+standard: C++20
+objective: choose an honest comparison category, write a custom operator<=> with a consistent operator==, and keep NaN out of algorithms that need a strict weak ordering
+prerequisites: defaulted-comparisons
+difficulty: 3
+---
+
+### the idea
+
+one `float` member silently changes what "less than" means for a whole struct, and with it whether `std::sort` on a vector of them has defined behavior. case-insensitive keys are ordered but two different strings can compare equivalent. comparison categories make those distinctions part of the type of `<=>`'s result, so the compiler and every reader can see what kind of order a type really has.
+
+### understanding the concept
+
+<<< 23-31
+
+### in code
+
+<<< 62-105
+
+### in practice
+
+<<< 109-129
+
+### watch out for
+
+<<< 133-138
+
+### the takeaway
+
+<<< 144-144
+
+### optional challenge
+
+which comparison category should `operator<=>` return for each type: (a) a timestamp stored as integer nanoseconds; (b) a file path compared case-insensitively; (c) a 2D point ordered by its distance from the origin; (d) a sensor reading whose value is a `double`?
+
+<details>
+<summary>answer</summary>
+
+(a) `std::strong_ordering`: equal timestamps are interchangeable. (b) `std::weak_ordering`: `"Log.TXT"` and `"log.txt"` are equivalent for ordering but are different values. (c) `std::weak_ordering`: distinct points at the same distance are equivalent, not equal, and calling that `strong` would be a false promise to any code that substitutes one for the other. (d) `std::partial_ordering`, because NaN is unordered; if the type's invariant excludes NaN (checked in its constructor), you may document and return a stronger category, but then the check is what makes the promise true.
+
+</details>

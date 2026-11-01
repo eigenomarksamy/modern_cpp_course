@@ -1,0 +1,113 @@
+source: day-05
+refs: 03=temporaries-dangling
+>>> value-categories
+---
+title: value categories without the headache
+standard: C++17
+objective: classify expressions as lvalues, xvalues, or prvalues, and use the binding rules to predict which overload is called
+prerequisites: temporaries-dangling, const-correctness
+difficulty: 3
+---
+
+### the idea
+
+<<< 9-17
+
+### understanding the concept
+
+<<< 21-37
+
+<<< 43-51
+
+### in code
+
+<<< 55-99
+
+### in practice
+
+the standard library is built on these binding rules. `std::vector::push_back` has two overloads: `push_back(const T&)`, which copies, and `push_back(T&&)`, which moves. as a caller you never pick one explicitly; the category of your argument does. a temporary (`push_back(Frame{})`) or an explicitly expiring object (`push_back(std::move(frame))`) takes the cheap path, and an ordinary named object is copied because you might still use it. in a telemetry pipeline that hands large message buffers from stage to stage, reading a call site with categories in mind tells you exactly where the copies are: every argument that is a plain name and not wrapped in `std::move` is one. your own interfaces can offer the same pair of overloads when copying is expensive, or take the parameter by value and let the caller's category decide, which [[noexcept-moves]] discusses.
+
+### watch out for
+
+**if it has a name, it is an lvalue.** every function parameter, including one declared `T&&`, is an lvalue inside the function body. the fix in the opening example is to say what you mean:
+
+<<< 175-181
+
+### the takeaway
+
+every expression has a type and a value category; overload resolution picks by category, and a named variable, even one declared `T&&`, is always an lvalue.
+
+### optional challenge
+
+<<< 189-204
+
+### going deeper
+
+#### `decltype` and value categories
+
+<<< 101-119
+>>> copy-elision
+---
+title: copy elision and temporary materialization
+standard: C++17
+objective: explain why returning a prvalue never copies in C++17, when NRVO applies, and why return std::move(local) is a pessimization
+prerequisites: value-categories
+difficulty: 2
+---
+
+### the idea
+
+in C++14 you could not return a type with deleted copy and move constructors from a factory function. in C++17 you can. compilers did not get smarter; the language changed what `return T{...};` *means*. knowing what changed tells you which returns are free by definition, which are free in practice, and which quietly cost a move.
+
+### understanding the concept
+
+<<< 39-41
+
+### in code
+
+<<< 121-144
+
+### in practice
+
+<<< 148-169
+
+### watch out for
+
+**`return std::move(local);` is a pessimization.** it looks like a helpful hint and does the opposite:
+
+```cpp
+#include <utility>
+#include <vector>
+
+std::vector<int> collect() {
+    std::vector<int> ids(1000);
+    return std::move(ids);   // operand is no longer a plain name: NRVO is impossible
+}
+```
+
+NRVO applies only when the return operand is the plain name of a local. `std::move(ids)` is an xvalue expression, so the compiler must construct the result by moving. a plain `return ids;` would either be elided or, failing that, moved anyway, because a returned local is treated as an rvalue first. the explicit `std::move` removes only the best case. GCC and Clang flag it with `-Wpessimizing-move`, which is part of `-Wall`. use `std::move` in a `return` only for things that are not locals or by-value parameters, such as a data member you are handing out.
+
+### the takeaway
+
+since C++17 a prvalue is an initializer that builds its object in place, so returning `T{...}` never copies or moves; returning a named local usually does not either, as long as you leave it a plain name.
+
+### optional challenge
+
+`make_big()` returns `Big` by value. which functions are *guaranteed* to call no copy or move constructor, and what happens in the others?
+
+```cpp
+Big a()      { return Big{}; }                 // (1)
+Big b()      { Big x; return x; }              // (2)
+Big c()      { return make_big(); }            // (3)
+Big d(Big p) { return p; }                     // (4)
+Big e()      { Big x; return std::move(x); }   // (5)
+```
+
+<details>
+<summary>answer</summary>
+
+(1) and (3) are guaranteed: both return a prvalue, which initializes the caller's object directly, and a chain of prvalue returns stays a chain of initializers.
+
+(2) is NRVO: allowed and almost always done, but if it does not happen the local is moved. (4) can never use NRVO, because a parameter is not constructed in the function's return slot; it is moved (a returned by-value parameter is treated as an rvalue first). (5) always moves: the operand is not a plain name, so elision is impossible.
+
+</details>

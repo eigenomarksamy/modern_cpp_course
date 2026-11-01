@@ -1,0 +1,93 @@
+source: day-52
+refs: 12=shared-ptr 15=associative-containers 50=benchmarking 51=cache-locality
+>>> allocation-costs
+---
+title: the cost of allocation
+standard: C++17
+objective: find hidden heap allocations, count them in tests, and move them out of hot paths into an allocation-free steady state
+prerequisites: benchmarking, cache-locality, callbacks
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-31
+
+the remedies, roughly in order of how often you reach for them: `reserve` and reuse; avoiding node containers in hot paths; scoped arenas and pools ([[pmr-pools]]); and the strongest pattern of all for real-time code, an allocation-free steady state: allocate everything at startup, then never again.
+
+### in code
+
+<<< 37-65
+
+the real-time pattern: preallocate, then reuse.
+
+<<< 93-119
+
+### in practice
+
+<<< 123-125
+
+### watch out for
+
+**measurement traps.**
+
+<<< 133-133
+
+### the takeaway
+
+<<< 137-137
+
+### optional challenge
+
+`LocalPlanner::cycle` calls `nearby_.clear()`. what happens to the allocation-free steady state if it instead calls `nearby_ = std::vector<Obstacle>{};` or `nearby_.clear(); nearby_.shrink_to_fit();`?
+
+<details>
+<summary>answer</summary>
+
+both break it. `clear()` destroys the elements but keeps the capacity, so later `push_back` calls reuse the buffer. move-assigning an empty vector takes over the temporary's (empty) buffer and frees the old one, so the next cycle reallocates, about log2(n) times as it grows again. `shrink_to_fit()` is a non-binding request to drop unused capacity, and mainstream implementations honor it by reallocating, with the same result. the allocation test from this lesson would catch either change on the first CI run.
+
+</details>
+>>> pmr-pools
+---
+title: arenas and pools with std::pmr
+standard: C++17
+objective: use std::pmr memory resources for scoped arena allocation and pooling, and avoid their propagation and lifetime traps
+prerequisites: allocation-costs
+difficulty: 3
+---
+
+### the idea
+
+some allocations cannot simply be moved to startup: per-frame temporaries whose size depends on the data, tracks that are born and die while the system runs. for those, the problem is not that allocation happens but that the general-purpose heap is the wrong allocator for the pattern. a frame's temporaries all die together at the end of the frame; a pool's objects all have the same size. C++17's `std::pmr` lets a container use an allocator that matches the pattern without changing the container's type to a template parameter soup.
+
+### understanding the concept
+
+<<< 67-67
+
+the standard resources cover the common patterns: `monotonic_buffer_resource` for "allocate during a phase, free everything at its end"; `unsynchronized_pool_resource` and `synchronized_pool_resource` for many allocations of a few sizes; `new_delete_resource()` for the ordinary heap; and `null_memory_resource()`, which always throws, as a guard against silently falling back. resources chain: each takes an *upstream* resource to get more memory from when its own runs out.
+
+### in code
+
+<<< 69-89
+
+### in practice
+
+<<< 127-127
+
+per-frame arenas fit naturally into a processing loop: create one `monotonic_buffer_resource` per frame over a buffer that is reused across frames, pass it to the frame's temporary containers, and let it be destroyed (or `release()`d) at the frame boundary. combined with the allocation counter from [[allocation-costs]], that turns "this stage does not touch the heap" into a property a test can check.
+
+### watch out for
+
+<<< 131-131
+
+### the takeaway
+
+match the allocator to the allocation pattern: a monotonic arena for data that dies together, a pool for objects of one size, and a null upstream wherever silently falling back to the heap would be a bug.
+
+### optional challenge
+
+<<< 141-148

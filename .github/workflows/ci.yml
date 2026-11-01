@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  course:
+    name: lessons, editorial rules, generated files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: validate structure, prerequisites, reading time, and editorial rules
+        run: python .course_build/tools/course.py validate
+      - name: generated document and manifest match the sources
+        run: |
+          python .course_build/tools/course.py assemble
+          git diff --exit-code -- modern_cpp_daily_course.md site/course.json .course_build/curriculum.md
+
+  code:
+    name: C++ examples (GCC 14, Clang 18, sanitizers)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: compile every tagged example, run complete programs under ASan and UBSan
+        run: python3 .course_build/tools/check_code.py --cxx g++-14 --cxx clang++-18 --run --sanitize --report code_report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-report
+          path: code_report.*
+
+  site:
+    name: website build and browser tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: editorial rules on the generated pages and messages
+        run: python3 .course_build/tools/check_ui.py
+      - name: links, anchors, accessibility basics, and browser behavior
+        run: npm test
+        env:
+          CHROME_PATH: /usr/bin/google-chrome

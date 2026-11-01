@@ -1,3 +1,5 @@
+> **status (curriculum 2.0):** this is the original specification the 56-day course (1.0) was written against, kept for its educational requirements. the course has since been restructured: its length now follows the material (119 days in 17 modules, each day with one objective and 5 to 10 minutes of core reading), prose follows a lowercase editorial style, and the website has a dashboard, a one-lesson reader, and a full-course page. see `README.md`, `.course_build/authoring.md`, and `.course_build/site_upgrade/plan.md` for what changed and why; the structural requirements below that fix the course at 56 days and 8 weeks are superseded.
+
 # task: create a complete 8-week modern c++ study course
 
 Act as a senior C++ engineer, software architect, language specialist, and technical educator.

@@ -1,0 +1,131 @@
+source: day-49
+refs: 43=coupling-cohesion 44=dependency-injection 45=observer 19=forwarding-references 41=deadlocks
+>>> review-design
+---
+title: review: design principles and patterns
+kind: review
+standard: C++17
+objective: consolidate SOLID, coupling and cohesion, dependency injection and seams, and the strategy, factory, and observer patterns
+prerequisites: solid, coupling-cohesion, dependency-injection, test-seams, strategy, factory, observer
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[solid]] | SOLID predicts the cost of change; separate responsibilities where change actually happens. |
+| [[coupling-cohesion]] | what changes together, what belongs together, and in C++ what recompiles together; consumers own their interfaces. |
+| [[dependency-injection]] | inject what crosses a boundary, make ownership explicit, wire in one place near `main`. |
+| [[test-seams]] | choose the seam by when the decision is made: run time, compile time, or link time. |
+| [[strategy]] | a replaceable algorithm: template, `std::function`, or virtual interface, by frequency and shape. |
+| [[factory]] | return `std::unique_ptr<Base>`, register creators explicitly, not through static initializers. |
+| [[observer]] | RAII subscription tokens, notification from a snapshot with no lock held. |
+
+### review questions
+
+<<< 20-21
+3. a `SensorRegistry` is populated by namespace-scope initializers in each driver's `.cpp`, and the drivers are built into a static library. on one product, `"lidar"` is suddenly an unknown type. what happened, and what is the robust fix?
+4. a function that the profiler shows on a per-sample hot path takes a `const Filter&` with a virtual `apply(double)`. what seam would you use instead, and what do you give up?
+<<< 35-35
+
+### mini exercise
+
+<<< 39-54
+
+### answers
+
+<<< 58-70
+
+<details>
+<summary>answer 3: self-registration and static libraries</summary>
+
+if nothing in the executable references a symbol in `lidar.o`, the linker never pulls that object file out of the static library, so its namespace-scope initializer never runs and the registration never happens. the build succeeds; the type is simply missing at run time. the robust fix is explicit registration: a `register_builtin_sensors(registry)` function called from `main`, which also makes the set of sensors visible in one place.
+
+</details>
+
+<details>
+<summary>answer 4: a hot-path seam</summary>
+
+make the filter a template parameter constrained by a concept: the call becomes direct and inlinable, which also lets the compiler vectorize the loop around it. you give up choosing the filter at run time and storing different filters behind one type; if both are needed, keep the virtual interface at a coarser grain (one call per block of samples) and use the template inside the block.
+
+</details>
+
+<<< 100-105
+
+<<< 107-171
+>>> review-abstractions
+---
+title: review: polymorphism choices, APIs, modules, and coroutines
+kind: review
+standard: C++20
+objective: consolidate the polymorphism options and type erasure, API contracts and ABI stability, modules, and coroutines
+prerequisites: static-polymorphism, type-erasure, api-contracts, api-stability, modules, coroutines, coroutine-generator
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[static-polymorphism]] | virtual functions, templates with concepts, `std::variant`, and type erasure fit different shapes of "one call, many types". |
+| [[type-erasure]] | a template constructor captures the type in a private model; users get value semantics without inheritance. |
+| [[api-contracts]] | contracts go into types first: strong types, enums, views, `[[nodiscard]]` result types. |
+| [[api-stability]] | an ABI is stricter than an API: pimpl, no inline private logic in public headers, deprecate before removing. |
+| [[modules]] | compiled interfaces instead of pasted text; adopt from the leaves inward as tooling allows. |
+| [[coroutines]] | state lives in a frame across suspensions; take parameters by value. |
+| [[coroutine-generator]] | `promise_type` decides when a coroutine starts, what `co_yield` does, and who destroys the frame. |
+
+### review questions
+
+<<< 22-33
+<<< 34-34
+4. a public function is `bool deploy(char* host, int port, double timeout, bool force, bool dry_run);`. name three changes that make it hard to misuse, and the lesson each comes from.
+
+### mini exercise
+
+a header-only library exposes `class Tracker { public: void update(const Frame&); private: std::vector<Track> tracks_; KalmanFilter kf_; };` and is about to become a prebuilt shared library. sketch the header you would ship, and list what clients can no longer depend on.
+
+### answers
+
+<<< 72-91
+
+<<< 93-98
+
+<details>
+<summary>answer 4: a signature that states its contract</summary>
+
+`std::string_view host` instead of `char*` (borrowing, no null-termination assumptions: [[string-view]]); `std::chrono::milliseconds timeout` instead of a unitless `double`, and enums or an options struct instead of two adjacent `bool`s ([[api-contracts]]); and a `[[nodiscard]]` result type that says why it failed instead of a `bool` that is easy to ignore ([[error-strategy]]).
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+```cpp
+// tracker.h: the shipped header
+#pragma once
+#include <memory>
+
+struct Frame;
+
+class Tracker {
+public:
+    Tracker();
+    ~Tracker();                                   // defined in the .cpp, where Impl is complete
+    Tracker(Tracker&&) noexcept;
+    Tracker& operator=(Tracker&&) noexcept;
+    void update(const Frame& frame);
+private:
+    struct Impl;                                  // tracks_, kf_, and anything added later
+    std::unique_ptr<Impl> impl_;
+};
+```
+
+clients can no longer depend on `sizeof(Tracker)` changing with its members, on including `KalmanFilter`'s header transitively, or on inlining `update`. in exchange, the library can add members and change its filter without breaking binaries built against this header. a factory returning `std::unique_ptr<TrackerInterface>` would be the alternative if the library also wants to hide which tracker implementation is in use.
+
+</details>
+
+### connections
+
+the last two modules were about structure rather than mechanism: where seams go, how components are wired, and what an interface promises over time. the final modules turn to production engineering: measuring performance honestly, designing data for the cache, controlling allocation, testing and observing running systems, and changing legacy code safely, before putting the whole course together in one small program.

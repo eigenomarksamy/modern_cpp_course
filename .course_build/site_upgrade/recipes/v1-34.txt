@@ -1,0 +1,112 @@
+source: day-34
+refs: 06=ub-usual-suspects 16=algorithms 33=consteval-constinit 50=profiling 52=allocation-costs 53=observability
+>>> format
+---
+title: std::format: type-safe formatting
+standard: C++20
+objective: format text with std::format and its spec mini-language, keep format strings compile-time checked in your own wrappers, and avoid allocation with format_to_n
+prerequisites: consteval-constinit, variadic-templates, string-view
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+`std::format` (C++20, `<format>`) keeps printf's compact format strings, gets the type from the argument instead of the string, checks the string at compile time, and has no hidden stream state.
+
+<<< 13-13
+
+### understanding the concept
+
+<<< 17-21
+
+### in code
+
+<<< 25-43
+
+### in practice
+
+<<< 111-143
+
+### watch out for
+
+**assuming `<format>` exists everywhere.**
+
+<<< 149-149
+
+### the takeaway
+
+`std::format` combines printf's compact syntax with type safety, compile-time checked format strings, and no stream state; keep the check alive in your wrappers with `std::format_string`, and use `format_to_n` when allocation matters.
+
+### optional challenge
+
+<<< 157-164
+
+### going deeper
+
+#### a formatter for your own types
+
+<<< 45-69
+>>> cpp20-small-features
+---
+title: small C++20 features that remove bug patterns
+standard: C++20
+objective: adopt the small C++20 library and language additions that replace error-prone idioms in everyday code
+prerequisites: format, algorithms, ub-usual-suspects
+difficulty: 1
+---
+
+### the idea
+
+`m.find(k) != m.end()` to ask a yes-or-no question, an erase-remove pair that is easy to get half right, `(lo + hi) / 2` that overflows, `s.substr(0, 7) == "/radar/"`, positional struct initialization that silently shifts when someone inserts a field. none of these is hard, and each has a long history of small bugs. C++20 added a set of small features whose main value is not saving keystrokes but removing one bug pattern each.
+
+### understanding the concept
+
+| feature | replaces | bug pattern removed |
+|---|---|---|
+| designated initializers `{.kp = 2.5}` | positional aggregate initialization | arguments shifting when a field is inserted |
+| `contains(key)` | `find(key) != end()`, `count(key) != 0` | noise, and accidental `operator[]` inserts |
+| `std::erase`, `std::erase_if` | the erase-remove idiom | the single-iterator `erase` bug from [[algorithms]] |
+| `starts_with`, `ends_with` | `substr` or `compare` with offsets | off-by-one and length mistakes |
+| `std::source_location` | `__FILE__` and `__LINE__` macros | macros, and losing the *caller's* location |
+| `std::bit_cast`, `std::popcount`, `std::endian` | pointer punning, compiler builtins | undefined behavior and non-portable code |
+| `using enum` | repeated qualification in `switch` | noise in exhaustive switches |
+| `std::midpoint`, `std::ssize` | `(a + b) / 2`, `size() - 1` loops | signed overflow and unsigned wraparound |
+
+### in code
+
+<<< 73-105
+
+<<< 107-107
+
+### in practice
+
+designated initializers change how configuration code reads and how it fails. a radar configuration built positionally, `RadarConfig cfg{250.0, 512, 8, true};`, cannot be reviewed without opening the header, and inserting a field before `num_bins` silently shifts every later value into the wrong member when the types are compatible. the designated version, `RadarConfig cfg{.max_range_m = 250.0, .num_bins = 512, .chirps = 8, .enable_cfar = true};`, documents itself at the call site, lets omitted fields keep their default member initializers, and turns a reordered or renamed field into a compile error instead of a misconfigured sensor. the order rule (designators must follow declaration order) is a small price, and it is checked by the compiler.
+
+### watch out for
+
+<<< 147-147
+
+### the takeaway
+
+each of these small features removes a specific bug pattern: adopt them where they replace the error-prone idiom, and treat performance hints like `[[likely]]` as measurements to justify, not decorations.
+
+### optional challenge
+
+what do these produce, and which one does not compile?
+
+```cpp
+std::vector<int> v;
+auto a = std::midpoint(0u, 10u);              // (1)
+auto b = std::ssize(v) - 1;                   // (2)
+auto c = std::popcount(-1);                   // (3)
+auto d = std::bit_cast<float>(0x3F800000u);   // (4)
+```
+
+<details>
+<summary>answer</summary>
+
+(1) is `5u`. (2) is `-1` of a signed type (`std::ptrdiff_t`), so a loop down to zero behaves, unlike `v.size() - 1`, which wraps to a huge unsigned value. (3) does not compile: `std::popcount` accepts only unsigned integer types, deliberately, because the bit count of a negative number depends on its width; write `std::popcount(static_cast<unsigned>(x))` to say which width you mean. (4) is `1.0f` on any platform whose `float` is IEEE 754 single precision, with no undefined behavior.
+
+</details>

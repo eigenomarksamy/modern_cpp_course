@@ -1,0 +1,87 @@
+source: day-54
+refs: 08=raii 12=ownership-in-interfaces 44=test-seams 47=api-contracts 51=data-oriented-design 53=observability
+>>> legacy-refactoring
+---
+title: refactoring legacy code safely
+standard: C++17
+objective: put characterization tests around legacy code, modernize it in small verified steps behind a compatibility shim, and let tools do the mechanical changes
+prerequisites: cpp17-refactoring, testing, test-seams
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-25
+
+### in code
+
+<<< 31-115
+
+### in practice
+
+the shim turns a migration into a countable task. every remaining caller of `load_calibration` now produces a deprecation warning, so the build log is the to-do list; teams typically track the warning count per release and migrate callers in small commits, each reviewed on its own. when the count reaches zero, the shim is deleted in a commit that changes nothing else. at no point does the codebase stop building, and at every point the characterization test proves the old and new paths agree. large mechanical changes (adding `override`, replacing `NULL`) follow the same rhythm with tools doing the edits, as [[architecture-decisions]] shows.
+
+### watch out for
+
+<<< 152-152
+
+### the takeaway
+
+get a safety net before you change anything, then modernize in small, separately verifiable steps, with tools doing the mechanical work and a shim keeping old callers compiling.
+
+### optional challenge
+
+<<< 160-167
+>>> architecture-decisions
+---
+title: architectural decisions and their tradeoffs
+standard: C++17
+objective: replace subsystems incrementally with the strangler pattern, decide what not to refactor, and record architectural tradeoffs so they can be revisited
+prerequisites: legacy-refactoring, data-oriented-design
+difficulty: 2
+---
+
+### the idea
+
+"we should rewrite the tracker" is a sentence that has started many projects that took three times longer than planned, while the old tracker kept shipping fixes the new one did not have. most architectural change is better done the way the previous lesson changed one function: incrementally, with the old and the new side by side, and with the reasons written down so the next engineer can revisit the decision instead of rediscovering it.
+
+### understanding the concept
+
+<<< 27-27
+
+the decisions behind such changes are tradeoffs rather than improvements: maintainability against performance, abstraction against overengineering, compile-time against run-time flexibility, object-oriented against data-oriented layout. each side has real costs, and the course has met all four. what turns them from arguments into decisions is writing down the context, the alternatives, and the consequences accepted, in a place the next person will look.
+
+### in code
+
+<<< 130-144
+
+### in practice
+
+modernization campaigns across a whole codebase are architectural work too, and the same rule applies: small, reviewable steps. tools beat people at mechanical edits:
+
+<<< 119-128
+
+<<< 146-148
+
+### watch out for
+
+**the second-system effect.** a replacement designed to fix every complaint about the old system tends to become larger, slower, and later than anyone planned, because every stakeholder adds the feature the old design could not support. the strangler pattern is the antidote: the new component must reach parity with the old one on recorded data, one route at a time, before it gets new features. scope that is explicitly deferred in the decision record is scope that does not silently creep in.
+
+### the takeaway
+
+replace subsystems incrementally behind a stable interface, refactor where change frequency and pain are highest, and record each architectural decision with its alternatives and costs.
+
+### optional challenge
+
+your team wants to replace a legacy obstacle detector with a new one. using the strangler pattern, list the steps from today to deleting the old code, and say which observability signals tell you each step is safe.
+
+<details>
+<summary>answer</summary>
+
+put an interface in front of the old detector (a seam, if there is none yet) and route all callers through it. build the new detector behind the same interface and run it in shadow mode on live or recorded data, comparing its outputs with the old one's: metrics for detection counts, disagreement rates, and per-frame latency histograms tell you when it is at parity. then route a growing share of real traffic to it (one robot, one site, one sensor configuration), watching the same metrics plus field reports. when nothing uses the old detector for a release cycle, delete it, together with the comparison code. at every step the system works and the switch can be reverted.
+
+</details>

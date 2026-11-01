@@ -1,0 +1,83 @@
+source: day-44
+refs: 12=ownership-in-interfaces 17=callbacks 29=writing-concepts 43=coupling-cohesion
+>>> dependency-injection
+---
+title: dependency injection: passing collaborators in
+standard: C++17
+objective: make a class testable by injecting the dependencies that cross a boundary, decide who owns them, and wire everything in one place
+prerequisites: coupling-cohesion, ownership-in-interfaces
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-29
+
+### understanding the concept
+
+a **seam** is a place where you can change what code does without editing that code, and dependency injection creates seams deliberately: an object receives its collaborators (a clock, an actuator, a socket, a random number generator) instead of creating or fetching them itself. the things worth injecting are the ones that cross a boundary or make behavior nondeterministic: time, hardware, I/O, randomness, and third-party services. pure computation stays inside.
+
+<<< 42-44
+
+### in code
+
+<<< 48-123
+
+### in practice
+
+<<< 197-197
+
+### watch out for
+
+<<< 201-214
+
+### the takeaway
+
+inject what crosses a boundary (time, hardware, I/O, randomness), make ownership of every injected object explicit, and wire everything in one place near `main`.
+
+### optional challenge
+
+a trajectory follower uses a `std::vector<double>` of waypoints, `std::sqrt`, the system clock, a UDP socket for telemetry, and a random jitter source for testing robustness. which of these would you inject, and why?
+
+<details>
+<summary>answer</summary>
+
+inject the clock, the socket, and the random source: each crosses a boundary or makes behavior nondeterministic, so a test needs to control it (advance time, capture what was sent, fix the random sequence). do not inject the vector or `std::sqrt`: they are deterministic, local, and already testable through the follower's inputs and outputs. injecting them would add indirection without adding a single test you could not already write.
+
+</details>
+>>> test-seams
+---
+title: choosing a seam: interfaces, templates, functions, and the linker
+standard: C++20
+objective: choose between a virtual interface, a constrained template, std::function, and a link-time seam by when the decision is made and what it costs
+prerequisites: dependency-injection, writing-concepts, callbacks
+difficulty: 2
+---
+
+### the idea
+
+once a class receives its collaborators, a second question remains: what *type* is the parameter? a virtual interface, a template parameter, a `std::function`, or nothing at all, with the substitution happening in the linker. all four make the code testable. they differ in when the choice is made, what it costs at run time, and how much of the decision is visible when you read the code.
+
+### understanding the concept
+
+<<< 33-40
+
+### in code
+
+<<< 125-191
+
+### in practice
+
+<<< 195-195
+
+### watch out for
+
+**an interface on a per-sample hot path.** a virtual seam is cheap when it is called once per frame or per control cycle, and the indirect call disappears in the noise. put the same interface inside a loop that runs a million times per frame (a per-sample filter, a per-point distance function) and the call can no longer be inlined, which also blocks vectorization of the loop around it. the fix is not to give up the seam but to pick the right kind: a template parameter constrained by a concept keeps the substitution point and lets the compiler see through it. as always, measure before and after; the profile decides, not the principle.
+
+### the takeaway
+
+choose the seam by when the decision is made: run time (virtual interface or `std::function`), compile time (a template constrained by a concept), or link time (platform functions only); every kind is testable, and each costs something different.
+
+### optional challenge
+
+<<< 222-229

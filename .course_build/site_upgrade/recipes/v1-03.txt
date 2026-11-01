@@ -1,0 +1,108 @@
+source: day-03
+refs: 03=storage-duration
+>>> storage-duration
+---
+title: storage duration and object lifetime
+standard: C++17
+objective: separate a name's scope from an object's lifetime, and predict construction and destruction order for every storage duration
+prerequisites: initialization
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-24
+
+<<< 28-30
+
+### in code
+
+<<< 34-63
+
+`ext` survives its `;` because a temporary bound directly to a local `const&` lives as long as the reference; [[temporaries-dangling]] covers exactly when that rule applies and when it does not.
+
+<<< 91-110
+
+### in practice
+
+<<< 114-114
+
+### watch out for
+
+**thread-safe initialization is not thread-safe use.** the function-local static fix makes construction safe when several threads call `instance()` at once. it says nothing about what happens afterwards:
+
+```cpp
+#include <vector>
+
+std::vector<int>& scratch() {
+    static std::vector<int> buffer;   // constructed once, safely
+    return buffer;                    // BUG if two threads use it: a data race
+}
+```
+
+a static local is one object shared by every call on every thread, which is a global with better manners about initialization. when it is mutable, it still needs a mutex or a `thread_local` instead of `static`.
+
+### the takeaway
+
+ask "who owns this object and when does it die?" rather than "is this name in scope?"; objects die in reverse order of construction, and anything shared between translation units at startup belongs behind a function-local static or a `constexpr` constant.
+
+### optional challenge
+
+`log()` and `registry()` each return a function-local static. the registry's destructor writes a final message through `log()`. is shutdown safe if the program first calls `registry()` and only later calls `log()`? what if the registry's constructor calls `log()`?
+
+<details>
+<summary>answer</summary>
+
+statics are destroyed in reverse order of the *completion* of their construction. in the first scenario the registry finishes constructing first and the logger second, so the logger is destroyed first, and the registry's destructor then uses a dead logger: undefined behavior that typically shows up as a crash or lost output at exit.
+
+if the registry's constructor calls `log()`, the logger finishes constructing *before* the registry does (it completes inside the registry's constructor), so it is destroyed *after* the registry. touching a dependency in your constructor is the standard trick for making the shutdown order follow the dependency order.
+
+</details>
+
+### going deeper
+
+#### shutdown order and leaky singletons
+
+<<< 116-116
+>>> temporaries-dangling
+---
+title: temporaries, lifetime extension, and dangling references
+standard: C++17
+objective: predict when a temporary dies, apply the one rule that extends its life, and spot references that outlive their objects
+prerequisites: storage-duration
+difficulty: 2
+---
+
+### the idea
+
+`for (int d : load_frame().detections())` compiles cleanly, passes code review, and iterates a vector that has already been destroyed. temporaries are the objects you never named: function results, conversions, the result of `a + b`. their lifetime rule is short enough to memorize, and its one exception is narrower than most people assume.
+
+### understanding the concept
+
+a temporary object is destroyed at the end of the **full-expression** that created it: the outermost expression that is not part of another one, which in practice usually means at the `;`. everything inside the expression can use the temporary safely; a reference or pointer that escapes the expression cannot.
+
+<<< 26-26
+
+### in code
+
+<<< 65-89
+
+### in practice
+
+getters that return references are a common performance habit, and they are only safe when the caller holds the object they point into. in a robotics stack, `robot_state()` might return a snapshot *by value*, copied out from under a mutex. then `const Pose& pose = robot_state().pose();` binds to a member of a temporary that dies at the `;`, and every later read of `pose` is undefined behavior that usually still "works" in tests. the fix at the call site is to name the snapshot: `auto state = robot_state();` and read `state.pose()` from it. the design rule behind it: functions that produce a new object return it by value; only accessors on objects the caller already owns return references. AddressSanitizer (`-fsanitize=address`) reports most of these as `heap-use-after-free` or `stack-use-after-scope` the first time a test exercises the path.
+
+### watch out for
+
+<<< 120-132
+
+### the takeaway
+
+temporaries die at the `;` unless they are bound *directly* to a local reference; a reference that comes back out of a function call extends nothing, so bind function results by value unless you know what the reference points into.
+
+### optional challenge
+
+<<< 140-159

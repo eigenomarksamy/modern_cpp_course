@@ -1,0 +1,111 @@
+source: day-19
+refs: 05=value-categories 10=move-semantics
+>>> forwarding-references
+---
+title: forwarding references and std::forward
+standard: C++17
+objective: recognize forwarding references, explain reference collapsing, and pass an argument's value category through with std::forward
+prerequisites: function-templates, move-semantics
+difficulty: 3
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-31
+
+### in code
+
+<<< 37-58
+
+### in practice
+
+<<< 92-103
+
+### watch out for
+
+<<< 123-142
+
+### the takeaway
+
+`T&&` with a deduced `T` remembers whether the caller passed an lvalue or an rvalue, and `std::forward<T>` replays that choice; anywhere else, `T&&` is a plain rvalue reference.
+
+### optional challenge
+
+<<< 150-169
+>>> variadic-templates
+---
+title: variadic templates and perfect-forwarding factories
+standard: C++17
+objective: write variadic function templates that forward any number of arguments to a constructor, and know the costs of doing so
+prerequisites: forwarding-references
+difficulty: 2
+---
+
+### the idea
+
+`std::make_unique<T>(args...)`, `emplace_back(args...)`, and `std::thread`'s constructor all accept any number of arguments of any types and hand them, unchanged, to something else. none of them is magic: each is a variadic template whose parameters are forwarding references, plus one expansion that forwards every argument at once. once you can read that pattern, you can write it, and you can see what it costs.
+
+### understanding the concept
+
+<<< 33-33
+
+the `...` after a pattern expands the pattern once per element, so where you put it decides what gets repeated. with a pack `args` holding `a, b, c`:
+
+| written | expands to |
+|---|---|
+| `f(args...)` | `f(a, b, c)` |
+| `f(std::forward<Args>(args)...)` | `f(std::forward<A>(a), std::forward<B>(b), std::forward<C>(c))` |
+| `f(g(args)...)` | `f(g(a), g(b), g(c))` |
+| `f(g(args...))` | `f(g(a, b, c))` |
+
+a pack can be empty, in which case `f(args...)` is simply `f()`. a pack cannot be indexed or iterated directly in C++17; you either expand it into a context that takes a list (function arguments, initializers, base classes) or, since C++17, reduce it with a fold expression ([[fold-expressions]]).
+
+### in code
+
+<<< 60-90
+
+### in practice
+
+<<< 107-119
+
+### watch out for
+
+**a braced list cannot be forwarded.** template argument deduction has no type to deduce from `{1, 2, 3}`:
+
+```cpp
+#include <memory>
+#include <vector>
+
+// auto v = std::make_unique<std::vector<int>>({1, 2, 3});   // error: cannot deduce Args
+auto w = std::make_unique<std::vector<int>>(std::initializer_list<int>{1, 2, 3});   // OK
+```
+
+the same is why `v.push_back({1, 2})` works for a vector of pairs (the parameter type is known, so the braces can initialize it) while `v.emplace_back({1, 2})` does not. with emplacement, pass the constructor arguments themselves (`v.emplace_back(1, 2)`) or name the type.
+
+### the takeaway
+
+a variadic factory is a parameter pack of forwarding references plus one `std::forward<Args>(args)...` expansion; use it for factories, emplacement, and generic wrappers, forward each argument exactly once, and prefer pass-by-value for ordinary sink parameters.
+
+### optional challenge
+
+`template <typename T, typename... Args> void post(Args&&... args);` is called five times. how many distinct instantiations of `post` does the compiler generate?
+
+```cpp
+std::string s = "x";
+post<Log>("ok");
+post<Log>("no");
+post<Log>("fail");
+post<Log>(std::string("x"));
+post<Log>(s);
+```
+
+<details>
+<summary>answer</summary>
+
+four. `"ok"` and `"no"` both deduce `Args = const char(&)[3]`, so they share an instantiation; `"fail"` deduces `const char(&)[5]`, a different one. the temporary `std::string` deduces `Args = std::string` and the named `s` deduces `std::string&`, which are different again. forwarding references preserve exact types and value categories, which is what makes them perfect, and also what multiplies instantiations in a header used across a large codebase.
+
+</details>

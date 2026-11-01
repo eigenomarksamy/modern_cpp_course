@@ -1,0 +1,130 @@
+source: day-02
+refs: 34=cpp20-small-features
+>>> initialization
+---
+title: the many faces of initialization
+standard: C++17
+objective: choose the initialization syntax that says what you mean, and know which forms leave a value indeterminate
+prerequisites: build-pipeline
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-23
+
+<<< 26-30
+
+### in code
+
+<<< 38-90
+
+### in practice
+
+<<< 121-133
+
+### watch out for
+
+<<< 137-148
+
+### the takeaway
+
+use braces for objects you build from values (they reject narrowing), parentheses when you call a sizing constructor on a container, and a default member initializer on every scalar member.
+
+### optional challenge
+
+what does each object hold? assume the code is inside a function, except where marked.
+
+```cpp
+struct Gains { float kp = 1.0f; float ki; float kd = 0.0f; };
+
+Gains a;          // (1)
+Gains b{};        // (2)
+Gains c{2.0f};    // (3)
+static Gains d;   // (4)
+```
+
+<details>
+<summary>answer</summary>
+
+1. `kp` is 1 and `kd` is 0 from their default member initializers, but `ki` is indeterminate: default-initialization of an automatic aggregate leaves scalars without an initializer alone, and reading `a.ki` is undefined behavior.
+2. aggregate initialization from an empty list: members with a default member initializer use it, and the rest are initialized as if from `{}`, so `ki` is 0. result: 1, 0, 0.
+3. the first member comes from the list (`kp` is 2), the rest as in (2): 2, 0, 0.
+4. static storage is zero-initialized before anything else, then default-initialized: 1, 0, 0. the same declaration gives a defined `ki` here and an indeterminate one in (1), which is exactly why "add `= 0.0f` to `ki`" is the robust fix.
+
+</details>
+
+### going deeper
+
+#### what exactly counts as an aggregate
+
+<<< 24-24
+>>> integer-types
+---
+title: integer types, promotions, and conversions
+standard: C++17
+objective: predict the type and value of mixed integer arithmetic, and choose integer types whose width and signedness match the contract
+prerequisites: initialization
+difficulty: 2
+---
+
+### the idea
+
+`readings.size() - 1` is not -1 when `readings` is empty. `std::uint8_t id = 65;` prints as `A`. multiplying two `std::uint16_t` values can be undefined behavior even though every type in sight is unsigned. integer arithmetic in C++ happens in types you never wrote, converts signed values to unsigned without asking, and the width of `long` depends on the operating system. none of it is hard, but none of it is what intuition suggests.
+
+### understanding the concept
+
+<<< 32-34
+
+the full set of "usual arithmetic conversions" is longer, but three outcomes cover nearly every real case:
+
+- both operands are promoted to at least `int`, then the narrower one is converted to the wider type;
+- if one operand is unsigned and the other is a signed type of the same or lower rank, the signed one becomes unsigned (`-1 < 1u` is false);
+- if the signed type can represent every value of the unsigned one (for example `long long` and `unsigned int` on a typical 64-bit platform), the unsigned one becomes signed instead.
+
+what happens when a result does not fit depends on the signedness. unsigned arithmetic wraps modulo 2^N by definition. signed overflow is undefined behavior (the optimizer assumes it never happens, which [[undefined-behavior]] explores). converting an out-of-range value *to* a signed type was implementation-defined until C++20, which made it modular.
+
+### in code
+
+<<< 92-117
+
+### in practice
+
+wire formats are where the width and signedness of every field is part of the contract. decoding a 16-bit signed range-rate field from a radar packet, the arithmetic happens in `int`, so the result has to be converted back explicitly:
+
+```cpp
+#include <cstdint>
+
+std::int16_t decode_i16(const std::uint8_t* p) {
+    // p[0] << 8 is computed in int; the cast says "these 16 bits are a signed value"
+    return static_cast<std::int16_t>((p[0] << 8) | p[1]);
+}
+```
+
+before C++20 that final conversion of a value above 32767 was implementation-defined (every mainstream compiler wraps it); since C++20 it is defined to wrap. the habits that keep this code honest: fixed-width types in every struct that mirrors bytes on a wire or in a register, an explicit `static_cast` wherever a value changes width or signedness, and `-Wconversion -Wsign-conversion` turned on for the modules that do this kind of work (they are noisy in general code, valuable here).
+
+### watch out for
+
+**subtracting unsigned values.** sizes and indices are unsigned, so their difference is too:
+
+```cpp
+#include <cstddef>
+
+bool lagging(std::size_t expected, std::size_t received) {
+    return expected - received > 3;   // BUG: 10 - 12 wraps to a huge number: true
+}
+```
+
+the subtraction is well defined and wrong. compare without subtracting (`expected > received + 3`), or convert to a signed type first (`std::ptrdiff_t`, or C++20's `std::ssize(container)`) when a negative difference is meaningful. the same trap hides in `for (std::size_t k = 0; k <= v.size() - 1; ++k)`.
+
+### the takeaway
+
+arithmetic happens in `int` or wider, mixed signedness converts to unsigned, and only unsigned wraparound is defined; use fixed-width types where the width is part of a contract, and never subtract sizes without asking what happens when the result is negative.
+
+### optional challenge
+
+<<< 156-168

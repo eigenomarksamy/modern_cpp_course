@@ -1,0 +1,92 @@
+source: day-25
+refs: 13=virtual-dispatch 17=lambdas 20=error-strategy 24=optional
+>>> variant
+---
+title: std::variant and std::visit
+standard: C++17
+objective: model "exactly one of these types" with std::variant, consume it with an exhaustive std::visit, and use it as a result type
+prerequisites: optional, fold-expressions, lambdas
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-30
+
+### in code
+
+<<< 38-68
+
+### in practice
+
+<<< 70-92
+
+### watch out for
+
+<<< 132-138
+
+### the takeaway
+
+`std::variant` is a value-semantic sum type with inline storage: consume it with `std::visit` and explicit per-type lambdas, so the compiler checks that every alternative is handled.
+
+### optional challenge
+
+given `using Msg = std::variant<std::monostate, Detection, Heartbeat>;` and `Msg m;`, what do `m.index()`, `std::get_if<Detection>(&m)`, and `std::get<Detection>(m)` give, and what changes after `m = Heartbeat{1};`?
+
+<details>
+<summary>answer</summary>
+
+a default-constructed variant holds a value-initialized first alternative, here `std::monostate`, so `m.index()` is 0, `std::get_if<Detection>(&m)` returns `nullptr`, and `std::get<Detection>(m)` throws `std::bad_variant_access`. after the assignment, `index()` is 2 and the `Detection` accessors behave the same way, while `std::get<Heartbeat>(m).seq` is 1. putting `std::monostate` first is the explicit way to give a variant an "empty" state when none of the real alternatives has a sensible default.
+
+</details>
+>>> variant-design
+---
+title: closed sets and open sets: variant state machines and std::any
+standard: C++17
+objective: choose between std::variant, virtual functions, and std::any by whether the set of types is closed, open, or unknowable
+prerequisites: variant, composition-over-inheritance
+difficulty: 2
+---
+
+### the idea
+
+a radar library has two kinds of polymorphism. its message types (detection, track update, heartbeat) are defined by the protocol and change only when the protocol does. its detectors are written by users, in code the library has never seen. a single mechanism cannot serve both well. the choice between a variant and a virtual interface is not a matter of taste; it follows from one question: who gets to add new types?
+
+### understanding the concept
+
+<<< 32-34
+
+### in code
+
+<<< 107-128
+
+<<< 94-103
+
+### in practice
+
+the radar library uses both mechanisms, each where it fits. `RadarMsg` is a `std::variant`: the library owns the protocol, consumers visit messages by value in tight loops, and adding a message type is a deliberate protocol change whose consequences the compiler enumerates. `Detector` is an abstract class with a virtual `detect()`: users ship new detectors without touching the library, and the library calls them once per frame through `std::unique_ptr<Detector>`. a project that forced messages into a class hierarchy would pay for heap allocation per message and lose exhaustiveness checking; one that forced detectors into a variant would make every user edit the library to add a type. the design question is the same one in both cases, and the answers differ because the owners differ.
+
+### watch out for
+
+**a catch-all lambda turns off exhaustiveness checking.** a generic lambda accepts every alternative, including ones added later:
+
+```cpp
+std::visit(overloaded{
+    [](const Detection& d) { record(d); },
+    [](const auto&) {},                  // "ignore everything else"
+}, msg);
+```
+
+when `Calibration` joins the variant, this visit compiles unchanged and silently drops calibration messages. sometimes that is exactly right; often it is a bug that the variant would otherwise have caught. prefer one explicit lambda per alternative in code that must react to every message type, and reserve catch-alls for visitors that genuinely care about only one or two.
+
+### the takeaway
+
+use a variant when you own a small, fixed set of types, virtual functions when the set must stay open to code you do not control, and `std::any` only where the code genuinely must not know the type.
+
+### optional challenge
+
+<<< 146-153

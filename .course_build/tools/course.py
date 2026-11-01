@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
-"""Build tool for the modern C++ daily course.
+"""Build tool for the modern C++ daily course (curriculum v2).
 
-The filesystem is the source of truth; state.json and the auto section of
-handoff.md are always recomputed from it, so every command is idempotent and
-safe to run from any session.
+The sources are the canonical content; everything else is generated from them:
+
+  .course_build/curriculum.json      module order, lesson order, v1 progress mapping
+  .course_build/lessons/<id>.md      one lesson each: frontmatter + body
+  .course_build/sections/*.md        introduction, overview, cheat sheet, references
+
+  modern_cpp_daily_course.md         the whole course as one Markdown document
+  site/course.json                   the same content as a manifest for the website
+  .course_build/curriculum.md        the curriculum map for authors (generated)
+
+Lessons are identified by stable ids (the file name). Day numbers come from the
+order in curriculum.json and may change when the curriculum changes; ids do not.
+Cross references are written [[lesson-id]] or [[lesson-id|link text]] (or
+[[module:module-id]]) and are resolved to the current day numbers at assembly.
 
 Commands (run from anywhere):
-  python course.py check <lesson-file>   validate one lesson file (may be a .tmp)
-  python course.py commit <tmp-file>     validate, atomically rename to day-XX.md, reconcile
-  python course.py reconcile             rescan lessons, rewrite state.json and handoff.md
-  python course.py status                print a one-screen summary
-  python course.py assemble              build, validate, and publish modern_cpp_daily_course.md
-  python course.py validate              validate the published final document
+  python course.py validate          check every source; exit 1 on problems
+  python course.py check ID [ID...]  check some lessons (curriculum context included)
+  python course.py stats             reading-time table for every lesson
+  python course.py assemble          validate, then write the document and manifest
+  python course.py status            one-screen summary
 """
 
 import json
@@ -25,470 +35,625 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-BUILD = Path(__file__).resolve().parent.parent
+TOOLS = Path(__file__).resolve().parent
+sys.path.insert(0, str(TOOLS))
+import editorial  # noqa: E402
+import readtime  # noqa: E402
+
+BUILD = TOOLS.parent
 ROOT = BUILD.parent
 LESSONS = BUILD / "lessons"
 SECTIONS = BUILD / "sections"
-CHECKS = BUILD / "checks"
+CURRICULUM = BUILD / "curriculum.json"
 STATE = BUILD / "state.json"
-HANDOFF = BUILD / "handoff.md"
-CURRICULUM = BUILD / "curriculum.md"
 FINAL = ROOT / "modern_cpp_daily_course.md"
+MANIFEST = ROOT / "site" / "course.json"
 
-TOTAL_DAYS = 56
-REVIEW_DAYS = {7, 14, 21, 28, 35, 42, 49, 56}
 LESSON_SECTIONS = ["the idea", "understanding the concept", "in code", "in practice",
                    "watch out for", "the takeaway", "optional challenge"]
 REVIEW_SECTIONS = ["recap", "review questions", "mini exercise", "answers", "connections"]
+DEEPER = "going deeper"
 FRONT_SECTIONS = ["introduction.md", "overview.md"]
 BACK_SECTIONS = ["cheat_sheet.md", "references.md"]
-MIN_WORDS, MAX_WORDS = 650, 2100
+STANDARDS = {"C++17", "C++20"}
+CODE_TAGS = {"complete", "snippet", "fails", "ub", "external", "norun", "c++17", "c++20"}
+MAX_MINUTES, MIN_MINUTES = 10.5, 4.0
+MAX_RUN_WITHOUT_REVIEW = 8
 
 PLACEHOLDER = re.compile(
-    r"\b(TODO|TBD|FIXME|lorem ipsum)\b|to be added|continue here|forthcoming|"
-    r"lesson goes here|content goes here|\[insert", re.IGNORECASE)
-META = re.compile(r"^\*\*reading time:\*\* about (\d+) minutes · \*\*standard:\*\* C\+\+(17|20)"
-                  r" · \*\*builds on:\*\* (.+)$")
-FENCE = re.compile(r"^(\s*)(`{3,}|~{3,})(.*)$")
-HEADING = re.compile(r"^(#{1,6}) (.*)$")
-LINK = re.compile(r"\]\(#([^)\s]+)\)")
+    r"\b(TODO|TBD|FIXME|XXX|lorem ipsum)\b|to be added|continue here|forthcoming|"
+    r"lesson goes here|content goes here|\[insert|<<<", re.IGNORECASE)
+FENCE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+REF = re.compile(r"\[\[(module:)?([a-z0-9][a-z0-9-]*)(?:\|([^\]]+))?\]\]")
+MD_LINK = re.compile(r"\]\(#([^)\s]+)\)")
 ANCHOR = re.compile(r'<a id="([^"]+)"></a>')
+TEMPLATE = re.compile(r"\{\{(\w+)\}\}")
 
 
-def day_id(n):
-    return f"{n:02d}"
+# ---------------------------------------------------------------- loading
+
+class Lesson:
+    def __init__(self, lid, path):
+        self.id, self.path = lid, path
+        self.raw = path.read_text(encoding="utf-8")
+        self.meta, self.body, self.body_offset = parse_frontmatter(self.raw)
+        self.kind = self.meta.get("kind", "lesson")
+        self.title = self.meta.get("title", "")
+        self.standard = self.meta.get("standard", "")
+        self.objective = self.meta.get("objective", "")
+        pre = self.meta.get("prerequisites", "none").strip()
+        self.prerequisites = [] if pre in ("", "none") else [p.strip() for p in pre.split(",")]
+        try:
+            self.difficulty = int(self.meta.get("difficulty", "1"))
+        except ValueError:
+            self.difficulty = 0
+        self.day = self.module = None
+        self.estimate = readtime.estimate(self.body, self.kind, self.difficulty or 1)
+
+    @property
+    def minutes(self):
+        return readtime.display_minutes(self.estimate["core_minutes"])
+
+    def sections(self):
+        return [h for h, _ in readtime.split_sections(self.body) if h is not None]
+
+    def deeper_topics(self):
+        topics, in_deeper = [], False
+        for line in prose_lines(self.body):
+            if line.startswith("### "):
+                in_deeper = line[4:].strip() == DEEPER
+            elif in_deeper and line.startswith("#### "):
+                topics.append(line[5:].strip())
+        return topics
 
 
-def lesson_path(n):
-    return LESSONS / f"day-{day_id(n)}.md"
+def parse_frontmatter(text):
+    lines = text.split("\n")
+    if not lines or lines[0].strip() != "---":
+        return {}, text, 0
+    meta, end = {}, None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end = i
+            break
+        if ":" in lines[i]:
+            k, v = lines[i].split(":", 1)
+            meta[k.strip()] = v.strip()
+    if end is None:
+        return meta, "", 0
+    start = end + 1
+    while start < len(lines) and not lines[start].strip():
+        start += 1                       # body_offset must point at the body's first line
+    return meta, "\n".join(lines[start:]).strip("\n") + "\n", start
+
+
+def prose_lines(text):
+    in_code = False
+    for line in text.split("\n"):
+        if FENCE.match(line):
+            in_code = not in_code
+            continue
+        if not in_code:
+            yield line
+
+
+def load():
+    cur = json.loads(CURRICULUM.read_text(encoding="utf-8"))
+    order, lessons = [], {}
+    for mi, mod in enumerate(cur["modules"], 1):
+        mod["n"] = mi
+        for lid in mod["lessons"]:
+            order.append(lid)
+            path = LESSONS / f"{lid}.md"
+            if path.exists():
+                lesson = Lesson(lid, path)
+                lesson.module = mod
+                lessons[lid] = lesson
+    for day, lid in enumerate(order, 1):
+        if lid in lessons:
+            lessons[lid].day = day
+    return cur, order, lessons
+
+
+def day_slug(day):
+    return f"{day:02d}"
+
+
+# ---------------------------------------------------------------- references
+
+def resolve_refs(text, lessons, modules, problems=None, where="", style="markdown"):
+    """Replace [[id]] references in prose; leave code and inline code alone."""
+    out, in_code = [], False
+    for n, line in enumerate(text.split("\n"), 1):
+        if FENCE.match(line):
+            in_code = not in_code
+            out.append(line)
+            continue
+        if in_code:
+            out.append(line)
+            continue
+        parts = re.split(r"(`[^`]*`)", line)
+        for i in range(0, len(parts), 2):
+            def sub(m):
+                is_module, target, label = m.group(1), m.group(2), m.group(3)
+                if is_module:
+                    mod = modules.get(target)
+                    if not mod:
+                        if problems is not None:
+                            problems.append(f"{where}:{n}: unknown module reference [[module:{target}]]")
+                        return m.group(0)
+                    return f"[{label or 'module ' + str(mod['n'])}](#module-{target})"
+                lesson = lessons.get(target)
+                if not lesson:
+                    if problems is not None:
+                        problems.append(f"{where}:{n}: unknown lesson reference [[{target}]]")
+                    return m.group(0)
+                slug = day_slug(lesson.day)
+                return f"[{label or 'day ' + slug}](#day-{slug})"
+            parts[i] = REF.sub(sub, parts[i])
+        out.append("".join(parts))
+    return "\n".join(out)
+
+
+def fill_templates(text, values):
+    return TEMPLATE.sub(lambda m: str(values.get(m.group(1), m.group(0))), text)
+
+
+# ---------------------------------------------------------------- validation
+
+def code_blocks(text):
+    """Yield (line_number, language, tags, code_lines) for each fenced block."""
+    lines = text.split("\n")
+    i = 0
+    while i < len(lines):
+        m = FENCE.match(lines[i])
+        if m:
+            info = m.group(2).strip().split()
+            lang, tags, start, body = (info[0] if info else ""), info[1:], i + 1, []
+            i += 1
+            while i < len(lines) and not (FENCE.match(lines[i]) and not FENCE.match(lines[i]).group(2).strip()):
+                body.append(lines[i])
+                i += 1
+            yield start, lang, tags, body
+        i += 1
+
+
+def check_text_common(text, where, problems, warnings, identifiers, offset=0):
+    if text.count("<details>") != text.count("</details>"):
+        problems.append(f"{where}: unbalanced <details> blocks")
+    fences = sum(1 for line in text.split("\n") if FENCE.match(line))
+    if fences % 2:
+        problems.append(f"{where}: unbalanced code fence")
+    for n, line in enumerate(text.split("\n"), 1):
+        if PLACEHOLDER.search(line) and not FENCE.match(line):
+            problems.append(f"{where}:{n + offset}: placeholder-like text: {line.strip()[:80]!r}")
+    for n, msg in editorial.check_text(text, identifiers):
+        problems.append(f"{where}:{n + offset}: {msg}")
+    for n, lang, tags, _ in code_blocks(text):
+        if not lang:
+            problems.append(f"{where}:{n + offset}: code fence without a language tag")
+        if lang == "cpp":
+            for t in tags:
+                if t not in CODE_TAGS and not t.startswith("group="):
+                    problems.append(f"{where}:{n + offset}: unknown code block tag {t!r}")
+
+
+def validate_lesson(lesson, ctx, problems, warnings):
+    cur, order, lessons, identifiers = ctx
+    where = f".course_build/lessons/{lesson.id}.md"
+    m = lesson.meta
+    for key in ("title", "standard", "objective", "prerequisites", "difficulty"):
+        if key not in m:
+            problems.append(f"{where}: frontmatter is missing '{key}'")
+    if lesson.kind not in ("lesson", "review"):
+        problems.append(f"{where}: kind must be 'lesson' or 'review'")
+    if lesson.standard not in STANDARDS:
+        problems.append(f"{where}: standard must be one of {sorted(STANDARDS)}")
+    if lesson.difficulty not in (1, 2, 3):
+        problems.append(f"{where}: difficulty must be 1, 2, or 3")
+    if len(lesson.objective.split()) < 6:
+        problems.append(f"{where}: objective is missing or too short to state a learning goal")
+    for field in ("title", "objective"):
+        for _, msg in editorial.check_text(m.get(field, ""), identifiers):
+            problems.append(f"{where}: {field}: {msg}")
+    for pre in lesson.prerequisites:
+        if pre not in lessons:
+            problems.append(f"{where}: prerequisite {pre!r} is not a lesson")
+        elif lessons[pre].day >= lesson.day:
+            problems.append(f"{where}: prerequisite {pre!r} (day {lessons[pre].day}) does not come before day {lesson.day}")
+
+    expected = REVIEW_SECTIONS if lesson.kind == "review" else LESSON_SECTIONS
+    found = lesson.sections()
+    core = [s for s in found if s != DEEPER]
+    if core != expected:
+        problems.append(f"{where}: sections must be {expected} (plus an optional '{DEEPER}' last), found {found}")
+    if DEEPER in found and found[-1] != DEEPER:
+        problems.append(f"{where}: '{DEEPER}' must be the last section")
+    pre_text = [t for h, t in readtime.split_sections(lesson.body) if h is None]
+    if pre_text and pre_text[0].strip():
+        problems.append(f"{where}: text before the first section heading")
+    for heading, text in readtime.split_sections(lesson.body):
+        if heading in expected and len(re.sub(r"<[^>]+>", " ", text).split()) < 12:
+            problems.append(f"{where}: section '{heading}' is nearly empty")
+        if heading == "in code" and not any(True for _ in code_blocks(text)):
+            problems.append(f"{where}: 'in code' has no code block")
+        if heading == "optional challenge" and "<details>" not in text:
+            problems.append(f"{where}: the optional challenge needs a collapsed <details> answer")
+        if heading == "answers" and text.count("<details>") < 3:
+            problems.append(f"{where}: review answers should be collapsed in <details> blocks")
+        if heading == DEEPER and "#### " not in text:
+            problems.append(f"{where}: '{DEEPER}' needs at least one '#### topic' heading")
+    if any(re.match(r"^#{1,2} ", line) for line in prose_lines(lesson.body)):
+        problems.append(f"{where}: lessons use ### for sections and #### below; no # or ## headings")
+
+    core_min = lesson.estimate["core_minutes"]
+    if core_min > MAX_MINUTES:
+        problems.append(f"{where}: core reading time {core_min} min exceeds {MAX_MINUTES}; split the lesson or move material to '{DEEPER}'")
+    elif core_min < MIN_MINUTES:
+        warnings.append(f"{where}: core reading time {core_min} min is below {MIN_MINUTES}")
+
+    check_text_common(lesson.body, where, problems, warnings, identifiers, lesson.body_offset)
+    refs = []
+    resolve_refs(lesson.body, lessons, {md["id"]: md for md in cur["modules"]}, refs, where)
+    for r in refs:
+        n, msg = r.split(": ", 1)[0], r.split(": ", 1)[1]
+        file, line = n.rsplit(":", 1)
+        problems.append(f"{file}:{int(line) + lesson.body_offset}: {msg}")
+
+
+def validate_structure(cur, order, lessons, problems, warnings):
+    seen = set()
+    for lid in order:
+        if lid in seen:
+            problems.append(f"curriculum.json: lesson {lid!r} appears more than once")
+        seen.add(lid)
+        if lid not in lessons:
+            problems.append(f"curriculum.json: lesson {lid!r} has no source file lessons/{lid}.md")
+    files = {p.stem for p in LESSONS.glob("*.md")}
+    for extra in sorted(files - seen):
+        problems.append(f".course_build/lessons/{extra}.md is not listed in curriculum.json")
+    mids = [m["id"] for m in cur["modules"]]
+    if len(mids) != len(set(mids)):
+        problems.append("curriculum.json: duplicate module ids")
+    run = 0
+    for mod in cur["modules"]:
+        ids = [l for l in mod["lessons"] if l in lessons]
+        if not ids:
+            problems.append(f"module {mod['id']}: no lessons")
+            continue
+        if lessons[ids[-1]].kind != "review":
+            problems.append(f"module {mod['id']}: must end with a review lesson")
+        for lid in ids[:-1]:
+            if lessons[lid].kind == "review":
+                problems.append(f"module {mod['id']}: review {lid!r} must be the module's last lesson")
+        taught = [l for l in ids if lessons[l].kind == "lesson"]
+        review = lessons[ids[-1]]
+        if review.kind == "review":
+            missing = [l for l in taught if l not in review.prerequisites]
+            if missing:
+                problems.append(f".course_build/lessons/{review.id}.md: review does not list module lessons {missing} as prerequisites")
+        for lid in ids:
+            run = 0 if lessons[lid].kind == "review" else run + 1
+            if run > MAX_RUN_WITHOUT_REVIEW:
+                problems.append(f"{lid}: more than {MAX_RUN_WITHOUT_REVIEW} lessons in a row without a review")
+        for field in ("title", "blurb"):
+            for _, msg in editorial.check_text(mod.get(field, ""), set()):
+                problems.append(f"curriculum.json: module {mod['id']} {field}: {msg}")
+    legacy = cur.get("legacy", {}).get("v1", {})
+    covered = set()
+    for lid, days in legacy.get("complete_when", {}).items():
+        if lid not in lessons:
+            problems.append(f"curriculum.json: legacy mapping names unknown lesson {lid!r}")
+        for d in days:
+            if not 1 <= int(d) <= 56:
+                problems.append(f"curriculum.json: legacy mapping for {lid!r} names v1 day {d}")
+            covered.add(int(d))
+    for k, lid in legacy.get("redirect", {}).items():
+        if lid not in lessons:
+            problems.append(f"curriculum.json: legacy redirect for v1 day {k} names unknown lesson {lid!r}")
+        covered.add(int(k))
+    missing = sorted(set(range(1, 57)) - covered)
+    if missing:
+        problems.append(f"curriculum.json: v1 days without any v2 mapping or redirect: {missing}")
+
+
+def all_identifiers(lessons):
+    texts = [l.body for l in lessons.values()]
+    texts += [(SECTIONS / s).read_text(encoding="utf-8") for s in FRONT_SECTIONS + BACK_SECTIONS if (SECTIONS / s).exists()]
+    return editorial.code_identifiers(texts)
+
+
+def validate(only=None):
+    cur, order, lessons = load()
+    problems, warnings = [], []
+    validate_structure(cur, order, lessons, problems, warnings)
+    identifiers = all_identifiers(lessons)
+    ctx = (cur, order, lessons, identifiers)
+    modules = {m["id"]: m for m in cur["modules"]}
+    for lid in order:
+        if lid in lessons and (only is None or lid in only):
+            validate_lesson(lessons[lid], ctx, problems, warnings)
+    if only is None:
+        for s in FRONT_SECTIONS + BACK_SECTIONS:
+            path = SECTIONS / s
+            where = f".course_build/sections/{s}"
+            if not path.exists():
+                problems.append(f"{where}: missing")
+                continue
+            text = path.read_text(encoding="utf-8")
+            check_text_common(text, where, problems, warnings, identifiers)
+            refs = []
+            resolve_refs(text, lessons, modules, refs, where)
+            problems += refs
+    return cur, order, lessons, problems, warnings
+
+
+# ---------------------------------------------------------------- assembly
+
+def legacy_redirects(cur, order):
+    legacy = cur.get("legacy", {}).get("v1", {})
+    redirect = {f"{int(k):02d}": v for k, v in legacy.get("redirect", {}).items()}
+    for lid in order:
+        for d in legacy.get("complete_when", {}).get(lid, []):
+            redirect.setdefault(f"{int(d):02d}", lid)
+    return dict(sorted(redirect.items()))
+
+
+def demote(text, levels=1):
+    out, in_code = [], False
+    for line in text.split("\n"):
+        if FENCE.match(line):
+            in_code = not in_code
+        elif not in_code and re.match(r"^#{1,5} ", line):
+            line = "#" * levels + line
+        out.append(line)
+    return "\n".join(out)
+
+
+def lesson_header(lesson, lessons, level="###"):
+    slug = day_slug(lesson.day)
+    mod = lesson.module
+    meta = [f"**module {mod['n']}:** {mod['title']}",
+            f"**reading time:** about {lesson.minutes} minutes",
+            f"**standard:** {lesson.standard}"]
+    lines = [f'<a id="day-{slug}"></a>', "", f"{level} day {slug}: {lesson.title}", "",
+             " · ".join(meta) + "  ", f"**objective:** {lesson.objective}"]
+    if lesson.prerequisites:
+        if lesson.kind == "review":
+            days = [lessons[p].day for p in lesson.prerequisites if p in lessons]
+            lines[-1] += "  "
+            lines.append(f"**covers:** [day {day_slug(min(days))}](#day-{day_slug(min(days))}) "
+                         f"to [day {day_slug(max(days))}](#day-{day_slug(max(days))})")
+        else:
+            refs = ", ".join(f"[day {day_slug(lessons[p].day)}](#day-{day_slug(lessons[p].day)}) "
+                             f"({lessons[p].title})" for p in lesson.prerequisites if p in lessons)
+            lines[-1] += "  "
+            lines.append(f"**builds on:** {refs}")
+    return "\n".join(lines)
+
+
+def lesson_body_for_document(lesson, lessons, modules):
+    body = resolve_refs(lesson.body, lessons, modules)
+    body = re.sub(r"^### going deeper$", "### going deeper (optional)", body, flags=re.M)
+    return demote(body, 1)
+
+
+def curriculum_map(cur, lessons):
+    lines = ['<a id="curriculum"></a>', "", "## curriculum map", ""]
+    for mod in cur["modules"]:
+        lines += [f"**[module {mod['n']}: {mod['title']}](#module-{mod['id']})**: {mod['blurb']}", "",
+                  "| day | lesson | standard | minutes | going deeper |", "| --- | --- | --- | --- | --- |"]
+        for lid in mod["lessons"]:
+            l = lessons[lid]
+            slug = day_slug(l.day)
+            deeper = "; ".join(l.deeper_topics()) or ""
+            lines.append(f"| {slug} | [{l.title}](#day-{slug}) | {l.standard} | {l.minutes} | {deeper} |")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def checklist(cur, lessons):
+    lines = ['<a id="progress-checklist"></a>', "", "## progress checklist", "",
+             "tick a box as you finish each day (in an editor, or on a printed copy). the website tracks progress for you.", ""]
+    for mod in cur["modules"]:
+        lines += [f"**module {mod['n']}: {mod['title']}**", ""]
+        for lid in mod["lessons"]:
+            l = lessons[lid]
+            lines.append(f"- [ ] [day {day_slug(l.day)}: {l.title}](#day-{day_slug(l.day)})")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def counts(cur, lessons):
+    reviews = sum(1 for l in lessons.values() if l.kind == "review")
+    return {"lesson_count": len(lessons), "module_count": len(cur["modules"]),
+            "instructional_count": len(lessons) - reviews, "review_count": reviews,
+            "version": cur["version"]}
+
+
+def build(cur, order, lessons):
+    modules = {m["id"]: m for m in cur["modules"]}
+    values = counts(cur, lessons)
+
+    def section(name):
+        text = (SECTIONS / name).read_text(encoding="utf-8").rstrip() + "\n"
+        return resolve_refs(fill_templates(text, values), lessons, modules)
+
+    toc = ['<a id="table-of-contents"></a>', "", "## table of contents", "",
+           "- [introduction and learning philosophy](#introduction)",
+           "- [course overview](#course-overview)",
+           "- [curriculum map](#curriculum)",
+           "- [progress checklist](#progress-checklist)"]
+    toc += [f"- [module {m['n']}: {m['title']}](#module-{m['id']})" for m in cur["modules"]]
+    toc += ["- [modern C++17/20 cheat sheet](#cheat-sheet)", "- [references for deeper study](#references)", ""]
+
+    body = []
+    for mod in cur["modules"]:
+        body += [f'<a id="module-{mod["id"]}"></a>', "", f"## module {mod['n']}: {mod['title']}", "",
+                 mod["blurb"], ""]
+        for lid in mod["lessons"]:
+            l = lessons[lid]
+            body += [lesson_header(l, lessons), "", lesson_body_for_document(l, lessons, modules).rstrip(), "",
+                     "[back to the curriculum map](#curriculum)", "", "---", ""]
+
+    doc = [f"# {cur['title']}", "",
+           f"*version {cur['version']}: {values['lesson_count']} days of C++17 and C++20 in {values['module_count']} modules. "
+           "generated from `.course_build/` by `course.py assemble`; edit the lesson and section sources there, then reassemble.*", "",
+           section("introduction.md"), section("overview.md"), "\n".join(toc), curriculum_map(cur, lessons),
+           checklist(cur, lessons), "\n".join(body), section("cheat_sheet.md"), section("references.md")]
+    text = "\n".join(doc).rstrip() + "\n"
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    manifest = {
+        "version": cur["version"],
+        "title": cur["title"],
+        "tagline": cur.get("tagline", ""),
+        "counts": values,
+        "modules": [{"id": m["id"], "n": m["n"], "title": m["title"], "blurb": m["blurb"],
+                     "lessons": m["lessons"]} for m in cur["modules"]],
+        "lessons": [],
+        "sections": {
+            "introduction": section("introduction.md"),
+            "overview": section("overview.md"),
+            "curriculum": curriculum_map(cur, lessons),
+            "cheat_sheet": section("cheat_sheet.md"),
+            "references": section("references.md"),
+        },
+        "legacy": {"v1": {"complete_when": cur["legacy"]["v1"]["complete_when"],
+                          "redirect": legacy_redirects(cur, order)}},
+    }
+    used_by = {lid: [] for lid in order}
+    for lid in order:
+        for p in lessons[lid].prerequisites:
+            if p in used_by and lessons[lid].kind == "lesson":
+                used_by[p].append(lid)
+    for lid in order:
+        l = lessons[lid]
+        manifest["lessons"].append({
+            "id": l.id, "day": l.day, "slug": day_slug(l.day), "kind": l.kind,
+            "module": l.module["id"], "module_n": l.module["n"],
+            "title": l.title, "standard": l.standard, "objective": l.objective,
+            "difficulty": l.difficulty, "minutes": l.minutes,
+            "core_minutes": l.estimate["core_minutes"], "deeper_minutes": l.estimate["deeper_minutes"],
+            "deeper_topics": l.deeper_topics(),
+            "prerequisites": l.prerequisites, "used_by": used_by[lid],
+            "v1": cur["legacy"]["v1"]["complete_when"].get(lid, []),
+            "body": resolve_refs(l.body, lessons, modules),
+        })
+    return text, manifest
+
+
+def validate_document(text):
+    problems = []
+    anchors = ANCHOR.findall(text)
+    dupes = sorted({a for a in anchors if anchors.count(a) > 1})
+    if dupes:
+        problems.append(f"duplicate anchors: {dupes}")
+    known = set(anchors)
+    for target in sorted(set(MD_LINK.findall(text))):
+        if target not in known:
+            problems.append(f"broken internal link #{target}")
+    prose = re.sub(r"`[^`]*`", "", "\n".join(prose_lines(text)))
+    leftover = sorted(set(m.group(0) for m in REF.finditer(prose)))
+    if leftover:
+        problems.append(f"unresolved cross references: {leftover[:5]}")
+    if TEMPLATE.search(text):
+        problems.append("unfilled {{template}} variables")
+    if editorial.EM_DASH in text:
+        problems.append("the document contains em dashes")
+    return problems
 
 
 def atomic_write(path, text):
     path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
     tmp.write_text(text, encoding="utf-8", newline="\n")
     for attempt in range(20):
         try:
             os.replace(tmp, path)
             return
-        except PermissionError:
-            # Windows refuses to replace a file another process has open; retry briefly.
+        except PermissionError:  # Windows: another process has the file open
             time.sleep(0.1 * (attempt + 1))
     os.replace(tmp, path)
 
 
-def split_code(lines):
-    """Yield (line, in_code, fence_info) and report unbalanced fences."""
-    out, fence, info = [], None, None
-    for line in lines:
-        m = FENCE.match(line)
-        if fence is None and m:
-            fence, info = m.group(2), m.group(3).strip()
-            out.append((line, True, ("open", info)))
-        elif fence is not None and m and m.group(2).startswith(fence[0]) \
-                and len(m.group(2)) >= len(fence) and not m.group(3).strip():
-            fence = None
-            out.append((line, True, ("close", None)))
-        else:
-            out.append((line, fence is not None, None))
-    return out, fence is not None
+def assemble():
+    cur, order, lessons, problems, warnings = validate()
+    for w in warnings:
+        print("warning:", w)
+    if problems:
+        for p in problems:
+            print("problem:", p)
+        print(f"not assembled: {len(problems)} problem(s); the published files were not touched")
+        return 1
+    text, manifest = build(cur, order, lessons)
+    doc_problems = validate_document(text)
+    if doc_problems:
+        for p in doc_problems:
+            print("problem:", p)
+        print("assembled document failed validation; the published files were not touched")
+        return 1
+    atomic_write(FINAL, text)
+    atomic_write(MANIFEST, json.dumps(manifest, indent=1, ensure_ascii=False) + "\n")
+    atomic_write(BUILD / "curriculum.md", curriculum_document(cur, order, lessons))
+    write_state(cur, lessons, "assembled_and_validated")
+    c = counts(cur, lessons)
+    print(f"published {FINAL.name} ({len(text.split())} words) and {MANIFEST.relative_to(ROOT)}: "
+          f"{c['lesson_count']} days ({c['instructional_count']} lessons, {c['review_count']} reviews) in {c['module_count']} modules")
+    return 0
 
 
-def heading_case_problems(text):
-    text = re.sub(r"`[^`]*`", "", text)
-    text = re.sub(r"C\+\+\d*", "", text)
-    bad = []
-    for word in re.findall(r"[A-Za-z][A-Za-z0-9_'-]*", text):
-        if word != word.lower() and not re.fullmatch(r"[A-Z0-9_]{2,}s?", word):
-            bad.append(word)
-    return bad
+def curriculum_document(cur, order, lessons):
+    """The curriculum map for authors: everything about each day in one place."""
+    c = counts(cur, lessons)
+    out = [f"# curriculum map (version {cur['version']})", "",
+           "generated by `course.py assemble` from `curriculum.json` and the lesson frontmatter; do not edit by hand. "
+           "to change the curriculum, edit those sources and reassemble.", "",
+           f"{c['lesson_count']} days in {c['module_count']} modules: {c['instructional_count']} lessons and "
+           f"{c['review_count']} reviews. minutes are the estimated core reading time (see `tools/readtime.py`); "
+           "\"v1\" lists the days of the original 56-day course a lesson was derived from (empty: new material).", ""]
+    for mod in cur["modules"]:
+        out += [f"## module {mod['n']}: {mod['title']} (`{mod['id']}`)", "", mod["blurb"], "",
+                "| day | id | lesson and objective | builds on | std | min | going deeper | v1 |",
+                "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+        for lid in mod["lessons"]:
+            l = lessons[lid]
+            pre = ", ".join(day_slug(lessons[p].day) for p in l.prerequisites if p in lessons) or "none"
+            v1 = ", ".join(str(d) for d in cur["legacy"]["v1"]["complete_when"].get(lid, [])) or "new"
+            out.append(f"| {day_slug(l.day)} | `{lid}` | **{l.title}**: {l.objective} | {pre} | {l.standard} | "
+                       f"{l.estimate['core_minutes']} | {'; '.join(l.deeper_topics())} | {v1} |")
+        out.append("")
+    return "\n".join(out).rstrip() + "\n"
 
 
-def common_text_checks(lines, problems, warnings):
-    tagged, unbalanced = split_code(lines)
-    if unbalanced:
-        problems.append("unbalanced code fence")
-    for line, in_code, fence in tagged:
-        if fence and fence[0] == "open" and not fence[1]:
-            problems.append(f"code fence without a language tag: {line.strip()!r}")
-        if not in_code:
-            h = HEADING.match(line)
-            if h:
-                bad = heading_case_problems(h.group(2))
-                if bad:
-                    problems.append(f"heading not lowercase ({', '.join(bad)}): {line.strip()}")
-    text = "\n".join(lines)
-    if "—" in text:
-        problems.append(f"contains {text.count(chr(0x2014))} em dash(es)")
-    if "–" in text:
-        warnings.append(f"contains {text.count(chr(0x2013))} en dash(es)")
-    m = PLACEHOLDER.search(text)
-    if m:
-        problems.append(f"placeholder-like text: {m.group(0)!r}")
-    return tagged
-
-
-def check_lesson(path):
-    """Return (problems, warnings, info) for one lesson file."""
-    path = Path(path)
-    problems, warnings, info = [], [], {}
-    m = re.match(r"day-(\d{2})\.md(\.tmp)?$", path.name)
-    if not m:
-        return [f"file name must be day-XX.md or day-XX.md.tmp, got {path.name}"], warnings, info
-    n = int(m.group(1))
-    if not 1 <= n <= TOTAL_DAYS:
-        return [f"day {n} out of range"], warnings, info
-    if not path.exists():
-        return ["file does not exist"], warnings, info
-    text = path.read_text(encoding="utf-8")
-    lines = text.splitlines()
-    is_review = n in REVIEW_DAYS
-    info["review"] = is_review
-
-    nonblank = [l for l in lines if l.strip()]
-    if not nonblank or nonblank[0].strip() != f'<a id="day-{day_id(n)}"></a>':
-        problems.append(f'first line must be <a id="day-{day_id(n)}"></a>')
-
-    tagged = common_text_checks(lines, problems, warnings)
-    prose = [l for l, code, _ in tagged if not code]
-    h2 = [l for l in prose if l.startswith("## ")]
-    h1 = [l for l in prose if l.startswith("# ")]
-    if h1:
-        problems.append("lesson files must not use a level-1 heading")
-    if len(h2) != 1:
-        problems.append(f"expected exactly one '## day {day_id(n)}: ...' heading, found {len(h2)}")
-    elif not h2[0].startswith(f"## day {day_id(n)}: ") or len(h2[0]) < 14:
-        problems.append(f"day heading must start with '## day {day_id(n)}: ' and have a title")
-    else:
-        info["title"] = h2[0][len(f"## day {day_id(n)}: "):].strip()
-
-    metas = [META.match(l) for l in prose]
-    metas = [mm for mm in metas if mm]
-    if len(metas) != 1:
-        problems.append("missing or duplicated meta line "
-                        "('**reading time:** about N minutes · **standard:** C++17 · **builds on:** ...')")
-    else:
-        minutes = int(metas[0].group(1))
-        info["minutes"], info["standard"] = minutes, "C++" + metas[0].group(2)
-        if not 5 <= minutes <= 10:
-            problems.append(f"reading time {minutes} is outside 5 to 10 minutes")
-
-    expected = REVIEW_SECTIONS if is_review else LESSON_SECTIONS
-    h3 = [l[4:].strip() for l in prose if l.startswith("### ")]
-    if h3 != expected:
-        problems.append(f"section headings must be exactly {expected}, found {h3}")
-
-    # Section bodies must not be empty.
-    current, bodies = None, {}
-    for l, code, _ in tagged:
-        if not code and l.startswith("### "):
-            current = l[4:].strip()
-            bodies[current] = 0
-        elif current is not None and l.strip():
-            bodies[current] += len(l.split())
-    for name in expected:
-        if name in bodies and bodies[name] < 15:
-            problems.append(f"section '{name}' is nearly empty ({bodies[name]} words)")
-
-    cpp_blocks = sum(1 for _, _, f in tagged if f and f[0] == "open" and f[1].startswith("cpp"))
-    info["cpp_blocks"] = cpp_blocks
-    if not is_review and cpp_blocks < 2:
-        problems.append(f"instructional lessons need at least 2 cpp code blocks, found {cpp_blocks}")
-
-    details = text.count("<details>")
-    if details != text.count("</details>"):
-        problems.append("unbalanced <details> blocks")
-    if is_review:
-        if details < 4:
-            problems.append(f"review answers should be collapsed (<details>), found {details}")
-    elif details < 1:
-        problems.append("optional challenge needs a collapsed <details> answer")
-
-    words = len(text.split())
-    info["words"] = words
-    if not MIN_WORDS <= words <= MAX_WORDS:
-        problems.append(f"{words} words, outside {MIN_WORDS} to {MAX_WORDS}")
-    elif words > 1900:
-        warnings.append(f"{words} words is on the long side")
-
-    for target in LINK.findall(text):
-        if not re.fullmatch(r"day-(\d{2})|week-[1-8]|cheat-sheet|references", target):
-            problems.append(f"link to unknown anchor #{target}")
-        elif target.startswith("day-") and not 1 <= int(target[4:]) <= TOTAL_DAYS:
-            problems.append(f"link to nonexistent day #{target}")
-    return problems, warnings, info
-
-
-def parse_weeks():
-    """Read week numbers, titles, and blurbs from the curriculum."""
-    weeks, current = [], None
-    for line in CURRICULUM.read_text(encoding="utf-8").splitlines():
-        m = re.match(r"^## week (\d): (.+)$", line)
-        if m:
-            current = {"n": int(m.group(1)), "title": m.group(2).strip(), "blurb": ""}
-            weeks.append(current)
-        elif current is not None and not current["blurb"] and line.strip() and not line.startswith("#"):
-            current["blurb"] = line.strip()
-    return weeks
-
-
-def load_state():
-    if STATE.exists():
-        try:
-            return json.loads(STATE.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return {}
-    return {}
-
-
-def reconcile(action=None, quiet=False):
-    old = load_state()
-    old_lessons = old.get("lessons", {})
-    lessons, completed, notes = {}, 0, []
-    for n in range(1, TOTAL_DAYS + 1):
-        key, path = day_id(n), lesson_path(n)
-        rel = f".course_build/lessons/day-{key}.md"
-        entry = {"status": "pending", "path": rel,
-                 "kind": "review" if n in REVIEW_DAYS else "lesson"}
-        if path.exists():
-            problems, _, info = check_lesson(path)
-            if problems:
-                entry["status"] = "needs_repair"
-                entry["problems"] = problems
-            else:
-                entry["status"] = "complete"
-                completed += 1
-                entry.update({k: info[k] for k in ("title", "words", "minutes", "standard") if k in info})
-            entry["compile_check_note"] = (CHECKS / f"day-{key}.md").exists()
-        elif (LESSONS / f"day-{key}.md.tmp").exists():
-            entry["status"] = "in_progress"
-        elif old_lessons.get(key, {}).get("status") == "complete":
-            entry["status"] = "needs_repair"
-            entry["problems"] = ["manifest said complete but the file is missing"]
-        lessons[key] = entry
-
-    incomplete = [k for k, e in lessons.items() if e["status"] != "complete"]
-    sections_ok = all((SECTIONS / s).exists() for s in FRONT_SECTIONS + BACK_SECTIONS)
-    assembly = old.get("assembly", "pending")
-    validation = old.get("validation", "pending")
-    final_ok = False
-    if FINAL.exists():
-        final_ok = not validate_final(FINAL.read_text(encoding="utf-8"))[0]
-    if incomplete or not final_ok:
-        if incomplete:
-            assembly = validation = "pending"
-        elif not FINAL.exists():
-            assembly, validation = "pending", "pending"
-        else:
-            validation = "failed"
-
-    if incomplete:
-        phase = "generation"
-        repair = [k for k in incomplete if lessons[k]["status"] == "needs_repair"]
-        nxt = (repair or incomplete)[0]
-        next_action = f"{'repair' if repair else 'write'} lesson day-{nxt}"
-    elif not sections_ok:
-        phase, nxt = "assembly", None
-        missing = [s for s in FRONT_SECTIONS + BACK_SECTIONS if not (SECTIONS / s).exists()]
-        next_action = "write supplementary sections: " + ", ".join(missing)
-    elif not final_ok or validation != "complete":
-        phase, nxt = ("validation" if FINAL.exists() else "assembly"), None
-        next_action = "run: python .course_build/tools/course.py assemble"
-    else:
-        phase, nxt, next_action = "complete", None, "none: course is complete"
-
+def write_state(cur, lessons, action):
+    minutes = [l.estimate["core_minutes"] for l in lessons.values()]
     state = {
         "project": "modern_cpp_daily_course",
-        "spec_version": "1.0",
-        "phase": phase,
-        "total_days": TOTAL_DAYS,
-        "completed_days": completed,
-        "next_day": int(nxt) if nxt else None,
-        "next_action": next_action,
-        "lessons": lessons,
-        "supplementary_sections": {s: (SECTIONS / s).exists() for s in FRONT_SECTIONS + BACK_SECTIONS},
-        "assembly": assembly,
-        "validation": validation,
-        "last_successful_action": action or old.get("last_successful_action", "reconciled"),
+        "curriculum_version": cur["version"],
+        "counts": counts(cur, lessons),
+        "reading_time_core_minutes": {"min": min(minutes), "max": max(minutes),
+                                      "mean": round(sum(minutes) / len(minutes), 1)},
+        "last_successful_action": action,
         "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     atomic_write(STATE, json.dumps(state, indent=2) + "\n")
-    write_handoff(state)
-    if not quiet:
-        print_status(state)
-    return state
 
 
-AUTO_START, AUTO_END = "<!-- auto:start -->", "<!-- auto:end -->"
-
-
-def write_handoff(state):
-    done = [k for k, e in state["lessons"].items() if e["status"] == "complete"]
-    by_status = {}
-    for k, e in state["lessons"].items():
-        if e["status"] != "complete":
-            by_status.setdefault(e["status"], []).append(k)
-    other = {s: compress(keys) for s, keys in by_status.items()}
-    auto = [
-        AUTO_START,
-        "## current position (generated by `course.py reconcile`, do not edit by hand)",
-        "",
-        f"- phase: **{state['phase']}**",
-        f"- lessons complete: {state['completed_days']} / {TOTAL_DAYS}"
-        + (f" (days {compress(done)})" if done else ""),
-        f"- not complete: {'; '.join(f'{s}: {days}' for s, days in other.items()) if other else 'none'}",
-        f"- supplementary sections: "
-        + ", ".join(f"{k} {'ok' if v else 'missing'}" for k, v in state["supplementary_sections"].items()),
-        f"- assembly: {state['assembly']}, validation: {state['validation']}",
-        f"- **next action: {state['next_action']}**",
-        f"- last successful action: {state['last_successful_action']} ({state['updated']})",
-        AUTO_END,
-    ]
-    block = "\n".join(auto)
-    if HANDOFF.exists():
-        text = HANDOFF.read_text(encoding="utf-8")
-        if AUTO_START in text and AUTO_END in text:
-            pre, rest = text.split(AUTO_START, 1)
-            post = rest.split(AUTO_END, 1)[1]
-            text = pre + block + post
-        else:
-            text = text.rstrip() + "\n\n" + block + "\n"
-    else:
-        text = "# handoff\n\n" + block + "\n"
-    atomic_write(HANDOFF, text)
-
-
-def compress(keys):
-    nums = sorted(int(k) for k in keys)
-    ranges, start = [], None
-    for i, n in enumerate(nums):
-        if start is None:
-            start = n
-        if i == len(nums) - 1 or nums[i + 1] != n + 1:
-            ranges.append(f"{start:02d}" if start == n else f"{start:02d}-{n:02d}")
-            start = None
-    return ", ".join(ranges)
-
-
-def print_status(state):
-    counts = {}
-    for e in state["lessons"].values():
-        counts[e["status"]] = counts.get(e["status"], 0) + 1
-    print(f"phase: {state['phase']} | complete {state['completed_days']}/{TOTAL_DAYS} | "
-          + ", ".join(f"{k}: {v}" for k, v in sorted(counts.items())))
-    for k, e in state["lessons"].items():
-        if e.get("problems"):
-            print(f"  day-{k} {e['status']}: " + "; ".join(e["problems"]))
-    print(f"next action: {state['next_action']}")
-
-
-def demote(lines):
-    out, tagged = [], split_code(lines)[0]
-    for line, code, _ in tagged:
-        out.append("#" + line if not code and HEADING.match(line) else line)
-    return out
-
-
-def assemble():
-    state = reconcile(quiet=True)
-    incomplete = [k for k, e in state["lessons"].items() if e["status"] != "complete"]
-    if incomplete:
-        sys.exit(f"cannot assemble: lessons not complete: {', '.join(incomplete)}")
-    missing = [s for s in FRONT_SECTIONS + BACK_SECTIONS if not (SECTIONS / s).exists()]
-    if missing:
-        sys.exit(f"cannot assemble: missing sections: {', '.join(missing)}")
-
-    weeks = parse_weeks()
-    titles = {int(k): e["title"] for k, e in state["lessons"].items()}
-    read = lambda name: (SECTIONS / name).read_text(encoding="utf-8").rstrip() + "\n"
-
-    toc = ['<a id="table-of-contents"></a>', "", "## table of contents", "",
-           "- [introduction and learning philosophy](#introduction)",
-           "- [course overview](#course-overview)",
-           "- [progress checklist](#progress-checklist)"]
-    checklist = ['<a id="progress-checklist"></a>', "", "## progress checklist", "",
-                 "Tick a box as you finish each day (in an editor, or on a printed copy).", ""]
-    body = []
-    for w in weeks:
-        first = (w["n"] - 1) * 7 + 1
-        toc.append(f"- [week {w['n']}: {w['title']}](#week-{w['n']})")
-        checklist.append(f"**week {w['n']}: {w['title']}**")
-        checklist.append("")
-        body += [f'<a id="week-{w["n"]}"></a>', "", f"## week {w['n']}: {w['title']}", "", w["blurb"], ""]
-        for n in range(first, first + 7):
-            label = f"day {day_id(n)}: {titles[n]}"
-            toc.append(f"  - [{label}](#day-{day_id(n)})")
-            checklist.append(f"- [ ] [{label}](#day-{day_id(n)})")
-            lesson = lesson_path(n).read_text(encoding="utf-8").rstrip().splitlines()
-            body += demote(lesson) + ["", f"[back to table of contents](#table-of-contents)", "", "---", ""]
-        checklist.append("")
-    toc += ["- [modern C++17/20 cheat sheet](#cheat-sheet)", "- [references for deeper study](#references)", ""]
-
-    doc = ["# modern c++ daily course: 56 days of C++17 and C++20", "",
-           "*version 1.0. Generated from `.course_build/` by `course.py assemble`; "
-           "edit the lesson and section sources there, then reassemble.*", "",
-           read("introduction.md"), read("overview.md"), "\n".join(toc), "\n".join(checklist),
-           "\n".join(body), read("cheat_sheet.md"), read("references.md")]
-    text = "\n".join(doc).rstrip() + "\n"
-
-    problems, warnings = validate_final(text)
-    tmp = FINAL.with_name(FINAL.name + ".tmp")
-    tmp.write_text(text, encoding="utf-8", newline="\n")
-    if problems:
-        print("assembled document failed validation; the published file was not touched:")
-        for p in problems:
-            print("  -", p)
-        print(f"draft left at {tmp}")
-        old = load_state()
-        old["assembly"], old["validation"] = "complete", "failed"
-        atomic_write(STATE, json.dumps(old, indent=2) + "\n")
-        sys.exit(1)
-    os.replace(tmp, FINAL)
-    old = load_state()
-    old["assembly"] = old["validation"] = "complete"
-    atomic_write(STATE, json.dumps(old, indent=2) + "\n")
-    state = reconcile(action="assembled_and_validated", quiet=True)
-    for w in warnings:
-        print("warning:", w)
-    words = len(text.split())
-    print(f"published {FINAL} ({words} words, {len(text.splitlines())} lines); phase: {state['phase']}")
-
-
-def validate_final(text):
-    problems, warnings = [], []
-    lines = text.splitlines()
-    common_text_checks(lines, problems, warnings)
-    anchors = ANCHOR.findall(text)
-    for n in range(1, TOTAL_DAYS + 1):
-        c = anchors.count(f"day-{day_id(n)}")
-        if c != 1:
-            problems.append(f"day-{day_id(n)} anchor appears {c} times")
-        if text.count(f"\n### day {day_id(n)}: ") != 1:
-            problems.append(f"day {day_id(n)} heading appears {text.count(f'### day {day_id(n)}: ')} times")
-    for w in range(1, 9):
-        if anchors.count(f"week-{w}") != 1:
-            problems.append(f"week-{w} anchor missing or duplicated")
-    for review in sorted(REVIEW_DAYS):
-        if f"### day {day_id(review)}: week {(review // 7)} review" not in text:
-            problems.append(f"day {review} is not titled as the week {review // 7} review")
-    order = ["introduction", "course-overview", "table-of-contents", "progress-checklist",
-             "week-1", "cheat-sheet", "references"]
-    positions = [text.find(f'<a id="{a}"></a>') for a in order]
-    if -1 in positions:
-        problems.append("missing front or back section anchors: "
-                        + ", ".join(a for a, p in zip(order, positions) if p == -1))
-    elif positions != sorted(positions):
-        problems.append("sections are out of the required order")
-    dupes = {a for a in anchors if anchors.count(a) > 1}
-    if dupes:
-        problems.append(f"duplicate anchors: {sorted(dupes)}")
-    known = set(anchors)
-    for target in set(LINK.findall(text)):
-        if target not in known:
-            problems.append(f"broken internal link #{target}")
-    if text.count("- [ ] [day ") != TOTAL_DAYS:
-        problems.append("progress checklist does not have exactly 56 entries")
-    return problems, warnings
+def stats():
+    cur, order, lessons = load()
+    print(f"{'day':>4} {'id':32} {'kind':6} {'std':6} {'core':>5} {'deep':>5} {'prose':>5} {'code s':>6}")
+    for lid in order:
+        l = lessons.get(lid)
+        if not l:
+            continue
+        e = l.estimate
+        print(f"{l.day:>4} {lid:32} {l.kind:6} {l.standard:6} {e['core_minutes']:5.1f} "
+              f"{e['deeper_minutes']:5.1f} {e['prose_words']:5d} {e['code_seconds']:6d}")
+    mins = [l.estimate["core_minutes"] for l in lessons.values()]
+    print(f"\n{len(lessons)} days; core minutes min {min(mins)}, max {max(mins)}, "
+          f"mean {sum(mins) / len(mins):.1f}, total {sum(mins):.0f}")
 
 
 def main(argv):
@@ -496,50 +661,28 @@ def main(argv):
         print(__doc__)
         return 2
     cmd = argv[1]
-    if cmd == "check" and len(argv) == 3:
-        problems, warnings, info = check_lesson(argv[2])
+    if cmd in ("validate", "check"):
+        only = set(argv[2:]) if cmd == "check" and len(argv) > 2 else None
+        _, _, lessons, problems, warnings = validate(only)
         for w in warnings:
             print("warning:", w)
         for p in problems:
             print("problem:", p)
-        print("ok" if not problems else "FAILED", info)
+        print("ok" if not problems else f"FAILED: {len(problems)} problem(s)")
         return 1 if problems else 0
-    if cmd == "commit" and len(argv) == 3:
-        tmp = Path(argv[2]).resolve()
-        problems, warnings, info = check_lesson(tmp)
-        for w in warnings:
-            print("warning:", w)
-        if problems:
-            for p in problems:
-                print("problem:", p)
-            print("not committed")
-            return 1
-        final = tmp.with_name(tmp.name[: -len(".tmp")]) if tmp.name.endswith(".tmp") else tmp
-        if final != tmp:
-            os.replace(tmp, final)
-        reconcile(action=f"committed {final.name}", quiet=True)
-        print(f"committed {final.name}: {info}")
-        return 0
-    if cmd == "reconcile":
-        reconcile(action="reconciled")
+    if cmd == "assemble":
+        return assemble()
+    if cmd == "stats":
+        stats()
         return 0
     if cmd == "status":
-        print_status(reconcile(quiet=True))
+        cur, order, lessons, problems, warnings = validate()
+        c = counts(cur, lessons)
+        print(f"curriculum {cur['version']}: {c['lesson_count']} days in {c['module_count']} modules; "
+              f"{len(problems)} problem(s), {len(warnings)} warning(s)")
+        fresh = FINAL.exists() and MANIFEST.exists()
+        print("published files present" if fresh else "published files missing: run assemble")
         return 0
-    if cmd == "assemble":
-        assemble()
-        return 0
-    if cmd == "validate":
-        if not FINAL.exists():
-            print("no published document")
-            return 1
-        problems, warnings = validate_final(FINAL.read_text(encoding="utf-8"))
-        for w in warnings:
-            print("warning:", w)
-        for p in problems:
-            print("problem:", p)
-        print("ok" if not problems else "FAILED")
-        return 1 if problems else 0
     print(__doc__)
     return 2
 

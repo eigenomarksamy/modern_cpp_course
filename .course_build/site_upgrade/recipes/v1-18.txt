@@ -1,0 +1,121 @@
+source: day-18
+refs: 01=linkage-odr 23=if-constexpr 29=concepts
+>>> function-templates
+---
+title: function templates and argument deduction
+standard: C++17
+objective: predict template argument deduction, explain why template definitions live in headers, and resolve dependent names
+prerequisites: linkage-odr, algorithms
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-17
+
+### understanding the concept
+
+<<< 21-25
+
+### in code
+
+<<< 108-129
+
+### in practice
+
+library authors design around deduction. `std::clamp(v, lo, hi)` deduces one `T` from all three arguments, so `std::clamp(speed, 0, 10)` fails exactly like `clamp_to`. when one argument should decide the type and the others should simply convert to it, put the others in a *non-deduced context*, where the compiler does not try to deduce from them at all:
+
+```cpp
+template <typename T> struct identity { using type = T; };   // C++20: std::type_identity
+
+template <typename T>
+T clamp_to(T v, typename identity<T>::type lo, typename identity<T>::type hi) {
+    return v < lo ? lo : (hi < v ? hi : v);
+}
+
+double s = clamp_to(12.5, 0, 10);   // T = double from v alone; 0 and 10 convert
+```
+
+a type nested inside a template that depends on `T` (anything to the left of `::`) cannot be used to deduce `T`, so only `v` participates. the same idea explains why `std::function<void(T)>` parameters never deduce from a lambda: the lambda's type is not `std::function`, and conversions are not considered during deduction.
+
+### watch out for
+
+<<< 139-151
+
+### the takeaway
+
+a function template is a recipe: deduction is exact and per argument, instantiation needs the definition in the translation unit, and dependent names need `typename` or `this->` from you.
+
+### optional challenge
+
+given `template <typename T> void put(T a, T b);`, which calls compile?
+
+```cpp
+put(1, 2);            // (1)
+put(1, 2u);           // (2)
+put<long>(1, 2u);     // (3)
+put("ab", "cd");      // (4)
+put("ab", "abc");     // (5)
+```
+
+<details>
+<summary>answer</summary>
+
+(1), (3), (4), and (5) compile; (2) does not, because `int` and `unsigned int` deduce conflicting types. in (3) `T` is given, so both arguments convert to `long`. (4) and (5) are the subtle ones: by-value parameters decay arrays to pointers *before* deduction, so both arguments deduce `const char*` even though `"ab"` and `"abc"` have different array types (`const char[3]` and `const char[4]`). change the parameters to `const T&` and (5) stops compiling, because references do not decay.
+
+</details>
+
+### going deeper
+
+#### before concepts: SFINAE and `std::enable_if`
+
+<<< 27-36
+>>> class-templates
+---
+title: class templates, CTAD, and specialization
+standard: C++17
+objective: write class templates with type and non-type parameters, use class template argument deduction, and specialize where per-type behavior is needed
+prerequisites: function-templates
+difficulty: 2
+---
+
+### the idea
+
+`std::vector v{1, 2, 3};` names a class template without angle brackets, `std::array<float, 64>` puts a number in a type, and `std::vector<bool>` behaves differently from every other `std::vector`. those are three features of class templates: argument deduction from constructors, non-type parameters, and specialization. each is powerful, and each has a cost that shows up in compile times, binary size, or surprises.
+
+### understanding the concept
+
+a class template generates a distinct class for every set of template arguments: `RingBuffer<float, 64>` and `RingBuffer<float, 128>` are unrelated types with separate code. a **non-type template parameter** puts a value (an integer, an enumerator, a pointer, and since C++17 any type deduced with `auto`) into the type, so the compiler can size storage, unroll loops, and check bounds at compile time.
+
+<<< 80-82
+
+### in code
+
+<<< 40-78
+
+<<< 84-106
+
+### in practice
+
+<<< 133-135
+
+### watch out for
+
+**member functions of a class template are instantiated only when used.** that is what lets `std::vector<T>` work for types that support only some operations, and it also means untested members are uncompiled code:
+
+```cpp
+#include <memory>
+
+RingBuffer<std::unique_ptr<int>, 4> owners;      // compiles: push() is not instantiated yet
+// owners.push(std::make_unique<int>(1));        // error only now: push(const T&) copies
+```
+
+a template library can pass its own test suite and still fail to compile for a user's type the first time an untested member is called. test templates with the kinds of types users will actually bring: move-only, non-default-constructible, and expensive to copy.
+
+### the takeaway
+
+every template parameter is a compile-time decision with compile-time and binary-size costs; make something a template parameter only when the compiler genuinely benefits from knowing it, and specialize class templates, not function templates.
+
+### optional challenge
+
+<<< 159-171

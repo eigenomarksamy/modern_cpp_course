@@ -1,0 +1,97 @@
+source: day-29
+refs: 13=virtual-dispatch 17=lambdas 18=function-templates 46=type-erasure
+>>> concepts
+---
+title: concepts: constraining templates
+standard: C++20
+objective: constrain templates with standard concepts so requirements are part of the signature, and predict which constrained overload is chosen
+prerequisites: function-templates, if-constexpr
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-11
+
+### understanding the concept
+
+<<< 15-22
+
+<<< 33-33
+
+### in code
+
+<<< 39-67
+
+<<< 109-121
+
+### in practice
+
+migrating a C++17 template library to concepts is mostly mechanical and immediately visible to users. every `std::enable_if_t<...>` in a template parameter list becomes a constrained parameter or a `requires` clause, behavior stays the same, and the error a user gets for a wrong type moves from the middle of the implementation to the line they wrote, naming the requirement they missed. the standard library made the same move: `std::ranges::sort` and the other range algorithms are constrained versions of the C++98 algorithms, which is exactly why the opening example's diagnostic improved. a good first step in your own code is the templates that users instantiate most often with the wrong types, because that is where the error messages cost the most time.
+
+### watch out for
+
+<<< 146-153
+
+### the takeaway
+
+a concept moves a template's requirements from its body into its signature; constrain with standard concepts, so error messages name the requirement and the most specific overload wins.
+
+### optional challenge
+
+for `template <std::integral T> T gcd(T a, T b);`, which calls compile?
+
+```cpp
+gcd(12, 18);      // (1)
+gcd(12u, 18u);    // (2)
+gcd(12, 18L);     // (3)
+gcd('a', 'b');    // (4)
+gcd(true, false); // (5)
+```
+
+<details>
+<summary>answer</summary>
+
+(1), (2), (4), and (5) compile; (3) does not. deduction happens first and must agree, so `int` and `long` conflict before the constraint is even checked. `unsigned`, `char`, and `bool` all satisfy `std::integral`, which may be more than a `gcd` should accept; a `requires` clause such as `std::integral<T> && !std::same_as<T, bool>` states the narrower intent.
+
+</details>
+>>> writing-concepts
+---
+title: writing your own concepts
+standard: C++20
+objective: write concepts with requires expressions that capture a meaningful contract, and test types against them where they are defined
+prerequisites: concepts
+difficulty: 3
+---
+
+### the idea
+
+a template's real contract tends to live in its body: "`S` must have a `read()` that returns its sample type, a `name()` that does not throw, and a `reset()`". callers learn it by failing to compile against it. a concept of your own puts that contract in one named, reusable place, where the compiler checks it at every call site and where a type's author can check it before anyone else calls anything.
+
+### understanding the concept
+
+<<< 24-31
+
+<<< 35-35
+
+### in code
+
+<<< 69-107
+
+<<< 123-136
+
+### in practice
+
+<<< 140-142
+
+### watch out for
+
+<<< 155-163
+
+### the takeaway
+
+<<< 167-167
+
+### optional challenge
+
+<<< 171-185

@@ -1,0 +1,145 @@
+source: day-55
+refs: 09=construction-order 17=callbacks 25=variant 26=string-view 29=concepts 30=views 31=span 32=defaulted-comparisons 34=format 36=jthread 38=blocking-queue 44=test-seams 52=allocation-costs 53=observability 08=raii
+>>> pipeline-design
+---
+title: putting it together, part 1: values, messages, and the queue
+standard: C++20
+objective: see the course's ideas combine in one small program, starting with value types, a closed message set, and a closable bounded queue
+prerequisites: blocking-queue, variant, defaulted-comparisons, architecture-decisions
+difficulty: 2
+---
+
+### the idea
+
+each lesson so far isolated one idea. real code is where the ideas meet and pull against each other: the queue wants ownership to move, the processing stage wants to borrow, the test wants seams, and shutdown wants all of it to unwind in the right order. the next three lessons build one small program, about 160 lines in four parts that compile together with `-std=c++20`, and review every decision in it.
+
+### understanding the concept
+
+<<< 13-21
+
+### in code
+
+part 1 defines the vocabulary: a value type and a closed set of messages.
+
+<<< 29-57
+
+part 2 is the queue from [[blocking-queue]], with close semantics so shutdown never leaves a thread blocked forever.
+
+<<< 61-97
+
+### in practice
+
+the design review for these two parts. every row is a decision someone could reasonably have made differently:
+
+| decision | alternative | why this one |
+|---|---|---|
+<<< 225-227
+
+### watch out for
+
+**`Detection` deliberately has no ordering.** it would be easy to default `operator<=>` along with `operator==`, and then `std::sort(detections)` would compile. but a detection has no natural order (by range? by strength? by azimuth?), and with `double` members the defaulted ordering is only partial, so NaN would make such a sort undefined. leaving `<=>` out forces every sort to name its key with a projection, which is both safer and clearer at the call site.
+
+### the takeaway
+
+start an integrated design from its values and its messages: small value types with only the operations that mean something, a closed variant for what flows between stages, and a queue whose policy for "full" and "closed" is explicit.
+
+### optional challenge
+
+`BoundedQueue::pop` here notifies `not_full_` while still holding the lock, while the version in [[blocking-queue]] unlocks first. is either one wrong?
+
+<details>
+<summary>answer</summary>
+
+neither is wrong. notifying under the lock or right after releasing it are both correct, as long as the state change happened under the lock. notifying after unlocking can save a woken producer from immediately blocking on the mutex the consumer still holds; notifying under the lock is simpler to reason about and safe even if a woken thread might destroy the condition variable. here, `close()` and the queue's lifetime are controlled by the pipeline, so either choice is fine; consistency within one class matters more than the choice.
+
+</details>
+>>> pipeline-processing
+---
+title: putting it together, part 2: the processing stage
+standard: C++20
+objective: build a pure, allocation-free processing stage over borrowed data, and constrain an injected sink with a concept
+prerequisites: pipeline-design, span, views, test-seams
+difficulty: 2
+---
+
+### the idea
+
+the processing stage is where the pipeline does its actual work: gate each frame's detections and hand the result on. it is also where the most design decisions concentrate. what does it borrow and what does it own? does it allocate every frame? how does it talk to a sink it must not know the type of, and how does a test replace that sink? the answers come straight from earlier modules.
+
+### understanding the concept
+
+the stage is split in two. `gate` is a pure function: it reads a span of detections, writes the survivors into a caller-provided vector, and touches nothing else, so it can be tested without threads or fakes. `Processor` adapts `gate` to the message variant and owns the only mutable state, a scratch vector reused every frame. the sink is a template parameter constrained by a concept, which states exactly what any sink must provide and catches a wrong sink where the pipeline is created.
+
+### in code
+
+<<< 99-136
+
+### in practice
+
+the design review for part 3:
+
+| decision | alternative | why this one |
+|---|---|---|
+<<< 228-230
+<<< 234-234
+
+### watch out for
+
+**the sink receives a borrowed span.** `on_frame` gets a view of `scratch_`, which the next frame overwrites. a sink that stored the span instead of copying the data would read garbage later. that is the lifetime rule from [[string-view]] and [[span]], and here it is enforced only by a comment in the concept. a sink that needs to keep data must copy it, which the recording sink in part 4 does.
+
+### the takeaway
+
+make the core computation a pure function over borrowed data, keep the stage's mutable state small and reused, and constrain injected collaborators with a concept so mistakes surface where the parts are put together.
+
+### optional challenge
+
+`Processor` reuses `scratch_` across frames. what would you lose, and what would you gain, by making `gate` return a fresh `std::vector<Detection>` instead?
+
+<details>
+<summary>answer</summary>
+
+you would gain a simpler interface (no output parameter), a `Processor` with no mutable state, and a sink that could keep the vector it receives by moving it. you would lose the allocation-free steady state: every frame would allocate at least once, which matters in a real-time pipeline ([[allocation-costs]]) and does not in a tool that runs once. the output parameter is the price of reuse; choose it deliberately, and measure whether the allocation matters before paying it.
+
+</details>
+>>> pipeline-wiring
+---
+title: putting it together, part 3: wiring, shutdown, and testing
+standard: C++20
+objective: wire the pipeline's threads so every exit path stops and joins them, test it deterministically with fakes, and review the design as a whole
+prerequisites: pipeline-processing, jthread, observability
+difficulty: 3
+---
+
+### the idea
+
+the last part is where most concurrent programs go wrong: starting threads only after everything they use exists, stopping them on every exit path, draining work instead of dropping it, and testing all of it without sleeps or hardware. none of it needs new tools. member declaration order, `std::jthread`, a stop callback, and two small fakes are enough.
+
+### understanding the concept
+
+member order is the shutdown protocol. `Pipeline` declares its source, queue, and processor first and its two threads last, so the threads start after everything they touch is constructed and are stopped and joined before anything they touch is destroyed. `finish()` lets the source run dry, then asks the consumer to stop, which a stop callback turns into closing the queue: the consumer drains what is left and exits. the destructor requests a stop first, so leaving the scope early still shuts down cleanly.
+
+### in code
+
+<<< 138-217
+
+### in practice
+
+the rest of the design review:
+
+| decision | alternative | why this one |
+|---|---|---|
+<<< 231-233
+
+<<< 236-236
+
+### watch out for
+
+**every blocking call must cooperate with cancellation.** the producer checks its stop token only between messages. if `source_()` blocks indefinitely (a sensor read with no timeout), `~Pipeline` waits for it, and shutdown hangs. cooperative cancellation only works if every blocking call cooperates: give the real source a timeout, or pass it the stop token so it can abandon the read.
+
+### the takeaway
+
+<<< 244-244
+
+### optional challenge
+
+<<< 248-255

@@ -1,0 +1,109 @@
+source: day-33
+refs: 03=storage-duration 34=format
+>>> constexpr-evolution
+---
+title: constexpr in C++20: computing at compile time
+standard: C++20
+objective: write constexpr functions that build tables and use transient allocation, force and test their evaluation, and weigh compile-time work against its costs
+prerequisites: storage-duration, if-constexpr, concepts
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 15-20
+
+### in code
+
+<<< 30-79
+
+### in practice
+
+<<< 111-113
+
+### watch out for
+
+<<< 117-117
+
+<<< 121-121
+
+### the takeaway
+
+a `constexpr` function may run at compile time and still works at run time; force evaluation with a `constexpr` variable or `static_assert`, use that as a free unit test, and treat moving work to compile time as a tradeoff, not a free win.
+
+### optional challenge
+
+which of these are guaranteed to evaluate `make_crc_table()` at compile time?
+
+```cpp
+constexpr auto a = make_crc_table();                 // (1) namespace scope
+void f() {
+    const auto b = make_crc_table();                 // (2)
+    static const auto c = make_crc_table();          // (3)
+    static_assert(make_crc_table()[1] != 0);         // (4)
+}
+```
+
+<details>
+<summary>answer</summary>
+
+(1), (3), and (4). a `constexpr` variable (1) must be initialized by a constant expression. a `static` local (3) has static storage duration, and a static variable whose initializer is a constant expression is *constant-initialized*, which is a language guarantee rather than an optimization. a `static_assert` (4) is a context that requires a constant. (2) is an ordinary local: the compiler may fold the call, and at higher optimization levels it probably will, but nothing requires it.
+
+</details>
+>>> consteval-constinit
+---
+title: consteval and constinit
+standard: C++20
+objective: use consteval for functions that must run at compile time and constinit for mutable globals that must be initialized before any constructor runs
+prerequisites: constexpr-evolution
+difficulty: 2
+---
+
+### the idea
+
+<<< 11-11
+
+the difference matters in exactly the places compile-time code is most useful: validating constants that would otherwise be checked at run time (or never), and making mutable globals safe from the initialization order problems in [[storage-duration]].
+
+### understanding the concept
+
+<<< 22-26
+
+### in code
+
+<<< 81-105
+
+### in practice
+
+`constinit` is the C++20 answer for mutable globals that other startup code may touch, which is common in embedded and real-time code: a statistics counter, a pointer to the active configuration, a flag set by an interrupt handler.
+
+```cpp
+#include <atomic>
+
+constinit std::atomic<unsigned> g_dropped_frames{0};   // valid before any constructor runs
+constinit const char* g_active_profile = "default";    // mutable pointer, constant initializer
+```
+
+both are initialized before any dynamic initialization in any translation unit, so a static constructor elsewhere can safely increment the counter or read the profile. and if a later edit changes either initializer into something that needs code at startup, the build fails instead of quietly reintroducing the ordering problem. `consteval` plays the same role for constants: register addresses, bus channels, unit conversions, and format strings ([[format]]) can be validated where they are written, so an out-of-range value never reaches the hardware.
+
+### watch out for
+
+<<< 119-119
+
+### the takeaway
+
+<<< 125-125
+
+### optional challenge
+
+<<< 129-147
+
+### going deeper
+
+#### class types as template arguments
+
+<<< 107-107

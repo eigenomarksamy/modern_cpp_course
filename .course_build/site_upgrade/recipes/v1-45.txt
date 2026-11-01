@@ -1,0 +1,134 @@
+source: day-45
+refs: 03=storage-duration 12=shared-ptr 25=variant 38=blocking-queue 41=deadlocks
+>>> strategy
+---
+title: patterns in modern C++: strategy
+standard: C++17
+objective: make an algorithm a replaceable part with a virtual interface, std::function, or a template parameter, and choose by when and how often it varies
+prerequisites: test-seams, variant-design
+difficulty: 2
+---
+
+### the idea
+
+the classic pattern catalogue was written for C++98 and Smalltalk, before lambdas, `std::function`, `std::variant`, and smart pointers. some patterns survive unchanged, some shrink to a single line, and some need modern care that the original books never mentioned, such as who owns an observer and which thread calls it. the simplest one to start with is strategy: an algorithm that should be a replaceable part.
+
+### understanding the concept
+
+<<< 13-15
+
+<<< 19-19
+
+### in code
+
+<<< 23-74
+
+### in practice
+
+a tracker library usually needs more than one of these at once. the smoothing filter for each track is chosen per build and runs for every measurement, so it is a template parameter (or a concrete type) and inlines into the update loop. the gating policy is chosen per deployment from a configuration file and runs once per frame, so a `std::function` or a small virtual interface is the honest choice. the cost model for association needs three related operations that must agree with each other (cost, gate size, and a debugging description), which is the case a virtual interface handles best: the operations travel together as one object. picking per call site, rather than one mechanism for the whole library, is what keeps both the hot path and the configuration flexible.
+
+### watch out for
+
+**a stateful strategy is copied, not shared.** `Ema` carries state (`y` and `primed`), and every mechanism above stores its own copy:
+
+```cpp
+Ema shared{0.3};
+TrackerF a{shared};
+TrackerF b{shared};    // a and b each smooth independently; shared is never updated
+```
+
+that is usually right (each track needs its own filter state), but it surprises code that expects to reset or inspect "the" strategy through the original object. the standard algorithms copy function objects freely too. when state really must be shared, make that explicit with a reference or pointer member, and decide who owns the shared state.
+
+### the takeaway
+
+a strategy is a replaceable algorithm: plug it in as a template parameter for hot, per-build choices, as a `std::function` for single operations chosen at run time, and as a virtual interface when several related operations travel together.
+
+### optional challenge
+
+pick a mechanism for each: (a) a path cost function selected from a configuration file at startup; (b) a per-pixel kernel in an image filter; (c) a planner policy that provides a cost, a heuristic, and a neighbor generator that must stay consistent.
+
+<details>
+<summary>answer</summary>
+
+(a) `std::function<double(const Edge&)>` (or a virtual interface): chosen at run time from data, and called often enough to matter only if profiling says so. (b) a template parameter: called millions of times per image, so inlining and vectorization matter, and the choice is known at compile time. (c) a virtual interface (or a template constrained by a concept, if the choice is per build): three operations that must agree belong in one object, and a single interface keeps them from being mixed and matched by accident.
+
+</details>
+>>> factory
+---
+title: patterns in modern C++: factories and registries
+standard: C++17
+objective: hide the choice of concrete type behind a factory function or an explicit registry, and avoid self-registration tricks that break at link time
+prerequisites: strategy, storage-duration
+difficulty: 2
+---
+
+### the idea
+
+a configuration file says `type: lidar`, and somewhere a string must become an object of the right class. the code that knows all the concrete types should be in one place, and everything else should see only the interface. that is the factory pattern, and in modern C++ its default form is almost anticlimactic: a function that returns `std::unique_ptr<Base>`. the interesting decisions are about how that function learns which types exist.
+
+### understanding the concept
+
+<<< 16-16
+
+### in code
+
+<<< 76-123
+
+### in practice
+
+factories belong at the composition root from [[dependency-injection]]: `main` reads the configuration, calls `registry.create(cfg)` for each configured sensor, and passes the resulting objects (or references to them) down to the components that use them. nothing below `main` names a concrete sensor type, so adding a new sensor is one new class plus one registration line, and components depend only on the `Sensor` interface. returning `std::unique_ptr<Sensor>` keeps the ownership decision with the caller, who can store it, move it into a component, or convert it to a `std::shared_ptr` if sharing is genuinely needed.
+
+### watch out for
+
+<<< 205-205
+
+### the takeaway
+
+make factories return `std::unique_ptr<Base>`, register creators explicitly from one function called by `main`, and add a registry only when the choice of type really comes from data.
+
+### optional challenge
+
+`SensorRegistry::create` throws `std::invalid_argument` for an unknown type. a colleague prefers returning `nullptr`. argue for one of them, using the error-handling criteria from [[error-strategy]].
+
+<details>
+<summary>answer</summary>
+
+an unknown sensor type in a configuration file is a configuration error found at startup: rare, not recoverable locally, and best reported with context ("unknown sensor type: lidr" names the typo). that is the case for an exception. returning `nullptr` makes every caller check, and a forgotten check turns a clear startup error into a null dereference later. if some caller genuinely treats unknown types as normal (a plugin browser listing what is available), give it a separate query such as `bool knows(std::string_view type)`, rather than weakening `create` for everyone.
+
+</details>
+>>> observer
+---
+title: patterns in modern C++: observer and subscriptions
+standard: C++17
+objective: notify interested parties without dangling observers, using RAII subscription tokens and notification outside the lock
+prerequisites: factory, deadlocks, shared-ptr
+difficulty: 3
+---
+
+### the idea
+
+a radar tracker announces "track confirmed" and "track lost" to a display, a recorder, and a fusion module, none of which it should know about. the classic observer pattern solves the knowing. it says nothing about the two problems that cause the real bugs: an observer that is destroyed while still registered, and a notification that calls unknown code while holding a lock.
+
+### understanding the concept
+
+<<< 17-17
+
+### in code
+
+<<< 125-191
+
+### in practice
+
+<<< 195-199
+
+### watch out for
+
+<<< 203-203
+
+### the takeaway
+
+give every subscription an owner in the form of an RAII token, notify from a snapshot with no lock held, and document which thread calls observers and whether a call can arrive after unsubscribing.
+
+### optional challenge
+
+<<< 213-220

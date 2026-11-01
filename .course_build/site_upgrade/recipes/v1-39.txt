@@ -1,0 +1,105 @@
+source: day-39
+refs: 36=threads 38=blocking-queue 41=sync-primitives 20=exception-safety
+>>> futures
+---
+title: promises and futures: one-shot results across threads
+standard: C++17
+objective: return a value or an exception from another thread through a promise and future, and know the edge cases of the shared state
+prerequisites: blocking-queue, exception-safety
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-24
+
+<<< 34-34
+
+### in code
+
+<<< 40-71
+
+<<< 109-128
+
+### in practice
+
+<<< 134-134
+
+### watch out for
+
+**a `std::future` has exactly one `get()`.**
+
+```cpp
+std::future<Calibration> f = p.get_future();
+Calibration a = f.get();
+Calibration b = f.get();   // BUG: f is no longer valid: undefined behavior
+```
+
+`get()` moves the result out and leaves the future invalid (`f.valid()` is `false`); libstdc++ happens to throw `std::future_error`, and another library may do anything. when two parts of the program need the same result, convert once with `f.share()` and give each consumer its own copy of the `std::shared_future`.
+
+### the takeaway
+
+a promise and a future form a one-shot channel that carries either a value or an exception and synchronizes like `join`; one producer sets it once, and one consumer reads it once unless you share it.
+
+### optional challenge
+
+<<< 157-164
+>>> async
+---
+title: std::async and its traps
+standard: C++17
+objective: use std::async for fork-join work with an explicit launch policy, and avoid the default policy and the blocking-destructor trap
+prerequisites: futures
+difficulty: 2
+---
+
+### the idea
+
+`std::async` looks like the easiest way to run something concurrently: one call, and you get a future for the result. two of its rules are surprising enough to turn that one call into either no concurrency at all or code that silently runs sequentially. both rules exist for good reasons, and once you know them `std::async` is a fine tool for a small number of independent tasks.
+
+### understanding the concept
+
+<<< 26-32
+
+<<< 36-36
+
+### in code
+
+<<< 73-107
+
+### in practice
+
+<<< 132-132
+
+<<< 136-136
+
+### watch out for
+
+<<< 140-149
+
+### the takeaway
+
+name the launch policy, keep every `std::async` future alive for as long as the work should run in parallel, and reach for queues or pools when you have more than a handful of tasks.
+
+### optional challenge
+
+each loader takes about one second. roughly how long does this take, and why?
+
+```cpp
+void load_all() {
+    std::async(std::launch::async, load_map);
+    std::async(std::launch::async, load_model);
+    std::async(std::launch::async, load_calibration);
+}
+```
+
+<details>
+<summary>answer</summary>
+
+about three seconds. each returned future is a temporary destroyed at the end of its statement, and the destructor of the last future referring to an `std::async` shared state waits for the task, so each load finishes before the next one starts. keep the futures in named variables (or a container) and call `get()` on each at the end; the three loads then overlap and the function takes about one second, plus whatever the slowest loader adds.
+
+</details>

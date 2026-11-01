@@ -1,0 +1,172 @@
+source: day-13
+refs: 09=construction-order 11=special-members 24=optional 44=dependency-injection
+>>> virtual-dispatch
+---
+title: virtual functions and dynamic dispatch
+standard: C++17
+objective: explain how a virtual call selects an override at run time, what it typically costs, and how override and final catch mistakes
+prerequisites: construction-order, unique-ptr
+difficulty: 2
+---
+
+### the idea
+
+`s.describe()` runs different code depending on which object is behind the reference `s`, and the compiler that generated the call did not know which one it would be. that is the whole point of a virtual function, and it is also where its costs and its classic mistakes come from: a signature that is almost right silently stops overriding, and a call that cannot be inlined blocks optimizations you did not know you were relying on.
+
+### understanding the concept
+
+<<< 15-15
+
+<<< 17-32
+
+### in code
+
+<<< 56-77
+
+### in practice
+
+put virtual boundaries where calls are rare relative to the work they do. a radar processing chain built from interchangeable stages pays one indirect call per *frame* if the interface is `virtual void process(Frame& f) = 0;`, and one per *sample* if it is `virtual float filter(float sample) = 0;`. the first is noise; the second can be the difference between a vectorized inner loop and a scalar one, because the compiler cannot see through the call. designing the interface at the coarse grain keeps the flexibility of runtime polymorphism without asking anyone to measure its cost in a hot loop. when the set of types is fixed and the call is fine-grained, the alternatives in [[static-polymorphism]] fit better.
+
+### watch out for
+
+**default arguments are bound statically, overrides dynamically.**
+
+```cpp
+#include <cstdio>
+
+struct Base {
+    virtual ~Base() = default;
+    virtual void log(int level = 1) const { std::printf("base %d\n", level); }
+};
+struct Derived : Base {
+    void log(int level = 2) const override { std::printf("derived %d\n", level); }
+};
+
+int main() {
+    Derived d;
+    const Base& b = d;
+    b.log();   // prints: derived 1
+}
+```
+
+the function is chosen by the dynamic type, but the default argument comes from the declaration the compiler sees, which is `Base::log`. the result mixes two classes' intentions. do not redefine default arguments in overrides; better, avoid default arguments on virtual functions entirely and provide a non-virtual overload in the base.
+
+### the takeaway
+
+a virtual call picks the override from the object's dynamic type through an indirect call; mark every override `override`, keep virtual calls at a coarse grain, and treat their cost as something to measure, not fear.
+
+### optional challenge
+
+<<< 159-168
+>>> virtual-destructors-slicing
+---
+title: virtual destructors and object slicing
+standard: C++17
+objective: make polymorphic deletion safe with a virtual destructor, and avoid slicing by keeping polymorphic objects behind indirection
+prerequisites: virtual-dispatch
+difficulty: 2
+---
+
+### the idea
+
+two rules protect every polymorphic object, and both are easy to break without a compiler error. deleting a derived object through a base pointer is only defined when the base destructor is virtual. and polymorphism only works through references and pointers: copy a derived object into a base object and the derived part is simply cut off. one rule is about destruction and one about copying, but they come from the same fact: the static type and the dynamic type are different things.
+
+### understanding the concept
+
+a `delete` expression on a `Base*` calls the destructor through the static type. if that destructor is virtual, the call dispatches like any other virtual call and the whole `Derived` object is destroyed, members included. if it is not virtual, the behavior is undefined: in practice the derived members are not destroyed and the deallocation may use the wrong size, but the standard promises nothing at all.
+
+slicing is the copying side. a `Base` object has room for a `Base` and nothing more, so initializing one from a `Derived` copies the `Base` subobject and discards the rest, including the vptr: the result really is a `Base`. this is not undefined behavior; it is well-defined and almost never what you meant.
+
+### in code
+
+<<< 79-120
+
+### in practice
+
+a plugin interface should make both mistakes impossible rather than merely documented:
+
+```cpp
+class Plugin {
+public:
+    virtual ~Plugin() = default;                   // safe to delete through Plugin*
+    virtual void run() = 0;                        // abstract: a Plugin cannot be sliced into
+    Plugin(const Plugin&) = delete;                // no copying a plugin through its interface
+    Plugin& operator=(const Plugin&) = delete;
+protected:
+    Plugin() = default;
+};
+
+std::unique_ptr<Plugin> load_plugin(const std::string& name);
+```
+
+the virtual destructor makes `std::unique_ptr<Plugin>` correct; the pure virtual function makes the class abstract, so no `Plugin` object can be created by slicing; and the deleted copy operations stop derived classes from being copied through the base by accident. whether plugins themselves should be copyable is a separate decision, made in the derived classes.
+
+### watch out for
+
+**not every base class needs a virtual destructor.** a base that only shares implementation or a policy (and is never deleted through a base pointer) can instead have a *protected, non-virtual* destructor. then `delete base_ptr;` does not compile at all, so the undefined behavior is impossible, and the class pays for no vtable. the guideline from the C++ Core Guidelines (C.35) is: a base class destructor should be either public and virtual, or protected and non-virtual. a public, non-virtual destructor on a class with virtual functions is the combination to avoid, and `-Wnon-virtual-dtor` flags it.
+
+### the takeaway
+
+a base class meant for deletion through a pointer gets a public virtual destructor, and polymorphic objects live behind references and pointers, never in base-class values.
+
+### optional challenge
+
+given `struct Lidar : Sensor` with virtual functions, which of these lines slice?
+
+```cpp
+void f(Sensor s);                      // (1) called as f(lidar)
+void g(const Sensor& s);               // (2) called as g(lidar)
+Sensor* p = new Lidar;                 // (3)
+Sensor s2 = *p;                        // (4)
+std::vector<Sensor> v{Lidar{}};        // (5)
+```
+
+<details>
+<summary>answer</summary>
+
+(1), (4), and (5) slice: each creates a `Sensor` object from a `Lidar`, by-value parameter, copy, and container element alike. (2) binds a reference, and (3) points to the full `Lidar`, so dispatch still works through them. (4) is worth a second look: `*p` refers to a whole `Lidar`, but the declared type of `s2` decides what gets created. making `Sensor` abstract turns (1), (4), and (5) into compile errors.
+
+</details>
+>>> composition-over-inheritance
+---
+title: composition, interfaces, and substitutability
+standard: C++17
+objective: use public inheritance only for substitutable interfaces, keep contracts in the base with the NVI idiom, and compose implementations instead of inheriting them
+prerequisites: virtual-destructors-slicing
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 34-52
+
+### in code
+
+<<< 124-145
+
+### in practice
+
+<<< 147-147
+
+### watch out for
+
+<<< 151-151
+
+### the takeaway
+
+<<< 155-155
+
+### optional challenge
+
+a colleague proposes `template <typename T> class ThreadSafeQueue : public std::queue<T>`, adding a mutex and locked versions of `push` and `pop`. what is wrong with the design, and what would you suggest instead?
+
+<details>
+<summary>answer</summary>
+
+public inheritance makes every public member of `std::queue<T>` part of `ThreadSafeQueue`'s interface, including the unlocked `push`, `pop`, `front`, and `size`. any caller can bypass the mutex, so the class cannot keep its one invariant. it is also not substitutable: code that takes a `std::queue<T>&` will happily use it without locking. make the `std::queue<T>` a private member and expose only the locked operations (ideally a combined `try_pop` that checks and removes in one step, since a separate `empty()` check is stale by the time you act on it).
+
+</details>

@@ -1,0 +1,111 @@
+source: day-27
+refs: 05=copy-elision 20=error-strategy 25=variant 26=string-view 54=legacy-refactoring
+>>> filesystem
+---
+title: std::filesystem: portable paths and directories
+standard: C++17
+objective: compose and inspect paths with std::filesystem, choose between its throwing and error_code overloads, and avoid check-then-use races
+prerequisites: error-strategy, string-view
+difficulty: 1
+---
+
+### the idea
+
+`std::string(dir) + "/" + name` works until the code runs on Windows, the directory name already ends in a slash, or the file name contains a character in a different encoding. `opendir` and `readdir` work until an early `return` skips `closedir`. file-system code is where portable C++ used to stop and platform `#ifdef`s began. C++17's `std::filesystem` makes paths a value type and directory traversal an RAII iterator, with a deliberate choice of error reporting at every call.
+
+### understanding the concept
+
+<<< 13-24
+
+### in code
+
+<<< 28-47
+
+### in practice
+
+a disk-usage monitor in a long-running service must never throw just because a log rotator deleted a file between listing and measuring it. the `error_code` overloads make that explicit:
+
+```cpp
+#include <cstdint>
+#include <filesystem>
+#include <system_error>
+namespace fs = std::filesystem;
+
+std::uintmax_t total_bytes(const fs::path& dir) {
+    std::uintmax_t total = 0;
+    std::error_code ec;
+    for (fs::recursive_directory_iterator it(dir, ec), end; !ec && it != end; it.increment(ec)) {
+        std::error_code fe;
+        const auto size = it->file_size(fe);    // may fail: vanished file, or a directory
+        if (!fe) total += size;                 // skip what cannot be measured
+    }
+    return total;
+}
+```
+
+the outer `ec` stops the walk if the directory itself cannot be read; the inner one skips individual entries that disappear or are not regular files. the same function written with the throwing overloads would be shorter and would fail in production the first time a file vanished mid-scan.
+
+### watch out for
+
+<<< 152-167
+
+### the takeaway
+
+`std::filesystem` gives portable paths and directory operations with a choice of exceptions or error codes per call; path operations never touch the disk, and checking before acting never makes a file-system operation safe.
+
+### optional challenge
+
+on a POSIX system, what do these produce?
+
+```cpp
+fs::path("logs") / "/tmp/x"             // (1)
+fs::path("data/run1/").filename()       // (2)
+fs::path("archive.tar.gz").extension()  // (3)
+```
+
+<details>
+<summary>answer</summary>
+
+(1) `"/tmp/x"`: appending an absolute path replaces the left-hand side instead of concatenating, a frequent surprise when the right operand comes from user input. (2) an empty path: with a trailing separator, the last element is empty, so `filename()` is `""` (strip the trailing separator first if you want `"run1"`). (3) `".gz"`: `extension()` is only the part after the last dot, and `stem()` would be `"archive.tar"`.
+
+</details>
+>>> cpp17-refactoring
+---
+title: a practical C++17 refactoring
+standard: C++17
+objective: modernize a legacy function one justified change at a time, stating every behavior change and keeping owning types at ownership boundaries
+prerequisites: filesystem, parsing-with-views, structured-bindings
+difficulty: 2
+---
+
+### the idea
+
+somewhere in your code base there is a function that scans a directory with `opendir`, glues paths together with `+ "/" +`, parses lines with `std::string::substr`, and reports failure through a `bool` and an out-parameter. it works, it is not portable, and nobody wants to touch it. this lesson modernizes that function with the C++17 vocabulary from the last two modules, and treats each change as a decision that needs a reason, not a style preference.
+
+### understanding the concept
+
+a good modernization is a sequence of small, individually justified changes. each one should make a specific defect impossible or a specific intent visible: a resource that can no longer leak, an error that can no longer be ignored, a name that replaces `.first`. "it is more modern" is not a reason. and a refactoring, by definition, preserves behavior; where behavior *does* change, that is a separate decision, written down and covered by a test that existed before the change.
+
+### in code
+
+<<< 49-130
+
+### in practice
+
+<<< 134-144
+
+<<< 148-148
+
+### watch out for
+
+**a "refactoring" that changes behavior.**
+
+<<< 146-146
+
+### the takeaway
+
+modernize in small steps that each remove a specific defect or reveal a specific intent; state every behavior change openly, and keep owning types at ownership boundaries even when views are tempting.
+
+### optional challenge
+
+<<< 175-182

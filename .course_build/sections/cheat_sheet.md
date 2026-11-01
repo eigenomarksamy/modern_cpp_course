@@ -2,9 +2,9 @@
 
 ## modern C++17/20 cheat sheet
 
-A compact reference for after the course. The day numbers point back to the full explanations.
+a compact reference for after the course. the day numbers point back to the full explanations.
 
-### initialization ([day 02](#day-02))
+### initialization ([[initialization]])
 
 ```cpp
 int a;            // local: indeterminate value, reading it is UB
@@ -16,7 +16,7 @@ std::vector<int> v2{3, 1};  // {3, 1}: braces prefer initializer_list constructo
 Point p{.x = 1, .y = 2};    // C++20 designated initializers, in declaration order
 ```
 
-### special members and ownership ([days 08 to 12](#day-08))
+### special members and ownership ([[raii]] to [[ownership-in-interfaces]])
 
 | you declare | copy ops generated? | move ops generated? |
 | --- | --- | --- |
@@ -27,8 +27,8 @@ Point p{.x = 1, .y = 2};    // C++20 designated initializers, in declaration ord
 
 - **rule of zero:** hold resources in members that manage themselves (`std::vector`, `std::string`, `std::unique_ptr`) and declare no special members.
 - **rule of five:** if you must write one of destructor, copy constructor, copy assignment, move constructor, or move assignment, think about all five.
-- Mark move operations `noexcept` so `std::vector` can move instead of copy when it reallocates.
-- Destructors are implicitly `noexcept` (unless a member or base says otherwise); never let them throw.
+- mark move operations `noexcept` so `std::vector` can move instead of copy when it reallocates.
+- destructors are implicitly `noexcept` (unless a member or base says otherwise); never let them throw.
 
 | signature | meaning |
 | --- | --- |
@@ -40,7 +40,7 @@ Point p{.x = 1, .y = 2};    // C++20 designated initializers, in declaration ord
 | `void f(std::span<const T>)`, `void f(std::string_view)` | borrows a contiguous sequence |
 | `std::unique_ptr<Widget> make()` | caller becomes the owner |
 
-### value categories and moves ([days 05](#day-05), [10](#day-10), [19](#day-19))
+### value categories and moves ([[value-categories]], [[move-semantics]], [[forwarding-references]])
 
 ```text
            expression
@@ -56,10 +56,10 @@ prvalue: no identity until materialized            42, T{}, f() returning T
 
 - `std::move(x)` is only a cast to `T&&`; the move happens when a move constructor or assignment picks it up.
 - `std::forward<T>(x)` keeps the caller's value category; use it only with forwarding references (`T&&` with deduced `T`, or `auto&&`).
-- Don't `return std::move(local);`: it blocks copy elision. Returning a prvalue is guaranteed to be elided since C++17.
-- A named rvalue reference is an lvalue.
+- don't `return std::move(local);`: it blocks copy elision. returning a prvalue is guaranteed to be elided since C++17.
+- a named rvalue reference is an lvalue.
 
-### undefined, unspecified, implementation-defined ([day 06](#day-06))
+### undefined, unspecified, implementation-defined ([[undefined-behavior]])
 
 | category | meaning | examples |
 | --- | --- | --- |
@@ -67,9 +67,9 @@ prvalue: no identity until materialized            42, T{}, f() returning T
 | unspecified | one of several valid outcomes, not documented | order of evaluation of function arguments, string literal storage overlap |
 | implementation-defined | chosen and documented by the implementation | `sizeof(int)`, signedness of plain `char`, `CHAR_BIT`, right shift of a negative integer (before C++20) |
 
-Defenses: `-Wall -Wextra`, `-fsanitize=address,undefined` (and `thread` for races), `std::bit_cast` or `std::memcpy` instead of pointer type punning.
+defenses: `-Wall -Wextra`, `-fsanitize=address,undefined` (and `thread` for races), `std::bit_cast` or `std::memcpy` instead of pointer type punning.
 
-### containers and algorithms ([days 15 to 17](#day-15))
+### containers and algorithms ([[sequence-containers]] to [[callbacks]])
 
 | container | access | insert/erase | notes |
 | --- | --- | --- | --- |
@@ -87,9 +87,9 @@ auto [it, inserted] = m.try_emplace(key, args...);             // no move-from i
 if (auto it = m.find(k); it != m.end()) use(it->second);        // C++17 if-initializer
 ```
 
-Lambda captures: `[=]` copies what is used (implicitly capturing `this` through `[=]` is deprecated in C++20), `[&]` references (beware escaping), `[p = std::move(ptr)]` init-capture, `[this]` captures the pointer, `[*this]` copies the object (C++17).
+lambda captures: `[=]` copies what is used (implicitly capturing `this` through `[=]` is deprecated in C++20), `[&]` references (beware escaping), `[p = std::move(ptr)]` init-capture, `[this]` captures the pointer, `[*this]` copies the object (C++17).
 
-### C++17 at a glance ([week 4](#week-4))
+### C++17 at a glance ([[module:results]], [[module:cpp17]])
 
 | feature | example |
 | --- | --- |
@@ -121,7 +121,7 @@ std::visit(overloaded{
 }, message);
 ```
 
-### C++20 at a glance ([week 5](#week-5))
+### C++20 at a glance ([[module:cpp20-generic]], [[module:cpp20-everyday]])
 
 | feature | example |
 | --- | --- |
@@ -158,17 +158,17 @@ std::visit(overloaded{
 | `std::flat_map` | sorted `std::vector` of pairs plus `std::lower_bound` |
 | `if consteval` | `if (std::is_constant_evaluated())` |
 
-### concurrency rules of thumb ([week 6](#week-6))
+### concurrency rules of thumb ([[module:threads]], [[module:async]])
 
-- A data race (unsynchronized conflicting access, at least one write) is UB. A race condition (wrong timing logic) can exist without one.
-- Prefer `std::jthread` with `std::stop_token` over `std::thread` plus a flag; never let a joinable `std::thread` be destroyed.
-- Keep a mutex next to the data it protects, lock with `std::scoped_lock`, keep critical sections short, never call unknown code (callbacks) while holding a lock.
-- Always wait on a condition variable with a predicate: `cv.wait(lock, [&] { return !queue.empty() || closed; });`
-- The future returned by `std::async` blocks in its destructor; keep it.
-- Atomics: default to `seq_cst`; use `release` on the publishing store and `acquire` on the observing load for the flag pattern; `relaxed` only for independent counters.
-- Lock ordering or `std::scoped_lock` prevents lock-order deadlocks. Confinement and message passing prevent most of the rest.
+- a data race (unsynchronized conflicting access, at least one write) is UB. a race condition (wrong timing logic) can exist without one.
+- prefer `std::jthread` with `std::stop_token` over `std::thread` plus a flag; never let a joinable `std::thread` be destroyed.
+- keep a mutex next to the data it protects, lock with `std::scoped_lock`, keep critical sections short, never call unknown code (callbacks) while holding a lock.
+- always wait on a condition variable with a predicate: `cv.wait(lock, [&] { return !queue.empty() || closed; });`
+- the future returned by `std::async` blocks in its destructor; keep it.
+- atomics: default to `seq_cst`; use `release` on the publishing store and `acquire` on the observing load for the flag pattern; `relaxed` only for independent counters.
+- lock ordering or `std::scoped_lock` prevents lock-order deadlocks. confinement and message passing prevent most of the rest.
 
-### design reminders ([week 7](#week-7))
+### design reminders ([[module:design]], [[module:abstractions]])
 
 | need | first choice | alternative |
 | --- | --- | --- |
@@ -179,12 +179,12 @@ std::visit(overloaded{
 | testable dependency | constructor injection of an interface or a concept-constrained template | `std::function` seam, link-time seam |
 | stable ABI | pimpl | C interface |
 
-### performance habits ([week 8](#week-8))
+### performance habits ([[module:performance]], [[module:production]])
 
-- Measure first: optimized build, `std::chrono::steady_clock` or a benchmark library, many repetitions, report median and spread.
-- Contiguous data and predictable access patterns usually beat clever algorithms on small and medium inputs; confirm with a profiler and hardware counters.
-- Reserve, reuse, and preallocate; keep allocations out of real-time loops; consider `std::pmr` arenas.
-- Optimize where the profile says, and write down why the code is now less obvious.
+- measure first: optimized build, `std::chrono::steady_clock` or a benchmark library, many repetitions, report median and spread.
+- contiguous data and predictable access patterns usually beat clever algorithms on small and medium inputs; confirm with a profiler and hardware counters.
+- reserve, reuse, and preallocate; keep allocations out of real-time loops; consider `std::pmr` arenas.
+- optimize where the profile says, and write down why the code is now less obvious.
 
 ### compiler flags worth knowing
 

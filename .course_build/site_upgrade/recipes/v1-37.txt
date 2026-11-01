@@ -1,0 +1,98 @@
+source: day-37
+refs: 06=undefined-behavior 08=raii 12=shared-ptr 40=atomics 41=deadlocks 38=condition-variables 02=initialization
+>>> data-races
+---
+title: data races and race conditions
+standard: C++17
+objective: define a data race precisely, explain why it is undefined behavior rather than an imprecise result, and tell it apart from a race condition
+prerequisites: threads, undefined-behavior
+difficulty: 3
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-21
+
+### in code
+
+<<< 34-62
+
+### in practice
+
+races hide from ordinary testing: they depend on timing, compiler, and hardware, and the code usually works. ThreadSanitizer finds them by instrumenting every memory access and tracking happens-before relationships at run time:
+
+```sh
+g++ -std=c++17 -O1 -g -fsanitize=thread tests.cpp -o tests_tsan && ./tests_tsan
+# WARNING: ThreadSanitizer: data race ... Write of size 8 ... Previous write of size 8 ...
+```
+
+it reports the two conflicting accesses with stack traces, even when the run happened to produce the right answer. it needs its own build (it cannot be combined with AddressSanitizer), slows the program down considerably, and only sees the interleavings your tests actually execute. a CI job that runs the concurrent tests under TSan is the cheapest insurance against this whole class of bug.
+
+### watch out for
+
+**no data race, and still wrong.**
+
+<<< 64-96
+
+### the takeaway
+
+a data race is undefined behavior, not an imprecise result, and the optimizer is entitled to assume you never wrote one; race conditions are a separate, higher-level bug that locking each step does not fix.
+
+### optional challenge
+
+which of these are data races (assume no other synchronization)?
+
+1. two threads write two different `char` members of the same struct object.
+2. two threads read the same `int`.
+3. one thread sets `bool done = true;` while another loops on `while (!done) {}`.
+4. two threads call `++` on the same `std::atomic<int>`.
+5. two threads write two adjacent bit-fields, `unsigned a : 4;` and `unsigned b : 4;`, of the same struct.
+
+<details>
+<summary>answer</summary>
+
+3 and 5. distinct `char` members are distinct memory locations (1), and concurrent reads never conflict (2). (3) is the classic: a non-atomic write and read with no happens-before, so the compiler may hoist the load out of the loop and spin forever. atomic operations never race with each other (4). adjacent non-zero-width bit-fields form *one* memory location (5), so writing different fields is a conflicting access; a zero-width bit-field (`unsigned : 0;`) between them would separate the locations.
+
+</details>
+>>> mutexes
+---
+title: mutexes, locks, and thread-safe classes
+standard: C++17
+objective: protect shared data with RAII locks, design thread-safe classes whose methods are complete transactions, and never let guarded data escape the lock
+prerequisites: data-races
+difficulty: 2
+---
+
+### the idea
+
+"this vector is protected by that mutex" is usually a comment, and comments are not checked. nothing stops a new method from touching the vector without the lock, or an existing method from handing out a reference that is read after the lock is gone. the mechanics of locking are easy; the hard part is designing a class so that the lock and the data it guards cannot be separated.
+
+### understanding the concept
+
+<<< 23-30
+
+a mutex protects *data*, not code. the useful question for every member of a thread-safe class is "which mutex guards this?", and the useful design keeps that answer structural: the mutex and its data are private members of the same small class, and every public method takes the lock for the whole of one logical operation.
+
+### in code
+
+<<< 98-124
+
+### in practice
+
+<<< 128-132
+
+### watch out for
+
+<<< 136-145
+
+### the takeaway
+
+<<< 149-149
+
+### optional challenge
+
+<<< 153-167

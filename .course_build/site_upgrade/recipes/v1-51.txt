@@ -1,0 +1,102 @@
+source: day-51
+refs: 15=sequence-containers 40=atomic-waiting 50=benchmarking
+>>> cache-locality
+---
+title: cache locality: why the same loop can be slower
+standard: C++17
+objective: explain cache lines, prefetching, and memory-level parallelism, and predict which traversals are fast, slow, or contended
+prerequisites: profiling, object-layout, sequence-containers
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-27
+
+### in code
+
+<<< 33-53
+
+### in practice
+
+claims about memory behavior should be checked against the hardware's own counters, not inferred from timings alone:
+
+```sh
+perf stat -e cycles,instructions,cache-references,cache-misses,L1-dcache-load-misses ./localizer_replay run.bag
+```
+
+available event names vary by CPU (`perf list` shows yours). the useful readings are relative: a layout change that halves cache misses *and* reduces cycles per frame was memory-bound and worth it; one that halves misses with no change in cycles means memory was not the bottleneck, and the change probably is not worth its complexity. instructions per cycle (`instructions` divided by `cycles`) is a quick tell: a loop that retires far less than one instruction per cycle is usually waiting on memory.
+
+### watch out for
+
+**false sharing: two threads, one cache line.** cache coherence works per line, not per variable, so threads that write *different* variables on the *same* line still contend:
+
+```cpp
+#include <vector>
+
+struct PaddedSum { alignas(64) double value = 0; };   // one cache line per thread
+std::vector<PaddedSum> partial(num_threads);           // C++17 vector honors over-alignment
+```
+
+without the padding, adjacent `double` accumulators for different threads share a line, and every write by one core invalidates it in the others' caches, so logically independent threads slow each other down. the 64 is a common line size, not a guarantee; [[atomic-waiting]] discusses `std::hardware_destructive_interference_size` and its portability caveats.
+
+### the takeaway
+
+performance is often decided by which bytes travel from memory, in what order, and which cores fight over them; contiguous, sequential, unshared access is the fast path.
+
+### optional challenge
+
+a traversal of a `std::list` with a million nodes takes far longer than the extra cache misses alone would suggest, compared with a vector of the same elements. what mechanism makes it worse than "one miss per node"?
+
+<details>
+<summary>answer</summary>
+
+the misses cannot overlap. a core can have many cache misses in flight at once, but only when it knows the addresses; in a list, the address of the next node is stored inside the current node, which is itself still being loaded. each miss must complete before the next one can even start, so the traversal pays the full memory latency per node, back to back. a vector of pointers has the same scatter but the pointers themselves are contiguous, so the core can request several pointees concurrently; a plain vector has neither problem.
+
+</details>
+>>> data-oriented-design
+---
+title: data-oriented design: arrays of structs and structs of arrays
+standard: C++17
+objective: choose between array-of-structs, struct-of-arrays, and hot/cold splitting by the access pattern of the hot loops, and keep the choice encapsulated
+prerequisites: cache-locality
+difficulty: 2
+---
+
+### the idea
+
+object-oriented design starts from "what is a detection?" and packs everything a detection has into one struct. a loop that only checks each detection's signal-to-noise ratio then drags sixty unrelated bytes through the cache for every four it uses. data-oriented design starts from the other end: which loops are hot, which bytes do they read, and in what order? the layout follows from the answers, and so do its costs.
+
+### understanding the concept
+
+<<< 29-29
+
+the two classic layouts are an *array of structs* (AoS), where each element's fields are adjacent, and a *struct of arrays* (SoA), where each field is its own contiguous array. AoS is ideal when a loop uses most fields of one element at a time; SoA is ideal when a loop uses one or two fields of every element. most real systems end up in between.
+
+### in code
+
+<<< 55-97
+
+### in practice
+
+<<< 101-101
+
+the data-oriented rewrite stored `x`, `y`, `theta`, and `weight` as four float arrays inside a `ParticleSet` class, moved the debug history into a separate structure that is only filled when diagnostics are enabled, and replaced the virtual methods with whole-set operations (`predict`, `normalize_weights`, `resample`) that loop over the arrays. each step was justified with numbers: the benchmark harness from [[benchmarking]] on a recorded dataset for time per cycle, and hardware counters for the mechanism.
+
+<<< 114-114
+
+### watch out for
+
+<<< 118-120
+
+### the takeaway
+
+<<< 124-124
+
+### optional challenge
+
+<<< 128-137

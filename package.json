@@ -6,14 +6,16 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "assemble": "python .course_build/tools/course.py assemble",
     "build": "node scripts/build.mjs",
+    "test": "node scripts/test-site.mjs",
+    "check": "python .course_build/tools/course.py validate && node scripts/build.mjs && python .course_build/tools/check_ui.py && node scripts/test-site.mjs",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "highlight.js": "^11.12.0",
-    "marked": "^18.1.2",
-    "marked-highlight": "^2.2.4"
+    "marked": "^18.1.2"
   },
   "devDependencies": {
     "wrangler": "^4.156.0"

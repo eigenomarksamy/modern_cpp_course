@@ -1,0 +1,151 @@
+source: day-56
+refs: 15=sequence-containers 40=memory-model 47=api-stability 50=benchmarking 52=pmr-pools 53=observability 55=pipeline-wiring 20=error-strategy 25=variant 34=format 46=static-polymorphism 48=coroutine-generator 31=span 11=rule-of-zero 17=callbacks 12=shared-ptr 44=dependency-injection
+>>> review-performance
+---
+title: review: performance
+kind: review
+standard: C++17
+objective: consolidate benchmarking, profiling, cache locality, data-oriented layout, allocation costs, and memory resources
+prerequisites: benchmarking, profiling, cache-locality, data-oriented-design, allocation-costs, pmr-pools
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[benchmarking]] | a benchmark number means nothing until you know what the compiler did, which statistics produced it, and how it varies. |
+| [[profiling]] | profile optimized builds to find where time goes; Amdahl's law bounds what any fix can buy. |
+| [[cache-locality]] | cache lines, prefetching, and memory-level parallelism decide what a loop costs; false sharing makes independent threads contend. |
+| [[data-oriented-design]] | lay out data for the hot loops: AoS, SoA, or hot/cold splitting, kept behind an interface. |
+| [[allocation-costs]] | count allocations, move them to startup, and test that the steady state is allocation-free. |
+| [[pmr-pools]] | match the allocator to the pattern: arenas for data that dies together, pools for one size, a null upstream as a guard. |
+
+### review questions
+
+<<< 22-24
+4. two worker threads each increment their own counter in a `std::array<std::uint64_t, 2>`, with no sharing at all, and scale badly. what is happening, and what is the fix?
+5. from [[rule-of-zero]]: why does adding a logging destructor to a struct stored in a large `std::vector` make reallocation slower?
+
+### mini exercise
+
+this function runs once per frame in a telemetry exporter. list where it may allocate, then sketch an allocation-free version, and say how you would verify it.
+
+```cpp
+std::string describe(const std::vector<Detection>& ds) {
+    std::string out;
+    for (const auto& d : ds) out += std::to_string(d.range_m) + " m, ";
+    return out;
+}
+```
+
+### answers
+
+<<< 44-63
+
+<details>
+<summary>answer 4: false sharing</summary>
+
+the two counters sit on the same cache line, and cache coherence works per line: every increment by one core invalidates the line in the other core's cache, so the threads contend as if they shared a variable. give each counter its own line (`struct alignas(64) Counter { std::uint64_t value; };`), or accumulate in a local variable and write the total once.
+
+</details>
+
+<details>
+<summary>answer 5: a destructor suppresses moves</summary>
+
+declaring a destructor suppresses the implicit move constructor, so the type's "moves" are copies, and `std::vector` reallocation copies every element (including any heap-owning members) instead of moving them. remove the destructor or default all five special members explicitly ([[special-members]]).
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+it may allocate in `std::to_string` (if the text exceeds the small-string buffer), in the temporary created by `to_string(...) + " m, "`, every time `out` grows, and for the returned string itself. an allocation-free version takes a caller-owned output buffer that is reused every frame, reserves it once, and formats numbers with `std::to_chars` into a stack buffer before appending:
+
+```cpp
+#include <charconv>
+#include <string>
+#include <vector>
+
+void describe(const std::vector<Detection>& ds, std::string& out) {   // out reused by the caller
+    out.clear();                                                        // keeps capacity
+    char num[32];
+    for (const auto& d : ds) {
+        auto [end, ec] = std::to_chars(num, num + sizeof num, d.range_m);
+        out.append(num, end);
+        out.append(" m, ");
+    }
+}
+```
+
+once `out` has grown to the largest frame seen, the steady state allocates nothing. verify it with the allocation counter from [[allocation-costs]] in a test that runs many frames after a warm-up, rather than by reading the code: whether a given call allocates is an implementation detail.
+
+</details>
+
+### connections
+
+performance work in C++ is mostly about memory: where bytes live, how often they are allocated, and which cores fight over them. the habits from this module (measure first, check the mechanism with counters, keep the fast path allocation-free, encapsulate layout decisions) apply to every earlier module, from container choice to concurrency. the final module turns to the rest of production engineering, and then puts the whole course together.
+>>> review-final
+---
+title: review: production engineering, and the road ahead
+kind: review
+standard: C++20
+objective: consolidate testing, observability, legacy refactoring, architectural decisions, and the integrated pipeline, with spaced repetition across the course
+prerequisites: testing, observability, legacy-refactoring, architecture-decisions, pipeline-design, pipeline-processing, pipeline-wiring
+difficulty: 2
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[testing]] | push checks down the pyramid, test behavior, inject time and I/O, and let sanitizers and fuzzers explore. |
+| [[observability]] | structured logs, cheap metrics, and spans, built so that observing does not disturb. |
+| [[legacy-refactoring]] | characterization tests first, then small verified steps behind a compatibility shim. |
+| [[architecture-decisions]] | replace subsystems incrementally and record tradeoffs where the next engineer will look. |
+| [[pipeline-design]] to [[pipeline-wiring]] | one small program where ownership, borrowing, seams, and shutdown order all have to agree. |
+
+### review questions
+
+<<< 25-26
+3. a log line inside a 1 kHz control loop formats a string and writes to a file. name two ways it can cause the deadline misses it was added to investigate.
+4. from [[undefined-behavior]]: classify each as undefined, unspecified, or implementation-defined: `sizeof(long)`; the order in which `a()` and `b()` run in `f(a(), b())`; `INT_MAX + 1` for `int`.
+5. from [[noexcept-moves]]: why does `std::vector<T>` copy rather than move elements during reallocation when `T`'s move constructor is not `noexcept`?
+6. from [[string-view]]: what is wrong with `std::string_view sv = std::string("radar") + "_0";` followed by any use of `sv`?
+7. from [[memory-model]]: a producer writes a non-atomic payload and then sets an atomic `ready` flag with `memory_order_relaxed`; the consumer spins on `ready` with relaxed loads, then reads the payload. what is the bug?
+8. from [[api-stability]]: with pimpl and `std::unique_ptr<Impl>`, why must the destructor be declared in the header and defined in the `.cpp`?
+
+### mini exercise
+
+<<< 40-40
+
+### answers
+
+<<< 65-77
+
+<details>
+<summary>answer 3: observability that disturbs</summary>
+
+formatting can allocate, and the general-purpose heap has an unbounded worst case; writing to a file can block on I/O, and logging libraries often take a lock that another thread may hold. any of these turns a diagnostic into the deadline miss. keep the hot path to counters and fixed-size records pushed into a preallocated buffer, and let a background thread format and write them.
+
+</details>
+
+<<< 79-91
+
+<<< 100-105
+
+<<< 114-126
+
+<<< 128-154
+
+### connections
+
+the course ends where it started: with what the language promises and what you must promise in return. the production modules leaned on everything before them: benchmarking and cache behavior gave substance to container choices, the cost of allocation explained why the rule of zero, `reserve`, and the hidden costs of `std::function` and `shared_ptr` matter, and testing and observability turned dependency injection and RAII into practical habits. the pipeline showed that the hard part of combining features is deciding who owns what, who may block, and what can be substituted.
+
+#### where to go next
+
+<<< 162-169
+
+<<< 171-171
+
+<<< 173-173

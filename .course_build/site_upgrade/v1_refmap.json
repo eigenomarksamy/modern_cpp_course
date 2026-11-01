@@ -1,0 +1,18 @@
+{
+  "01": "build-pipeline", "02": "initialization", "03": "storage-duration", "04": "pointers-references",
+  "05": "value-categories", "06": "undefined-behavior", "07": "review-foundations",
+  "08": "raii", "09": "constructors", "10": "move-semantics", "11": "rule-of-zero",
+  "12": "unique-ptr", "13": "virtual-dispatch", "14": "review-ownership",
+  "15": "sequence-containers", "16": "algorithms", "17": "lambdas", "18": "function-templates",
+  "19": "forwarding-references", "20": "exception-safety", "21": "review-library",
+  "22": "structured-bindings", "23": "if-constexpr", "24": "optional", "25": "variant",
+  "26": "string-view", "27": "filesystem", "28": "review-cpp17",
+  "29": "concepts", "30": "range-algorithms", "31": "span", "32": "defaulted-comparisons",
+  "33": "constexpr-evolution", "34": "format", "35": "review-cpp20-everyday",
+  "36": "threads", "37": "data-races", "38": "condition-variables", "39": "futures",
+  "40": "atomics", "41": "deadlocks", "42": "review-async",
+  "43": "solid", "44": "dependency-injection", "45": "strategy", "46": "static-polymorphism",
+  "47": "api-contracts", "48": "modules", "49": "review-abstractions",
+  "50": "benchmarking", "51": "cache-locality", "52": "allocation-costs", "53": "testing",
+  "54": "legacy-refactoring", "55": "pipeline-design", "56": "review-final"
+}

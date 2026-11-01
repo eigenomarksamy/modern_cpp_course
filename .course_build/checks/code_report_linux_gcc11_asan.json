@@ -1,0 +1,3829 @@
+{
+ "meta": {
+  "generated": "2026-11-01T04:36:51+00:00",
+  "platform": "linux",
+  "run": true,
+  "sanitize": true,
+  "compilers": [
+   "g++"
+  ]
+ },
+ "results": [
+  {
+   "id": "build-pipeline#2",
+   "where": ".course_build/lessons/build-pipeline.md:47",
+   "kind": "external",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "build-pipeline#4",
+   "where": ".course_build/lessons/build-pipeline.md:65",
+   "kind": "external",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "build-pipeline#6",
+   "where": ".course_build/lessons/build-pipeline.md:88",
+   "kind": "external",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "linkage-odr#0",
+   "where": ".course_build/lessons/linkage-odr.md:31",
+   "kind": "external",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "linkage-odr#1",
+   "where": ".course_build/lessons/linkage-odr.md:52",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/linkage_odr_1.cpp:2:9: warning: #pragma once in main file"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "linkage-odr#3",
+   "where": ".course_build/lessons/linkage-odr.md:87",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "linkage-odr#4",
+   "where": ".course_build/lessons/linkage-odr.md:102",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/linkage_odr_4.cpp:2:9: warning: #pragma once in main file"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "initialization#0",
+   "where": ".course_build/lessons/initialization.md:36",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "3 2 0\n3 2\n0 0\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "initialization#1",
+   "where": ".course_build/lessons/initialization.md:64",
+   "kind": "fails",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "ok",
+   "detail": "rejected as intended",
+   "diagnostics": [
+    "/tmp/tmpzpjrdis0/g_/initialization_1.cpp:7:11: warning: narrowing conversion of \u2018measured\u2019 from \u2018double\u2019 to \u2018int\u2019 [-Wnarrowing]",
+    "/tmp/tmpzpjrdis0/g_/initialization_1.cpp:8:33: error: narrowing conversion of \u201870000\u2019 from \u2018int\u2019 to \u2018uint16_t\u2019 {aka \u2018short unsigned int\u2019} [-Wnarrowing]"
+   ],
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "initialization#2",
+   "where": ".course_build/lessons/initialization.md:92",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "initialization#3",
+   "where": ".course_build/lessons/initialization.md:108",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "initialization#4",
+   "where": ".course_build/lessons/initialization.md:127",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/initialization_4.cpp:5:13: warning: missing initializer for member \u2018Gains::ki\u2019 [-Wmissing-field-initializers]",
+    "/tmp/tmpzpjrdis0/g_/initialization_4.cpp:5:13: warning: missing initializer for member \u2018Gains::ki\u2019 [-Wmissing-field-initializers]"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "integer-types#0",
+   "where": ".course_build/lessons/integer-types.md:31",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/integer_types_0.cpp:12:21: warning: comparison of integer expressions of different signedness: \u2018int\u2019 and \u2018unsigned int\u2019 [-Wsign-compare]"
+   ],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "300\n0\n18446744073709551615\nA\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "integer-types#1",
+   "where": ".course_build/lessons/integer-types.md:60",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "integer-types#2",
+   "where": ".course_build/lessons/integer-types.md:75",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "integer-types#3",
+   "where": ".course_build/lessons/integer-types.md:93",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "object-layout#1",
+   "where": ".course_build/lessons/object-layout.md:33",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "32 8\n24 8\n8\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "object-layout#2",
+   "where": ".course_build/lessons/object-layout.md:49",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "object-layout#3",
+   "where": ".course_build/lessons/object-layout.md:76",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "object-layout#4",
+   "where": ".course_build/lessons/object-layout.md:94",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "storage-duration#0",
+   "where": ".course_build/lessons/storage-duration.md:36",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "+global main +a +static +b -b +temp use:temp -temp +ext +c return -c -ext -a -static -global ",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "storage-duration#1",
+   "where": ".course_build/lessons/storage-duration.md:69",
+   "kind": "external",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "storage-duration#2",
+   "where": ".course_build/lessons/storage-duration.md:96",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-foundations#0",
+   "where": ".course_build/lessons/review-foundations.md:33",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/review_foundations_0.cpp:2:9: warning: #pragma once in main file"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "temporaries-dangling#0",
+   "where": ".course_build/lessons/temporaries-dangling.md:23",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/temporaries_dangling_0.cpp:6:12: warning: reference to local variable \u2018id\u2019 returned [-Wreturn-local-addr]"
+   ],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "temporaries-dangling#1",
+   "where": ".course_build/lessons/temporaries-dangling.md:55",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "temporaries-dangling#2",
+   "where": ".course_build/lessons/temporaries-dangling.md:75",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "pointers-references#0",
+   "where": ".course_build/lessons/pointers-references.md:27",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "2 2\nint\nconst char*\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "pointers-references#1",
+   "where": ".course_build/lessons/pointers-references.md:52",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/pointers_references_1.cpp:6:34: warning: \u2018sizeof\u2019 on array function parameter \u2018samples\u2019 will return size of \u2018const float*\u2019 [-Wsizeof-array-argument]"
+   ],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "pointers-references#2",
+   "where": ".course_build/lessons/pointers-references.md:91",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/pointers_references_2.cpp:7:23: warning: unused parameter \u2018a\u2019 [-Wunused-parameter]",
+    "/tmp/tmpzpjrdis0/g_/pointers_references_2.cpp:7:40: warning: unused parameter \u2018b\u2019 [-Wunused-parameter]"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "pointers-references#3",
+   "where": ".course_build/lessons/pointers-references.md:113",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "const-correctness#0",
+   "where": ".course_build/lessons/const-correctness.md:32",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "const-correctness#1",
+   "where": ".course_build/lessons/const-correctness.md:66",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "const-correctness#2",
+   "where": ".course_build/lessons/const-correctness.md:83",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "const-correctness#3",
+   "where": ".course_build/lessons/const-correctness.md:110",
+   "kind": "fails",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "ok",
+   "detail": "rejected as intended",
+   "diagnostics": [
+    "/tmp/tmpzpjrdis0/g_/const_correctness_3.cpp:10:8: error: assignment of read-only location \u2018* p\u2019",
+    "/tmp/tmpzpjrdis0/g_/const_correctness_3.cpp:11:7: error: assignment of read-only variable \u2018q\u2019"
+   ],
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "value-categories#0",
+   "where": ".course_build/lessons/value-categories.md:13",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "value-categories#2",
+   "where": ".course_build/lessons/value-categories.md:55",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "Frame&\nconst Frame&\nFrame&&\nFrame&&\nFrame&&\nFrame&\nconst Frame&\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "value-categories#4",
+   "where": ".course_build/lessons/value-categories.md:107",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "value-categories#5",
+   "where": ".course_build/lessons/value-categories.md:144",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/value_categories_5.cpp:13:50: warning: reference to local variable \u2018local\u2019 returned [-Wreturn-local-addr]"
+   ],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-elision#0",
+   "where": ".course_build/lessons/copy-elision.md:23",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "ctor\nctor\nctor\nctor\ncopy\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-elision#1",
+   "where": ".course_build/lessons/copy-elision.md:50",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-elision#2",
+   "where": ".course_build/lessons/copy-elision.md:75",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/copy_elision_2.cpp:6:21: warning: moving a local object in a return statement prevents copy elision [-Wpessimizing-move]"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-elision#3",
+   "where": ".course_build/lessons/copy-elision.md:95",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "undefined-behavior#0",
+   "where": ".course_build/lessons/undefined-behavior.md:31",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "undefined-behavior#1",
+   "where": ".course_build/lessons/undefined-behavior.md:47",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "ub-usual-suspects#0",
+   "where": ".course_build/lessons/ub-usual-suspects.md:33",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "ub-usual-suspects#1",
+   "where": ".course_build/lessons/ub-usual-suspects.md:57",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "ub-usual-suspects#2",
+   "where": ".course_build/lessons/ub-usual-suspects.md:88",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-values#0",
+   "where": ".course_build/lessons/review-values.md:28",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-values#1",
+   "where": ".course_build/lessons/review-values.md:42",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-values#2",
+   "where": ".course_build/lessons/review-values.md:103",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "raii#0",
+   "where": ".course_build/lessons/raii.md:33",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "raii#1",
+   "where": ".course_build/lessons/raii.md:59",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "raii#2",
+   "where": ".course_build/lessons/raii.md:87",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "raii#3",
+   "where": ".course_build/lessons/raii.md:124",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "b\na\nsensor timeout\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "scope-guards#0",
+   "where": ".course_build/lessons/scope-guards.md:24",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "body done\nrelease b\nrelease a\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "scope-guards#1",
+   "where": ".course_build/lessons/scope-guards.md:61",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "scope-guards#2",
+   "where": ".course_build/lessons/scope-guards.md:79",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "constructors#0",
+   "where": ".course_build/lessons/constructors.md:25",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "constructors#1",
+   "where": ".course_build/lessons/constructors.md:44",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "constructors#2",
+   "where": ".course_build/lessons/constructors.md:69",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "constructors#3",
+   "where": ".course_build/lessons/constructors.md:89",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "construction-order#0",
+   "where": ".course_build/lessons/construction-order.md:25",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/construction_order_0.cpp:10:17: warning: \u2018SampleWindow::size_\u2019 will be initialized after [-Wreorder]",
+    "/tmp/tmpzpjrdis0/g_/construction_order_0.cpp:9:24: warning:   \u2018std::vector<float> SampleWindow::samples_\u2019 [-Wreorder]",
+    "/tmp/tmpzpjrdis0/g_/construction_order_0.cpp:6:14: warning:   when initialized here [-Wreorder]"
+   ],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "construction-order#1",
+   "where": ".course_build/lessons/construction-order.md:45",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "Sensor()\n  I am a Sensor\npart optics\npart driver\nLidar()\n  I am a Lidar\n~Lidar()\n~part driver\n~part optics\n~Sensor()\n  I am a Sensor\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "construction-order#3",
+   "where": ".course_build/lessons/construction-order.md:91",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "construction-order#4",
+   "where": ".course_build/lessons/construction-order.md:113",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "construction-order#5",
+   "where": ".course_build/lessons/construction-order.md:131",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-semantics#0",
+   "where": ".course_build/lessons/copy-semantics.md:23",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-semantics#1",
+   "where": ".course_build/lessons/copy-semantics.md:41",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-semantics#2",
+   "where": ".course_build/lessons/copy-semantics.md:79",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "copy-semantics#3",
+   "where": ".course_build/lessons/copy-semantics.md:99",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "move-semantics#0",
+   "where": ".course_build/lessons/move-semantics.md:21",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "move-semantics#1",
+   "where": ".course_build/lessons/move-semantics.md:34",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "move-semantics#2",
+   "where": ".course_build/lessons/move-semantics.md:67",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "move-semantics#3",
+   "where": ".course_build/lessons/move-semantics.md:94",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-lifecycle#0",
+   "where": ".course_build/lessons/review-lifecycle.md:35",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/review_lifecycle_0.cpp:11:17: warning: \u2018Recorder::count_\u2019 will be initialized after [-Wreorder]",
+    "/tmp/tmpzpjrdis0/g_/review_lifecycle_0.cpp:10:13: warning:   \u2018double* Recorder::samples_\u2019 [-Wreorder]",
+    "/tmp/tmpzpjrdis0/g_/review_lifecycle_0.cpp:5:5: warning:   when initialized here [-Wreorder]",
+    "/tmp/tmpzpjrdis0/g_/review_lifecycle_0.cpp:10:13: warning: \u2018Recorder::samples_\u2019 will be initialized after [-Wreorder]"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-lifecycle#1",
+   "where": ".course_build/lessons/review-lifecycle.md:95",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "noexcept-moves#0",
+   "where": ".course_build/lessons/noexcept-moves.md:23",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "copy\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "noexcept-moves#1",
+   "where": ".course_build/lessons/noexcept-moves.md:51",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "special-members#0",
+   "where": ".course_build/lessons/special-members.md:37",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "special-members#1",
+   "where": ".course_build/lessons/special-members.md:57",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "special-members#2",
+   "where": ".course_build/lessons/special-members.md:76",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "100000\nsnapshot released\nsnapshot released\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "special-members#3",
+   "where": ".course_build/lessons/special-members.md:103",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "rule-of-zero#0",
+   "where": ".course_build/lessons/rule-of-zero.md:25",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "rule-of-zero#1",
+   "where": ".course_build/lessons/rule-of-zero.md:48",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "rule-of-zero#2",
+   "where": ".course_build/lessons/rule-of-zero.md:92",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "rule-of-zero#3",
+   "where": ".course_build/lessons/rule-of-zero.md:126",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "unique-ptr#0",
+   "where": ".course_build/lessons/unique-ptr.md:21",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "unique-ptr#1",
+   "where": ".course_build/lessons/unique-ptr.md:53",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "unique-ptr#2",
+   "where": ".course_build/lessons/unique-ptr.md:69",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "shared-ptr#0",
+   "where": ".course_build/lessons/shared-ptr.md:27",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "shared-ptr#1",
+   "where": ".course_build/lessons/shared-ptr.md:52",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "shared-ptr#2",
+   "where": ".course_build/lessons/shared-ptr.md:69",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "shared-ptr#3",
+   "where": ".course_build/lessons/shared-ptr.md:98",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "shared-ptr#4",
+   "where": ".course_build/lessons/shared-ptr.md:116",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "ownership-in-interfaces#0",
+   "where": ".course_build/lessons/ownership-in-interfaces.md:13",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "ownership-in-interfaces#1",
+   "where": ".course_build/lessons/ownership-in-interfaces.md:32",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "ownership-in-interfaces#2",
+   "where": ".course_build/lessons/ownership-in-interfaces.md:69",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-ownership#0",
+   "where": ".course_build/lessons/review-ownership.md:34",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-ownership#1",
+   "where": ".course_build/lessons/review-ownership.md:105",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "virtual-dispatch#1",
+   "where": ".course_build/lessons/virtual-dispatch.md:38",
+   "kind": "fails",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "ok",
+   "detail": "rejected as intended",
+   "diagnostics": [
+    "/tmp/tmpzpjrdis0/g_/virtual_dispatch_1.cpp:11:12: error: \u2018double LowPass2::apply(double)\u2019 marked \u2018override\u2019, but does not override",
+    "   11 |     double apply(double x) override;      // error: marked 'override' but does not override"
+   ],
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "virtual-dispatch#2",
+   "where": ".course_build/lessons/virtual-dispatch.md:67",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "derived 1\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "virtual-destructors-slicing#0",
+   "where": ".course_build/lessons/virtual-destructors-slicing.md:23",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "virtual-destructors-slicing#1",
+   "where": ".course_build/lessons/virtual-destructors-slicing.md:40",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "lidar sensor sensor\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "virtual-destructors-slicing#2",
+   "where": ".course_build/lessons/virtual-destructors-slicing.md:68",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "virtual-destructors-slicing#3",
+   "where": ".course_build/lessons/virtual-destructors-slicing.md:96",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "composition-over-inheritance#0",
+   "where": ".course_build/lessons/composition-over-inheritance.md:17",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "composition-over-inheritance#1",
+   "where": ".course_build/lessons/composition-over-inheritance.md:39",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-polymorphism#0",
+   "where": ".course_build/lessons/review-polymorphism.md:32",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-polymorphism#1",
+   "where": ".course_build/lessons/review-polymorphism.md:85",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "sequence-containers#0",
+   "where": ".course_build/lessons/sequence-containers.md:38",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "sequence-containers#1",
+   "where": ".course_build/lessons/sequence-containers.md:61",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "sequence-containers#2",
+   "where": ".course_build/lessons/sequence-containers.md:88",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "sequence-containers#3",
+   "where": ".course_build/lessons/sequence-containers.md:107",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "associative-containers#0",
+   "where": ".course_build/lessons/associative-containers.md:23",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "0 1\n0 70\n2 1\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "associative-containers#1",
+   "where": ".course_build/lessons/associative-containers.md:62",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "associative-containers#2",
+   "where": ".course_build/lessons/associative-containers.md:89",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "algorithms#0",
+   "where": ".course_build/lessons/algorithms.md:13",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "algorithms#1",
+   "where": ".course_build/lessons/algorithms.md:43",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "algorithms#2",
+   "where": ".course_build/lessons/algorithms.md:77",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "5\n3\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "algorithms#3",
+   "where": ".course_build/lessons/algorithms.md:105",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "algorithms#4",
+   "where": ".course_build/lessons/algorithms.md:120",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "algorithms#5",
+   "where": ".course_build/lessons/algorithms.md:139",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "lambdas#0",
+   "where": ".course_build/lessons/lambdas.md:17",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/lambdas_0.cpp:3:11: warning: capture of variable \u2018gain\u2019 with non-automatic storage duration",
+    "/tmp/tmpzpjrdis0/g_/lambdas_0.cpp:3:18: warning: capture of variable \u2018calls\u2019 with non-automatic storage duration"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "lambdas#1",
+   "where": ".course_build/lessons/lambdas.md:44",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "12\n31\nfast\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "lambdas#2",
+   "where": ".course_build/lessons/lambdas.md:75",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "lambdas#3",
+   "where": ".course_build/lessons/lambdas.md:96",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "lambdas#4",
+   "where": ".course_build/lessons/lambdas.md:118",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "callbacks#0",
+   "where": ".course_build/lessons/callbacks.md:25",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "callbacks#1",
+   "where": ".course_build/lessons/callbacks.md:51",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "callbacks#2",
+   "where": ".course_build/lessons/callbacks.md:101",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-library#0",
+   "where": ".course_build/lessons/review-library.md:25",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-library#1",
+   "where": ".course_build/lessons/review-library.md:41",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-library#2",
+   "where": ".course_build/lessons/review-library.md:102",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "function-templates#0",
+   "where": ".course_build/lessons/function-templates.md:11",
+   "kind": "fails",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "ok",
+   "detail": "rejected as intended",
+   "diagnostics": [
+    "/tmp/tmpzpjrdis0/g_/function_templates_0.cpp:5:18: error: no matching function for call to \u2018clamp_to(double&, int, int)\u2019",
+    "    5 | auto s = clamp_to(speed, 0, 10);  // error: deduced conflicting types for 'T' ('double' and 'int')"
+   ],
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "function-templates#1",
+   "where": ".course_build/lessons/function-templates.md:33",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "function-templates#2",
+   "where": ".course_build/lessons/function-templates.md:58",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "function-templates#3",
+   "where": ".course_build/lessons/function-templates.md:75",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "c\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "function-templates#4",
+   "where": ".course_build/lessons/function-templates.md:95",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "function-templates#5",
+   "where": ".course_build/lessons/function-templates.md:116",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "class-templates#0",
+   "where": ".course_build/lessons/class-templates.md:25",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "class-templates#1",
+   "where": ".course_build/lessons/class-templates.md:63",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "class-templates#2",
+   "where": ".course_build/lessons/class-templates.md:97",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "class-templates#3",
+   "where": ".course_build/lessons/class-templates.md:114",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "forwarding-references#0",
+   "where": ".course_build/lessons/forwarding-references.md:17",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "forwarding-references#1",
+   "where": ".course_build/lessons/forwarding-references.md:39",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "copy\nmove\ncopy\nmove\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "forwarding-references#2",
+   "where": ".course_build/lessons/forwarding-references.md:64",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "forwarding-references#3",
+   "where": ".course_build/lessons/forwarding-references.md:79",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "forwarding-references#4",
+   "where": ".course_build/lessons/forwarding-references.md:106",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variadic-templates#0",
+   "where": ".course_build/lessons/variadic-templates.md:32",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variadic-templates#1",
+   "where": ".course_build/lessons/variadic-templates.md:68",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variadic-templates#2",
+   "where": ".course_build/lessons/variadic-templates.md:82",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variadic-templates#3",
+   "where": ".course_build/lessons/variadic-templates.md:100",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "if-constexpr#0",
+   "where": ".course_build/lessons/if-constexpr.md:28",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "if-constexpr#1",
+   "where": ".course_build/lessons/if-constexpr.md:55",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "if-constexpr#2",
+   "where": ".course_build/lessons/if-constexpr.md:85",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "if-constexpr#3",
+   "where": ".course_build/lessons/if-constexpr.md:103",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "fold-expressions#0",
+   "where": ".course_build/lessons/fold-expressions.md:30",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "-4 2\n0 3.5\n0\nimu 3 0.25 \n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "fold-expressions#1",
+   "where": ".course_build/lessons/fold-expressions.md:60",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "fold-expressions#2",
+   "where": ".course_build/lessons/fold-expressions.md:81",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "fold-expressions#3",
+   "where": ".course_build/lessons/fold-expressions.md:98",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-generic#0",
+   "where": ".course_build/lessons/review-generic.md:25",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-generic#1",
+   "where": ".course_build/lessons/review-generic.md:82",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/review_generic_1.cpp:2:31: warning: parameter \u2018lo\u2019 set but not used [-Wunused-but-set-parameter]",
+    "/tmp/tmpzpjrdis0/g_/review_generic_1.cpp:2:37: warning: parameter \u2018hi\u2019 set but not used [-Wunused-but-set-parameter]",
+    "/tmp/tmpzpjrdis0/g_/review_generic_1.cpp:3:17: warning: comparison of integer expressions of different signedness: \u2018int\u2019 and \u2018unsigned int\u2019 [-Wsign-compare]",
+    "/tmp/tmpzpjrdis0/g_/review_generic_1.cpp:3:29: warning: comparison of integer expressions of different signedness: \u2018unsigned int\u2019 and \u2018int\u2019 [-Wsign-compare]"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "structured-bindings#0",
+   "where": ".course_build/lessons/structured-bindings.md:17",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "structured-bindings#1",
+   "where": ".course_build/lessons/structured-bindings.md:42",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "10.0 1.0 20.0\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "structured-bindings#2",
+   "where": ".course_build/lessons/structured-bindings.md:66",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "structured-bindings#3",
+   "where": ".course_build/lessons/structured-bindings.md:87",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "structured-bindings#4",
+   "where": ".course_build/lessons/structured-bindings.md:105",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "init-statements#0",
+   "where": ".course_build/lessons/init-statements.md:17",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "init-statements#1",
+   "where": ".course_build/lessons/init-statements.md:29",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "init-statements#2",
+   "where": ".course_build/lessons/init-statements.md:64",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "init-statements#3",
+   "where": ".course_build/lessons/init-statements.md:103",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "init-statements#4",
+   "where": ".course_build/lessons/init-statements.md:125",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "exception-safety#0",
+   "where": ".course_build/lessons/exception-safety.md:31",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "exception-safety#1",
+   "where": ".course_build/lessons/exception-safety.md:64",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "exception-safety#2",
+   "where": ".course_build/lessons/exception-safety.md:97",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/exception_safety_2.cpp:7:29: warning: catching polymorphic type \u2018class std::exception\u2019 by value [-Wcatch-value=]"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "exception-safety#3",
+   "where": ".course_build/lessons/exception-safety.md:121",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "error-strategy#0",
+   "where": ".course_build/lessons/error-strategy.md:30",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "error-strategy#1",
+   "where": ".course_build/lessons/error-strategy.md:49",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "error-strategy#2",
+   "where": ".course_build/lessons/error-strategy.md:70",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "optional#0",
+   "where": ".course_build/lessons/optional.md:40",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "optional#1",
+   "where": ".course_build/lessons/optional.md:66",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "111\nempty\n1\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "optional#2",
+   "where": ".course_build/lessons/optional.md:94",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "optional#3",
+   "where": ".course_build/lessons/optional.md:110",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "optional#4",
+   "where": ".course_build/lessons/optional.md:143",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-results#0",
+   "where": ".course_build/lessons/review-results.md:74",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variant#0",
+   "where": ".course_build/lessons/variant.md:25",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variant#1",
+   "where": ".course_build/lessons/variant.md:38",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variant#2",
+   "where": ".course_build/lessons/variant.md:72",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variant#3",
+   "where": ".course_build/lessons/variant.md:98",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variant-design#0",
+   "where": ".course_build/lessons/variant-design.md:23",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variant-design#1",
+   "where": ".course_build/lessons/variant-design.md:46",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "variant-design#2",
+   "where": ".course_build/lessons/variant-design.md:63",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "string-view#0",
+   "where": ".course_build/lessons/string-view.md:27",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "string-view#1",
+   "where": ".course_build/lessons/string-view.md:52",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "string-view#2",
+   "where": ".course_build/lessons/string-view.md:77",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "string-view#3",
+   "where": ".course_build/lessons/string-view.md:105",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "parsing-with-views#0",
+   "where": ".course_build/lessons/parsing-with-views.md:23",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "parsing-with-views#1",
+   "where": ".course_build/lessons/parsing-with-views.md:56",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "parsing-with-views#2",
+   "where": ".course_build/lessons/parsing-with-views.md:73",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "filesystem#0",
+   "where": ".course_build/lessons/filesystem.md:32",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "\"joint_states.2026-10-30.csv\" \"joint_states.2026-10-30\" \".csv\"\nno file: No such file or directory\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "filesystem#1",
+   "where": ".course_build/lessons/filesystem.md:55",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "filesystem#2",
+   "where": ".course_build/lessons/filesystem.md:79",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "filesystem#3",
+   "where": ".course_build/lessons/filesystem.md:86",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "filesystem#4",
+   "where": ".course_build/lessons/filesystem.md:102",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "cpp17-refactoring#0",
+   "where": ".course_build/lessons/cpp17-refactoring.md:21",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "cpp17-refactoring#1",
+   "where": ".course_build/lessons/cpp17-refactoring.md:52",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-cpp17#0",
+   "where": ".course_build/lessons/review-cpp17.md:30",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-cpp17#1",
+   "where": ".course_build/lessons/review-cpp17.md:44",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-cpp17#2",
+   "where": ".course_build/lessons/review-cpp17.md:93",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "concepts#0",
+   "where": ".course_build/lessons/concepts.md:19",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "concepts#1",
+   "where": ".course_build/lessons/concepts.md:32",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "concepts#2",
+   "where": ".course_build/lessons/concepts.md:62",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "concepts#3",
+   "where": ".course_build/lessons/concepts.md:82",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "concepts#4",
+   "where": ".course_build/lessons/concepts.md:97",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "writing-concepts#0",
+   "where": ".course_build/lessons/writing-concepts.md:30",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "writing-concepts#1",
+   "where": ".course_build/lessons/writing-concepts.md:70",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "writing-concepts#2",
+   "where": ".course_build/lessons/writing-concepts.md:93",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "writing-concepts#3",
+   "where": ".course_build/lessons/writing-concepts.md:107",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "range-algorithms#0",
+   "where": ".course_build/lessons/range-algorithms.md:23",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "1 1 2 2\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "range-algorithms#1",
+   "where": ".course_build/lessons/range-algorithms.md:53",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "views#0",
+   "where": ".course_build/lessons/views.md:25",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "views#1",
+   "where": ".course_build/lessons/views.md:62",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "sum=56 calls=9\nsum=56 calls=3\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "views#2",
+   "where": ".course_build/lessons/views.md:89",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "FAILED",
+   "detail": "did not compile",
+   "diagnostics": [
+    "/tmp/tmpzpjrdis0/g_/views_2.cpp:7:55: error: no matching function for call to \u2018std::basic_string_view<char>::basic_string_view(std::ranges::split_view<std::basic_string_view<char>, std::ranges::single_view<char> >::_InnerIter<false>, std::default_sentinel_t)\u2019"
+   ],
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "views#3",
+   "where": ".course_build/lessons/views.md:120",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "view-lifetimes#0",
+   "where": ".course_build/lessons/view-lifetimes.md:13",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "view-lifetimes#1",
+   "where": ".course_build/lessons/view-lifetimes.md:34",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "view-lifetimes#2",
+   "where": ".course_build/lessons/view-lifetimes.md:61",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "span#0",
+   "where": ".course_build/lessons/span.md:32",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "span#1",
+   "where": ".course_build/lessons/span.md:65",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "span#2",
+   "where": ".course_build/lessons/span.md:84",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "span#3",
+   "where": ".course_build/lessons/span.md:107",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "span#4",
+   "where": ".course_build/lessons/span.md:123",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "span#5",
+   "where": ".course_build/lessons/span.md:142",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-cpp20-generic#0",
+   "where": ".course_build/lessons/review-cpp20-generic.md:26",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-cpp20-generic#1",
+   "where": ".course_build/lessons/review-cpp20-generic.md:43",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-cpp20-generic#2",
+   "where": ".course_build/lessons/review-cpp20-generic.md:94",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "defaulted-comparisons#0",
+   "where": ".course_build/lessons/defaulted-comparisons.md:29",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "comparison-categories#0",
+   "where": ".course_build/lessons/comparison-categories.md:29",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "comparison-categories#1",
+   "where": ".course_build/lessons/comparison-categories.md:50",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "comparison-categories#2",
+   "where": ".course_build/lessons/comparison-categories.md:76",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "comparison-categories#3",
+   "where": ".course_build/lessons/comparison-categories.md:100",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "constexpr-evolution#0",
+   "where": ".course_build/lessons/constexpr-evolution.md:26",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "constexpr-evolution#1",
+   "where": ".course_build/lessons/constexpr-evolution.md:56",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "FAILED",
+   "detail": "did not compile",
+   "diagnostics": [
+    "/tmp/tmpzpjrdis0/g_/constexpr_evolution_1.cpp:4:23: error: variable \u2018composite\u2019 of non-literal type \u2018std::vector<bool>\u2019 in \u2018constexpr\u2019 function",
+    "/tmp/tmpzpjrdis0/g_/constexpr_evolution_1.cpp:13:33: error: non-constant condition for static assertion",
+    "/tmp/tmpzpjrdis0/g_/constexpr_evolution_1.cpp:13:27: error: \u2018constexpr int count_primes(int)\u2019 called in a constant expression"
+   ],
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "constexpr-evolution#2",
+   "where": ".course_build/lessons/constexpr-evolution.md:95",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "consteval-constinit#0",
+   "where": ".course_build/lessons/consteval-constinit.md:27",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "consteval-constinit#1",
+   "where": ".course_build/lessons/consteval-constinit.md:55",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "consteval-constinit#2",
+   "where": ".course_build/lessons/consteval-constinit.md:74",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/consteval_constinit_2.cpp:5:9: warning: unused variable \u2018l\u2019 [-Wunused-variable]"
+   ],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "format#0",
+   "where": ".course_build/lessons/format.md:29",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "the standard library has no <format>",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "format#1",
+   "where": ".course_build/lessons/format.md:51",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "format#2",
+   "where": ".course_build/lessons/format.md:73",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "format#3",
+   "where": ".course_build/lessons/format.md:110",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "the standard library has no <format>",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "cpp20-small-features#0",
+   "where": ".course_build/lessons/cpp20-small-features.md:30",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "cpp20-small-features#1",
+   "where": ".course_build/lessons/cpp20-small-features.md:80",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-cpp20-everyday#0",
+   "where": ".course_build/lessons/review-cpp20-everyday.md:68",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "the standard library has no <format>",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "threads#0",
+   "where": ".course_build/lessons/threads.md:29",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/threads_0.cpp:6:34: warning: unused parameter \u2018s\u2019 [-Wunused-parameter]"
+   ],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "threads#1",
+   "where": ".course_build/lessons/threads.md:54",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "threads#2",
+   "where": ".course_build/lessons/threads.md:90",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "threads#3",
+   "where": ".course_build/lessons/threads.md:110",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "jthread#0",
+   "where": ".course_build/lessons/jthread.md:27",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "jthread#1",
+   "where": ".course_build/lessons/jthread.md:55",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "jthread#2",
+   "where": ".course_build/lessons/jthread.md:95",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "42\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "data-races#0",
+   "where": ".course_build/lessons/data-races.md:29",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "data-races#2",
+   "where": ".course_build/lessons/data-races.md:74",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "mutexes#0",
+   "where": ".course_build/lessons/mutexes.md:30",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "mutexes#1",
+   "where": ".course_build/lessons/mutexes.md:68",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "mutexes#2",
+   "where": ".course_build/lessons/mutexes.md:85",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "condition-variables#0",
+   "where": ".course_build/lessons/condition-variables.md:31",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "condition-variables#1",
+   "where": ".course_build/lessons/condition-variables.md:64",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "condition-variables#2",
+   "where": ".course_build/lessons/condition-variables.md:98",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "blocking-queue#0",
+   "where": ".course_build/lessons/blocking-queue.md:21",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-threads#0",
+   "where": ".course_build/lessons/review-threads.md:27",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-threads#1",
+   "where": ".course_build/lessons/review-threads.md:40",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-threads#2",
+   "where": ".course_build/lessons/review-threads.md:53",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-threads#3",
+   "where": ".course_build/lessons/review-threads.md:116",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "futures#0",
+   "where": ".course_build/lessons/futures.md:34",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "futures#1",
+   "where": ".course_build/lessons/futures.md:67",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "futures#2",
+   "where": ".course_build/lessons/futures.md:94",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "async#0",
+   "where": ".course_build/lessons/async.md:29",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "async#1",
+   "where": ".course_build/lessons/async.md:73",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "async#2",
+   "where": ".course_build/lessons/async.md:90",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "atomics#0",
+   "where": ".course_build/lessons/atomics.md:25",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "atomics#1",
+   "where": ".course_build/lessons/atomics.md:54",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "memory-model#0",
+   "where": ".course_build/lessons/memory-model.md:34",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "atomic-waiting#0",
+   "where": ".course_build/lessons/atomic-waiting.md:21",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "atomic-waiting#1",
+   "where": ".course_build/lessons/atomic-waiting.md:53",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "deadlocks#0",
+   "where": ".course_build/lessons/deadlocks.md:27",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "deadlocks#1",
+   "where": ".course_build/lessons/deadlocks.md:54",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "deadlocks#2",
+   "where": ".course_build/lessons/deadlocks.md:98",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "sync-primitives#0",
+   "where": ".course_build/lessons/sync-primitives.md:27",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "sync-primitives#1",
+   "where": ".course_build/lessons/sync-primitives.md:72",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-async#0",
+   "where": ".course_build/lessons/review-async.md:26",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-async#1",
+   "where": ".course_build/lessons/review-async.md:36",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-async#2",
+   "where": ".course_build/lessons/review-async.md:47",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-async#3",
+   "where": ".course_build/lessons/review-async.md:112",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "solid#0",
+   "where": ".course_build/lessons/solid.md:31",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "solid#1",
+   "where": ".course_build/lessons/solid.md:44",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "coupling-cohesion#0",
+   "where": ".course_build/lessons/coupling-cohesion.md:23",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "coupling-cohesion#1",
+   "where": ".course_build/lessons/coupling-cohesion.md:36",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "coupling-cohesion#2",
+   "where": ".course_build/lessons/coupling-cohesion.md:66",
+   "kind": "external",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "dependency-injection#0",
+   "where": ".course_build/lessons/dependency-injection.md:13",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "dependency-injection#1",
+   "where": ".course_build/lessons/dependency-injection.md:45",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "dependency-injection#2",
+   "where": ".course_build/lessons/dependency-injection.md:87",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "dependency-injection#3",
+   "where": ".course_build/lessons/dependency-injection.md:130",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "test-seams#0",
+   "where": ".course_build/lessons/test-seams.md:28",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "test-seams#1",
+   "where": ".course_build/lessons/test-seams.md:77",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "strategy#0",
+   "where": ".course_build/lessons/strategy.md:25",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "strategy#1",
+   "where": ".course_build/lessons/strategy.md:84",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "factory#0",
+   "where": ".course_build/lessons/factory.md:21",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "factory#1",
+   "where": ".course_build/lessons/factory.md:59",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "observer#0",
+   "where": ".course_build/lessons/observer.md:21",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-design#0",
+   "where": ".course_build/lessons/review-design.md:34",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-design#1",
+   "where": ".course_build/lessons/review-design.md:105",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "static-polymorphism#0",
+   "where": ".course_build/lessons/static-polymorphism.md:35",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "static-polymorphism#1",
+   "where": ".course_build/lessons/static-polymorphism.md:79",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "type-erasure#0",
+   "where": ".course_build/lessons/type-erasure.md:21",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "type-erasure#1",
+   "where": ".course_build/lessons/type-erasure.md:65",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "api-contracts#0",
+   "where": ".course_build/lessons/api-contracts.md:11",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "api-contracts#1",
+   "where": ".course_build/lessons/api-contracts.md:45",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "api-stability#0",
+   "where": ".course_build/lessons/api-stability.md:21",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/api_stability_0.cpp:2:9: warning: #pragma once in main file"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "api-stability#1",
+   "where": ".course_build/lessons/api-stability.md:45",
+   "kind": "external",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "api-stability#2",
+   "where": ".course_build/lessons/api-stability.md:78",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "modules#0",
+   "where": ".course_build/lessons/modules.md:28",
+   "kind": "external",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "modules#1",
+   "where": ".course_build/lessons/modules.md:40",
+   "kind": "external",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "modules#2",
+   "where": ".course_build/lessons/modules.md:66",
+   "kind": "external",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "coroutines#0",
+   "where": ".course_build/lessons/coroutines.md:23",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "coroutines#1",
+   "where": ".course_build/lessons/coroutines.md:54",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "coroutine-generator#0",
+   "where": ".course_build/lessons/coroutine-generator.md:21",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "coroutine-generator#1",
+   "where": ".course_build/lessons/coroutine-generator.md:67",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-abstractions#0",
+   "where": ".course_build/lessons/review-abstractions.md:28",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-abstractions#1",
+   "where": ".course_build/lessons/review-abstractions.md:83",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [
+    "/tmp/tmpzpjrdis0/g_/review_abstractions_1.cpp:2:9: warning: #pragma once in main file"
+   ],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "benchmarking#0",
+   "where": ".course_build/lessons/benchmarking.md:25",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "100 sums: 95880 us\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "benchmarking#1",
+   "where": ".course_build/lessons/benchmarking.md:48",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "median 1028.8 us (min 990.3, max 1265.1)\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "benchmarking#2",
+   "where": ".course_build/lessons/benchmarking.md:123",
+   "kind": "external",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "profiling#1",
+   "where": ".course_build/lessons/profiling.md:38",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "cache-locality#0",
+   "where": ".course_build/lessons/cache-locality.md:35",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "cache-locality#2",
+   "where": ".course_build/lessons/cache-locality.md:69",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "data-oriented-design#0",
+   "where": ".course_build/lessons/data-oriented-design.md:23",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "data-oriented-design#1",
+   "where": ".course_build/lessons/data-oriented-design.md:44",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "allocation-costs#0",
+   "where": ".course_build/lessons/allocation-costs.md:41",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "allocation-costs#1",
+   "where": ".course_build/lessons/allocation-costs.md:71",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "pmr-pools#0",
+   "where": ".course_build/lessons/pmr-pools.md:21",
+   "kind": "complete",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-performance#0",
+   "where": ".course_build/lessons/review-performance.md:33",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-performance#1",
+   "where": ".course_build/lessons/review-performance.md:83",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "testing#0",
+   "where": ".course_build/lessons/testing.md:25",
+   "kind": "complete",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "testing#2",
+   "where": ".course_build/lessons/testing.md:92",
+   "kind": "external",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "needs other files, modules, or a library",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "testing#3",
+   "where": ".course_build/lessons/testing.md:103",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "observability#0",
+   "where": ".course_build/lessons/observability.md:25",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "observability#1",
+   "where": ".course_build/lessons/observability.md:59",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "legacy-refactoring#0",
+   "where": ".course_build/lessons/legacy-refactoring.md:33",
+   "kind": "ub",
+   "std": "c++17",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled (undefined behavior: not run)",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "legacy-refactoring#1",
+   "where": ".course_build/lessons/legacy-refactoring.md:59",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "legacy-refactoring#2",
+   "where": ".course_build/lessons/legacy-refactoring.md:87",
+   "kind": "snippet",
+   "std": "c++17",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "review-final#0",
+   "where": ".course_build/lessons/review-final.md:98",
+   "kind": "snippet",
+   "std": "c++20",
+   "compiler": "g++",
+   "status": "skipped",
+   "reason": "snippet",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  },
+  {
+   "id": "group:pipeline",
+   "where": ".course_build/lessons/pipeline-design.md:29, .course_build/lessons/pipeline-design.md:61, .course_build/lessons/pipeline-processing.md:21, .course_build/lessons/pipeline-wiring.md:21",
+   "kind": "group",
+   "std": "c++20",
+   "compiler": "g++",
+   "warnings": [],
+   "status": "ok",
+   "detail": "compiled and ran under ASan+UBSan",
+   "output": "frame 0:  50 m / 18 dB  80 m / 12 dB\nframe 1:  51 m / 18 dB  80 m / 13 dB\nframe 3:  53 m / 18 dB  80 m / 15 dB\nfaults: 1 (code 17)\n",
+   "compiler_version": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+  }
+ ]
+}

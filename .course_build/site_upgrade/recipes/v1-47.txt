@@ -1,0 +1,91 @@
+source: day-47
+refs: 12=ownership-in-interfaces 20=error-strategy
+>>> api-contracts
+---
+title: designing APIs that are hard to misuse
+standard: C++20
+objective: push an API's contract into its types with strong types, enums, views, and explicit error channels, so wrong calls fail to compile
+prerequisites: dependency-injection, span, error-strategy, defaulted-comparisons
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-15
+
+### understanding the concept
+
+<<< 19-25
+
+the signature itself is part of the contract. the ownership rules from [[ownership-in-interfaces]] and the view types from the C++17 and C++20 modules give a compact vocabulary:
+
+<<< 28-37
+
+### in code
+
+<<< 43-79
+
+### in practice
+
+<<< 161-161
+
+### watch out for
+
+<<< 167-167
+
+### the takeaway
+
+push contracts into types first, assertions second, and comments last; make ownership, borrowing, and failure visible in the signature, and pick one error channel per kind of failure.
+
+### optional challenge
+
+<<< 175-182
+>>> api-stability
+---
+title: API and ABI stability: pimpl and deprecation
+standard: C++20
+objective: distinguish API from ABI stability, use the pimpl idiom as a compile-time and binary firewall, and evolve an interface without breaking callers
+prerequisites: api-contracts, coupling-cohesion, unique-ptr
+difficulty: 3
+---
+
+### the idea
+
+a library that is compiled together with its users can change freely, as long as the source still compiles. a library shipped as a binary, a `.so` or `.dll` that integrators link against without recompiling, makes a much stricter promise: the *layout* of every public class, the set of its virtual functions, and the code of every inline function are now part of the contract. most of the techniques in this lesson exist to keep that promise without freezing the code.
+
+### understanding the concept
+
+<<< 39-39
+
+### in code
+
+<<< 81-155
+
+### in practice
+
+<<< 159-159
+
+### watch out for
+
+<<< 165-165
+
+### the takeaway
+
+a shipped shared library promises an ABI, which is far stricter than an API: hide private state behind pimpl or abstract interfaces, keep inline code out of public headers, and evolve through deprecation rather than silent change.
+
+### optional challenge
+
+`libradar.so` exports a class `Tracker` that is *not* pimpl. which of these changes break binaries compiled against the previous version?
+
+1. adding a private data member
+2. adding a member to the private `Impl` struct of another, pimpl class
+3. adding a new virtual function at the end of `Tracker`'s existing ones
+4. adding a new non-virtual, non-inline member function
+5. changing the body of an inline member function defined in the header
+
+<details>
+<summary>answer</summary>
+
+(1) breaks: `sizeof(Tracker)` and possibly member offsets change, and clients allocated the old size. (2) is safe: only the library sees `Impl`. (3) is risky: it changes the vtable, which breaks any client class that derives from `Tracker` (its own virtual functions shift) and is implementation-specific even without derivation; treat it as breaking. (4) is safe: it adds a symbol without changing existing ones. (5) is the subtle one: old clients keep the old inline code compiled into their own binaries, so two versions of the function now coexist, which is an ODR problem and a behavior mismatch, not a link error.
+
+</details>

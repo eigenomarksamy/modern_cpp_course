@@ -1,0 +1,117 @@
+source: day-17
+refs: 12=shared-ptr 46=type-erasure 50=profiling
+>>> lambdas
+---
+title: lambdas are objects: closures and captures
+standard: C++17
+objective: explain what a lambda expression compiles to, and choose captures by what the closure should own or refer to
+prerequisites: algorithms, unique-ptr
+difficulty: 2
+---
+
+### the idea
+
+<<< 9-9
+
+### understanding the concept
+
+<<< 13-36
+
+### in code
+
+<<< 40-67
+
+### in practice
+
+capturing deliberately makes a lambda's dependencies as visible as a function's parameters. sorting detections by distance from the vehicle's current position is a one-liner, and the capture list documents exactly what the comparator depends on:
+
+```cpp
+#include <algorithm>
+#include <vector>
+
+struct Det { float x, y; };
+
+void sort_by_distance(std::vector<Det>& dets, Det ego) {
+    std::sort(dets.begin(), dets.end(), [ego](const Det& a, const Det& b) {
+        auto d2 = [&ego](const Det& d) { return (d.x - ego.x) * (d.x - ego.x)
+                                              + (d.y - ego.y) * (d.y - ego.y); };
+        return d2(a) < d2(b);
+    });
+}
+```
+
+`ego` is captured by value: the comparator is a self-contained object that `std::sort` may copy as often as it likes. the inner helper captures by reference, which is safe because it never leaves the enclosing call. prefer explicit capture lists over `[=]` and `[&]` in anything longer than a line: they turn "what does this closure touch?" into something a reviewer can read instead of infer.
+
+### watch out for
+
+<<< 141-155
+
+### the takeaway
+
+a lambda is a small class whose members are its captures; ask what it owns, what it points to, and how long it will live, exactly as you would for any other class.
+
+### optional challenge
+
+<<< 163-178
+>>> callbacks
+---
+title: lambdas that outlive their scope: callbacks and std::function
+standard: C++17
+objective: capture safely for lambdas that are stored or deferred, and choose between std::function and a template parameter
+prerequisites: lambdas
+difficulty: 2
+---
+
+### the idea
+
+a lambda passed to `std::sort` runs and is gone before the next line. a lambda passed to a timer, an event bus, or another thread runs *later*, after the function that created it may have returned. every capture is then a question about lifetime: does the object it refers to still exist when the callback finally fires? and once callbacks are stored, they need a type you can store them as, which brings type erasure and its costs.
+
+### understanding the concept
+
+<<< 95-95
+
+a stored callback also needs a type that can hold "any callable with this signature", because every lambda has its own unique type. `std::function<R(Args...)>` is that type. it is a value that owns a copy of the callable and erases the callable's concrete type behind an internal interface.
+
+<<< 131-131
+
+### in code
+
+<<< 69-93
+
+<<< 97-129
+
+### in practice
+
+<<< 135-137
+
+### watch out for
+
+**an empty `std::function` throws when called.** a default-constructed or moved-from `std::function` holds nothing, and calling it throws `std::bad_function_call`. in an event loop that means an exception from deep inside dispatch, far from the code that forgot to set the handler. test before calling (`if (on_ready) on_ready(frame);`), or give the member a no-op default (`std::function<void(const Frame&)> on_ready = [](const Frame&) {};`) so the "not set" state cannot occur.
+
+### the takeaway
+
+if a lambda leaves its scope, capture by value, by init-capture, or through a lifetime-tracking handle; use templates for hot-path callables and `std::function` at boundaries where flexibility and a stable signature are worth an indirect call.
+
+### optional challenge
+
+`Bus::on_frame` stores its callback for as long as the bus lives, which is longer than `wire`. which subscriptions are safe?
+
+```cpp
+void wire(Bus& bus, Sensor& s, std::shared_ptr<Log> log) {
+    int threshold = 5;
+    bus.on_frame([&](const Frame& f) { if (f.count > threshold) s.update(f); });        // (1)
+    bus.on_frame([threshold](const Frame& f) { /* uses threshold */ });                 // (2)
+    bus.on_frame([&s](const Frame& f) { s.update(f); });                                // (3)
+    bus.on_frame([log](const Frame& f) { log->write(f); });                             // (4)
+    bus.on_frame([w = std::weak_ptr<Log>(log)](const Frame& f) {
+        if (auto l = w.lock()) l->write(f);                                             // (5)
+    });
+}
+```
+
+<details>
+<summary>answer</summary>
+
+(1) is a bug: `threshold` is a local of `wire`, and every later frame reads a dead variable. (2) is safe: the closure owns a copy. (3) is safe only if the sensor outlives the subscription; that is a lifetime contract between the code that owns the sensor and the code that owns the bus, and it should be written down. (4) is safe, and it keeps the log alive as long as the bus holds the callback, which may be forever; if the log also refers back to the bus, that is a reference cycle. (5) is safe without extending the log's life: when the log is gone, `lock()` returns an empty pointer and the callback does nothing.
+
+</details>

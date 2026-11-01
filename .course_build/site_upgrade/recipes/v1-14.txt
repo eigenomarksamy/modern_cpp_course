@@ -1,0 +1,199 @@
+source: day-14
+refs: 03=temporaries-dangling 05=copy-elision 08=raii 09=construction-order 10=noexcept-moves 11=special-members 13=virtual-destructors-slicing
+>>> review-lifecycle
+---
+title: review: resources and the object lifecycle
+kind: review
+standard: C++17
+objective: consolidate RAII, scope guards, constructors, construction order, copying, and moving
+prerequisites: raii, scope-guards, constructors, construction-order, copy-semantics, move-semantics
+difficulty: 1
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[raii]] | tie a resource to an object: acquire in the constructor, release in a destructor that never throws, and every exit path that unwinds cleans up. |
+| [[scope-guards]] | for one-off cleanup or rollback, arm a named guard and dismiss it at the point of commit. |
+| [[constructors]] | a constructor establishes the invariant: initializer lists, validation once, derived state not stored, `explicit` single-argument constructors. |
+| [[construction-order]] | bases, then members in declaration order, then the body; destruction reverses it, and a constructor that throws leaves no object. |
+| [[copy-semantics]] | a copy must be an independent value; the generated memberwise copy is wrong for a class that owns through a raw handle. |
+| [[move-semantics]] | `std::move` is a cast; the move constructor transfers the resource and leaves a valid, documented moved-from state. |
+
+the thread through the module: **an object's lifetime is a tool**. constructors, destructors, copies, and moves are where a class decides what it owns, and the language runs that code at precisely defined moments.
+
+### review questions
+
+1. which ways of leaving a scope run the destructors of its automatic objects, and which do not? why do long-running services catch exceptions at the top of every thread function?
+2. a class has members `A a; B b; C c;` in that order, and its constructor's initializer list names them as `c(...), a(...), b(...)`. `B`'s constructor throws. which constructors and destructors run?
+<<< 26-26
+4. why does a correct copy assignment allocate the new buffer *before* releasing the old one? name the two failures the opposite order causes.
+5. from [[temporaries-dangling]]: is this safe? `const std::string& name = load_config().name();` where `Config::name()` returns `const std::string&` to a member.
+
+### mini exercise
+
+this class has four bugs from this module. find them, then fix the class so it declares no destructor at all.
+
+```cpp
+#include <cstdio>
+
+class Recorder {
+public:
+    Recorder(const char* path, std::size_t n)
+        : count_(n), samples_(new double[count_]), file_(std::fopen(path, "w")) {}
+    ~Recorder() { std::fclose(file_); delete[] samples_; }
+private:
+    std::FILE* file_;
+    double* samples_;
+    std::size_t count_;
+};
+```
+
+### answers
+
+<details>
+<summary>answer 1: which exits run destructors</summary>
+
+normal fall-through, `return`, `break`, `continue`, `goto` out of a block, and an exception propagating to a matching handler all run them. `std::exit` runs static destructors but not the ones on the stack; `std::abort`, `std::_Exit`, crashes, and `kill -9` run nothing. an exception that is never caught calls `std::terminate`, and whether the stack is unwound first is implementation-defined (GCC and Clang typically do not unwind). catching at the top of `main` and of every thread function guarantees that unwinding, and therefore every RAII cleanup, actually happens.
+
+</details>
+
+<details>
+<summary>answer 2: partial construction</summary>
+
+the initializer list order is ignored: members are built in declaration order. `A` is constructed, then `B`'s constructor throws, so `C` is never constructed. the fully constructed `a` is destroyed during unwinding; the class's own destructor does not run, because the object never existed. any raw resource acquired in the constructor body would leak, which is why each member should clean up after itself.
+
+</details>
+
+<details>
+<summary>answer 3: using a moved-from string</summary>
+
+<<< 84-86
+
+</details>
+
+<details>
+<summary>answer 4: acquire before release</summary>
+
+if the old buffer is released first, self-assignment (`b = b`) frees the very data it is about to copy, and an exception from the allocation leaves the object holding a dangling pointer that its destructor frees a second time. allocating and copying into a fresh buffer first, then swapping it in, leaves `*this` untouched if anything throws (the strong guarantee) and makes self-assignment harmless.
+
+</details>
+
+<details>
+<summary>answer 5: lifetime extension through a member function</summary>
+
+<<< 106-106
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+- **construction order:** members are initialized in declaration order: `file_`, then `samples_`, then `count_`. `samples_(new double[count_])` reads `count_` before it is initialized, which is undefined behavior.
+- **unchecked open:** if `fopen` fails, `file_` is null and the destructor calls `fclose(nullptr)`, which is undefined behavior.
+- **partial construction:** `file_` is opened first; if `new double[...]` then throws, the destructor never runs and the file leaks.
+- **copying:** the generated copy constructor copies both raw pointers, so two objects close the same file and free the same buffer.
+
+```cpp
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <vector>
+
+struct FileCloser {
+    void operator()(std::FILE* f) const noexcept { std::fclose(f); }
+};
+
+class Recorder {                                  // no destructor, no copy, safe moves
+public:
+    Recorder(const char* path, std::size_t n) : file_(std::fopen(path, "w")), samples_(n) {
+        if (!file_) throw std::runtime_error("cannot open recording");
+    }
+private:
+    std::unique_ptr<std::FILE, FileCloser> file_;
+    std::vector<double> samples_;                 // knows its own size
+};
+```
+
+each member now cleans up after itself, so a throw at any point releases exactly what was acquired, copying is implicitly deleted (a `unique_ptr` member is move-only), and the count is no longer stored twice.
+
+</details>
+
+### connections
+
+the previous modules supplied the mechanics this one relied on: deterministic destruction from [[storage-duration]], value categories from [[value-categories]], and undefined behavior from [[undefined-behavior]], which is what every double free and dangling handle above really is. the next module finishes the ownership story: when moves are trusted ([[noexcept-moves]]), which special members the compiler writes ([[special-members]]), how to need none of them ([[rule-of-zero]]), and how smart pointers write ownership into types.
+>>> review-ownership
+---
+title: review: moves and ownership
+kind: review
+standard: C++17
+objective: consolidate noexcept moves, special member generation, the rule of zero, smart pointers, and ownership in interfaces
+prerequisites: noexcept-moves, special-members, rule-of-zero, unique-ptr, shared-ptr, ownership-in-interfaces
+difficulty: 1
+---
+
+### recap
+
+| lesson | key idea |
+|---|---|
+| [[noexcept-moves]] | containers move elements only if the move constructor is `noexcept`; otherwise they copy to keep the strong guarantee. |
+| [[special-members]] | declaring a destructor or copy operation, even as `= default`, suppresses the implicit moves; then moves silently become copies. |
+| [[rule-of-zero]] | write special members only in the few classes that own a resource; compose everything else from members that manage themselves. |
+| [[unique-ptr]] | sole ownership at the cost of a raw pointer; transfers are explicit `std::move`s. |
+| [[shared-ptr]] | counted ownership for the genuinely shared case; the count is thread-safe, the pointee is not, and cycles leak. |
+| [[ownership-in-interfaces]] | raw pointers and references borrow; `unique_ptr` by value takes, `shared_ptr` by value shares. |
+
+the thread through the module: **ownership is a design decision, and C++ lets you write it into types**. once it is in the types, the compiler enforces it, destructors execute it, and reviewers can read it.
+
+### review questions
+
+<<< 22-22
+2. two threads each hold their own `std::shared_ptr<Stats>` to the same object. one calls `p->add(sample)`, the other `p->reset()`. the reference count is atomic; is this code safe?
+3. looking ahead: a plugin interface has virtual functions but a public non-virtual destructor. `std::shared_ptr<Plugin> p = std::make_shared<Logger>(); p.reset();` works correctly. the same code with `std::unique_ptr` is undefined behavior. explain the difference, and why "use `shared_ptr`" is the wrong fix.
+4. from [[copy-elision]]: C++17 guarantees elision for prvalues but not for named locals. how does that explain the advice against `return std::move(local);`?
+
+### mini exercise
+
+<<< 36-64
+
+### answers
+
+<details>
+<summary>answer 1: defaulted destructor and vector reallocation</summary>
+
+<<< 71-71
+
+</details>
+
+<details>
+<summary>answer 2: shared_ptr and threads</summary>
+
+no. the atomic count makes it safe for each thread to copy and destroy *its own* `shared_ptr`; it does nothing for the `Stats` object. `add` and `reset` modify the same object concurrently, which is a data race and undefined behavior unless `Stats` synchronizes internally (or the threads share a mutex). sharing ownership and sharing mutable state are separate problems, and `shared_ptr` only solves the first.
+
+</details>
+
+<details>
+<summary>answer 3: shared_ptr, unique_ptr, and the missing virtual destructor</summary>
+
+<<< 92-92
+
+</details>
+
+<details>
+<summary>answer 4: elision and return std::move</summary>
+
+<<< 99-99
+
+</details>
+
+<details>
+<summary>mini exercise answer</summary>
+
+<<< 113-149
+
+</details>
+
+### connections
+
+the last two modules turned the language rules from the first two into ownership, and that vocabulary is used everywhere from here on. the next module adds runtime polymorphism ([[virtual-dispatch]]), where virtual destructors and slicing are ownership questions again. after it, containers ([[sequence-containers]]) reward `noexcept` moves, lambdas ([[lambdas]]) capture `unique_ptr` with init-captures, and perfect forwarding ([[variadic-templates]]) is how `make_unique` and `emplace_back` pass arguments through.

@@ -1,0 +1,587 @@
+{
+  "version": "2.0",
+  "title": "modern c++ daily course",
+  "tagline": "C++17 and C++20 for working engineers, 5 to 10 minutes a day",
+  "modules": [
+    {
+      "id": "foundations",
+      "title": "how programs and objects come to be",
+      "blurb": "how source becomes a program, how objects get their first values, how big they are, and how long they live.",
+      "lessons": [
+        "build-pipeline",
+        "linkage-odr",
+        "initialization",
+        "integer-types",
+        "object-layout",
+        "storage-duration",
+        "review-foundations"
+      ]
+    },
+    {
+      "id": "values",
+      "title": "references, values, and the language contract",
+      "blurb": "what you can safely refer to, what an expression's category decides, and what the standard leaves undefined.",
+      "lessons": [
+        "temporaries-dangling",
+        "pointers-references",
+        "const-correctness",
+        "value-categories",
+        "copy-elision",
+        "undefined-behavior",
+        "ub-usual-suspects",
+        "review-values"
+      ]
+    },
+    {
+      "id": "lifecycle",
+      "title": "resources and the object lifecycle",
+      "blurb": "RAII, constructors and invariants, construction order, and what copying and moving an object really mean.",
+      "lessons": [
+        "raii",
+        "scope-guards",
+        "constructors",
+        "construction-order",
+        "copy-semantics",
+        "move-semantics",
+        "review-lifecycle"
+      ]
+    },
+    {
+      "id": "ownership",
+      "title": "moves and ownership",
+      "blurb": "when moves are trusted, which special members the compiler writes, the rule of zero, and ownership written into types.",
+      "lessons": [
+        "noexcept-moves",
+        "special-members",
+        "rule-of-zero",
+        "unique-ptr",
+        "shared-ptr",
+        "ownership-in-interfaces",
+        "review-ownership"
+      ]
+    },
+    {
+      "id": "polymorphism",
+      "title": "inheritance and polymorphism",
+      "blurb": "how virtual dispatch works, the two rules that protect polymorphic objects, and composition as the default.",
+      "lessons": [
+        "virtual-dispatch",
+        "virtual-destructors-slicing",
+        "composition-over-inheritance",
+        "review-polymorphism"
+      ]
+    },
+    {
+      "id": "library",
+      "title": "containers, algorithms, and lambdas",
+      "blurb": "the standard library as a vocabulary: containers by cost, algorithms over iterator ranges, and lambdas as objects.",
+      "lessons": [
+        "sequence-containers",
+        "associative-containers",
+        "algorithms",
+        "lambdas",
+        "callbacks",
+        "review-library"
+      ]
+    },
+    {
+      "id": "generic",
+      "title": "templates and generic programming",
+      "blurb": "deduction, class templates, perfect forwarding, and the C++17 tools that replace template tricks.",
+      "lessons": [
+        "function-templates",
+        "class-templates",
+        "forwarding-references",
+        "variadic-templates",
+        "if-constexpr",
+        "fold-expressions",
+        "review-generic"
+      ]
+    },
+    {
+      "id": "results",
+      "title": "results and failure",
+      "blurb": "how functions hand back results and failures: unpacking, scoping, exception safety, error channels, and std::optional.",
+      "lessons": [
+        "structured-bindings",
+        "init-statements",
+        "exception-safety",
+        "error-strategy",
+        "optional",
+        "review-results"
+      ]
+    },
+    {
+      "id": "cpp17",
+      "title": "variants, views, and files",
+      "blurb": "the rest of the C++17 vocabulary, used together in a realistic refactoring; the end of the standalone refresher.",
+      "lessons": [
+        "variant",
+        "variant-design",
+        "string-view",
+        "parsing-with-views",
+        "filesystem",
+        "cpp17-refactoring",
+        "review-cpp17"
+      ]
+    },
+    {
+      "id": "cpp20-generic",
+      "title": "C++20: concepts, ranges, and span",
+      "blurb": "constrained templates, range algorithms and lazy views, and std::span for borrowing contiguous data.",
+      "lessons": [
+        "concepts",
+        "writing-concepts",
+        "range-algorithms",
+        "views",
+        "view-lifetimes",
+        "span",
+        "review-cpp20-generic"
+      ]
+    },
+    {
+      "id": "cpp20-everyday",
+      "title": "C++20: comparisons, compile time, and formatting",
+      "blurb": "the spaceship operator, compile-time evaluation, std::format, and small additions that remove bug patterns.",
+      "lessons": [
+        "defaulted-comparisons",
+        "comparison-categories",
+        "constexpr-evolution",
+        "consteval-constinit",
+        "format",
+        "cpp20-small-features",
+        "review-cpp20-everyday"
+      ]
+    },
+    {
+      "id": "threads",
+      "title": "threads and synchronization",
+      "blurb": "owning threads, data races, mutexes, condition variables, and a bounded queue with clean shutdown.",
+      "lessons": [
+        "threads",
+        "jthread",
+        "data-races",
+        "mutexes",
+        "condition-variables",
+        "blocking-queue",
+        "review-threads"
+      ]
+    },
+    {
+      "id": "async",
+      "title": "futures, atomics, and concurrency design",
+      "blurb": "one-shot results, atomics and the memory model, deadlocks, and the C++20 coordination primitives.",
+      "lessons": [
+        "futures",
+        "async",
+        "atomics",
+        "memory-model",
+        "atomic-waiting",
+        "deadlocks",
+        "sync-primitives",
+        "review-async"
+      ]
+    },
+    {
+      "id": "design",
+      "title": "design principles and patterns",
+      "blurb": "SOLID and coupling as predictions about change, dependency injection and seams, and patterns written with modern tools.",
+      "lessons": [
+        "solid",
+        "coupling-cohesion",
+        "dependency-injection",
+        "test-seams",
+        "strategy",
+        "factory",
+        "observer",
+        "review-design"
+      ]
+    },
+    {
+      "id": "abstractions",
+      "title": "polymorphism choices, APIs, modules, and coroutines",
+      "blurb": "choosing a polymorphism mechanism, type erasure, interfaces that stay correct and stable, modules, and coroutines.",
+      "lessons": [
+        "static-polymorphism",
+        "type-erasure",
+        "api-contracts",
+        "api-stability",
+        "modules",
+        "coroutines",
+        "coroutine-generator",
+        "review-abstractions"
+      ]
+    },
+    {
+      "id": "performance",
+      "title": "performance",
+      "blurb": "honest measurement, the memory hierarchy, data layout, and the cost of allocation.",
+      "lessons": [
+        "benchmarking",
+        "profiling",
+        "cache-locality",
+        "data-oriented-design",
+        "allocation-costs",
+        "pmr-pools",
+        "review-performance"
+      ]
+    },
+    {
+      "id": "production",
+      "title": "production engineering and integration",
+      "blurb": "testing, observability, safe change in legacy code, and one small program that puts the course together.",
+      "lessons": [
+        "testing",
+        "observability",
+        "legacy-refactoring",
+        "architecture-decisions",
+        "pipeline-design",
+        "pipeline-processing",
+        "pipeline-wiring",
+        "review-final"
+      ]
+    }
+  ],
+  "legacy": {
+    "v1": {
+      "description": "the original 56-day, 8-week course (curriculum 1.0). its progress was stored as '#day-NN' anchors under the localStorage key 'modern-cpp-course:done'. a v2 lesson listed here is marked complete during migration only when every listed v1 day was complete; v2 lessons not listed here contain substantially new material and are never marked complete automatically.",
+      "complete_when": {
+        "build-pipeline": [
+          1
+        ],
+        "linkage-odr": [
+          1
+        ],
+        "initialization": [
+          2
+        ],
+        "integer-types": [
+          2
+        ],
+        "storage-duration": [
+          3
+        ],
+        "temporaries-dangling": [
+          3
+        ],
+        "pointers-references": [
+          4
+        ],
+        "const-correctness": [
+          4
+        ],
+        "value-categories": [
+          5
+        ],
+        "copy-elision": [
+          5
+        ],
+        "undefined-behavior": [
+          6
+        ],
+        "ub-usual-suspects": [
+          6
+        ],
+        "review-values": [
+          7
+        ],
+        "raii": [
+          8
+        ],
+        "scope-guards": [
+          8
+        ],
+        "constructors": [
+          9
+        ],
+        "construction-order": [
+          9
+        ],
+        "copy-semantics": [
+          10
+        ],
+        "move-semantics": [
+          10
+        ],
+        "noexcept-moves": [
+          10
+        ],
+        "special-members": [
+          11
+        ],
+        "rule-of-zero": [
+          11
+        ],
+        "unique-ptr": [
+          12
+        ],
+        "shared-ptr": [
+          12
+        ],
+        "ownership-in-interfaces": [
+          12
+        ],
+        "virtual-dispatch": [
+          13
+        ],
+        "virtual-destructors-slicing": [
+          13
+        ],
+        "composition-over-inheritance": [
+          13
+        ],
+        "review-ownership": [
+          14
+        ],
+        "sequence-containers": [
+          15
+        ],
+        "associative-containers": [
+          15
+        ],
+        "algorithms": [
+          16
+        ],
+        "lambdas": [
+          17
+        ],
+        "callbacks": [
+          17
+        ],
+        "function-templates": [
+          18
+        ],
+        "class-templates": [
+          18
+        ],
+        "forwarding-references": [
+          19
+        ],
+        "variadic-templates": [
+          19
+        ],
+        "exception-safety": [
+          20
+        ],
+        "error-strategy": [
+          20
+        ],
+        "review-library": [
+          21
+        ],
+        "structured-bindings": [
+          22
+        ],
+        "init-statements": [
+          22
+        ],
+        "if-constexpr": [
+          23
+        ],
+        "fold-expressions": [
+          23
+        ],
+        "optional": [
+          24
+        ],
+        "variant": [
+          25
+        ],
+        "variant-design": [
+          25
+        ],
+        "string-view": [
+          26
+        ],
+        "parsing-with-views": [
+          26
+        ],
+        "filesystem": [
+          27
+        ],
+        "cpp17-refactoring": [
+          27
+        ],
+        "review-cpp17": [
+          28
+        ],
+        "concepts": [
+          29
+        ],
+        "writing-concepts": [
+          29
+        ],
+        "views": [
+          30
+        ],
+        "view-lifetimes": [
+          30
+        ],
+        "span": [
+          31
+        ],
+        "defaulted-comparisons": [
+          32
+        ],
+        "comparison-categories": [
+          32
+        ],
+        "constexpr-evolution": [
+          33
+        ],
+        "consteval-constinit": [
+          33
+        ],
+        "format": [
+          34
+        ],
+        "cpp20-small-features": [
+          34
+        ],
+        "review-cpp20-generic": [
+          35
+        ],
+        "review-cpp20-everyday": [
+          35
+        ],
+        "threads": [
+          36
+        ],
+        "jthread": [
+          36
+        ],
+        "data-races": [
+          37
+        ],
+        "mutexes": [
+          37
+        ],
+        "condition-variables": [
+          38
+        ],
+        "blocking-queue": [
+          38
+        ],
+        "futures": [
+          39
+        ],
+        "async": [
+          39
+        ],
+        "memory-model": [
+          40
+        ],
+        "atomic-waiting": [
+          40
+        ],
+        "deadlocks": [
+          41
+        ],
+        "sync-primitives": [
+          41
+        ],
+        "review-threads": [
+          42
+        ],
+        "review-async": [
+          42
+        ],
+        "solid": [
+          43
+        ],
+        "coupling-cohesion": [
+          43
+        ],
+        "dependency-injection": [
+          44
+        ],
+        "test-seams": [
+          44
+        ],
+        "strategy": [
+          45
+        ],
+        "factory": [
+          45
+        ],
+        "observer": [
+          45
+        ],
+        "static-polymorphism": [
+          46
+        ],
+        "type-erasure": [
+          46
+        ],
+        "api-contracts": [
+          47
+        ],
+        "api-stability": [
+          47
+        ],
+        "modules": [
+          48
+        ],
+        "coroutines": [
+          48
+        ],
+        "coroutine-generator": [
+          48
+        ],
+        "review-design": [
+          49
+        ],
+        "review-abstractions": [
+          49
+        ],
+        "benchmarking": [
+          50
+        ],
+        "profiling": [
+          50
+        ],
+        "cache-locality": [
+          51
+        ],
+        "data-oriented-design": [
+          51
+        ],
+        "allocation-costs": [
+          52
+        ],
+        "pmr-pools": [
+          52
+        ],
+        "testing": [
+          53
+        ],
+        "observability": [
+          53
+        ],
+        "legacy-refactoring": [
+          54
+        ],
+        "architecture-decisions": [
+          54
+        ],
+        "pipeline-design": [
+          55
+        ],
+        "pipeline-processing": [
+          55
+        ],
+        "pipeline-wiring": [
+          55
+        ],
+        "review-final": [
+          56
+        ]
+      },
+      "redirect": {
+        "30": "range-algorithms",
+        "40": "atomics"
+      },
+      "redirect_note": "an old day not listed here redirects to the first v2 lesson (in course order) whose complete_when list contains it"
+    }
+  }
+}
