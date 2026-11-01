@@ -104,6 +104,24 @@
     save(state);
   }
 
+  // every lesson up to and including `id` is complete, every later one is not
+  function setThrough(id) {
+    const end = byId.get(id).index;
+    const unknown = state.done.filter((x) => !byId.has(x));
+    state.done = lessons.slice(0, end + 1).map((l) => l.id).concat(unknown);
+    // an unfinished last visit further on would otherwise take over "continue"
+    if (state.last && byId.has(state.last) && byId.get(state.last).index > end + 1) state.last = null;
+    save(state);
+  }
+
+  // the last lesson of the unbroken run of completed lessons from day 01, or null
+  function completedThrough() {
+    const set = doneSet();
+    let i = 0;
+    while (i < lessons.length && set.has(lessons[i].id)) i++;
+    return i ? lessons[i - 1].id : null;
+  }
+
   function nextLesson() {
     const set = doneSet();
     if (state.last && byId.has(state.last) && !set.has(state.last)) return state.last;
@@ -309,9 +327,7 @@
     document.querySelectorAll('.lesson-list li[data-id]').forEach((li) => {
       const done = set.has(li.dataset.id);
       li.classList.toggle('done', done);
-      const s = li.querySelector('.status');
-      s.textContent = done ? '✓' : '·';
-      s.setAttribute('aria-label', done ? 'completed' : 'not completed');
+      li.querySelector('.status').checked = done;
     });
     document.querySelectorAll('.module[data-module]').forEach((mod) => {
       const ids = C.modules.find((m) => m.id === mod.dataset.module).lessons;
@@ -350,6 +366,26 @@
     const status = document.getElementById('progress-status');
     const say = (text, error = false) => { status.textContent = text; status.classList.toggle('error', error); };
 
+    const curriculum = document.getElementById('curriculum');
+    curriculum.addEventListener('change', (e) => {
+      if (!e.target.matches('input.status')) return;
+      setDone(e.target.closest('li').dataset.id, e.target.checked);
+      renderDashboard();
+    });
+    curriculum.querySelectorAll('input.status').forEach((box) => { box.disabled = false; });
+
+    const through = document.getElementById('set-progress-through');
+    through.value = completedThrough() || lessons[0].id;
+    document.getElementById('set-progress').addEventListener('click', () => {
+      const l = byId.get(through.value);
+      const undone = state.done.filter((id) => byId.has(id) && byId.get(id).index > l.index).length;
+      if (undone && !window.confirm(`this also marks ${undone} completed ${undone === 1 ? 'day' : 'days'} after day ${l.slug} ` +
+                                    'as not completed. continue?')) return;
+      setThrough(l.id);
+      renderDashboard();
+      say(l.index ? `progress set: days ${lessons[0].slug} to ${l.slug} are completed` : `progress set: day ${l.slug} is completed`);
+    });
+
     document.getElementById('export-progress').addEventListener('click', () => {
       const blob = new Blob([exportJson()], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -380,13 +416,13 @@
     });
 
     document.getElementById('reset-progress').addEventListener('click', () => {
-      if (!window.confirm('clear all progress in this browser? export it first if you may want it back.')) return;
+      if (!window.confirm('reset all progress in this browser? export it first if you may want it back.')) return;
       const migration = state.migration;
       state = fresh();
       if (migration) state.migration = Object.assign({}, migration, { acknowledged: true });
       save(state);
       renderDashboard();
-      say('progress cleared');
+      say('progress reset');
     });
   }
 
@@ -442,7 +478,7 @@
 
   // exposed for tests and for debugging from the console
   window.courseProgress = {
-    load, exportJson, parseImport, lessonsFromV1, v1Days, nextLesson,
+    load, exportJson, parseImport, lessonsFromV1, v1Days, nextLesson, setDone, setThrough, completedThrough,
     importText(text, mode) { const r = parseImport(text); applyImport(r, mode); return r; },
     get state() { return state; },
   };

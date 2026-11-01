@@ -193,11 +193,17 @@ ${body}
 
 const counts = course.counts;
 
+// the checkboxes stay disabled until app.js has loaded the progress they show
 function lessonListItem(l) {
   return `<li data-id="${l.id}"${l.kind === 'review' ? ' class="review"' : ''}>` +
-    `<span class="status" aria-label="not completed">·</span><span class="day">${l.slug}</span>` +
+    `<input type="checkbox" class="status" aria-label="day ${l.slug} completed" disabled><span class="day">${l.slug}</span>` +
     `<a href="/day/${l.slug}/">${inline(l.title)}</a><span class="minutes">${l.minutes} min</span></li>`;
 }
+
+// option text cannot hold markup, so titles lose their backticks
+const throughOptions = () => course.modules.map((m) => `<optgroup label="module ${m.n}: ${escapeHtml(m.title)}">
+${m.lessons.map((id) => { const l = byId.get(id); return `<option value="${l.id}">day ${l.slug}: ${escapeHtml(l.title.replaceAll('`', ''))}</option>`; }).join('\n')}
+</optgroup>`).join('\n');
 
 function dashboard() {
   const mods = course.modules.map((m) => {
@@ -228,7 +234,7 @@ ${items}
 
 <section id="curriculum" aria-labelledby="curriculum-heading">
 <h2 id="curriculum-heading">curriculum</h2>
-<p class="muted">every day lists its approximate reading time. reviews close each module; no lesson is locked.</p>
+<p class="muted">every day lists its approximate reading time; tick a day to mark it as completed, or untick it to undo. reviews close each module; no lesson is locked.</p>
 ${mods}
 </section>
 
@@ -246,6 +252,14 @@ ${mods}
 <section class="progress-tools" aria-labelledby="tools-heading">
 <h2 id="tools-heading">your progress data</h2>
 <p class="muted">progress is stored only in this browser. export it to keep a copy or move it to another browser; importing accepts exports from this course, including exports and saved data from the original 56-day version.</p>
+<div class="set-progress">
+<label for="set-progress-through">completed through</label>
+<select id="set-progress-through" aria-describedby="set-progress-help">
+${throughOptions()}
+</select>
+<button type="button" id="set-progress">set progress</button>
+</div>
+<p id="set-progress-help" class="muted">marks every day up to the one you choose as completed, and every later day as not completed.</p>
 <fieldset>
 <legend>when importing</legend>
 <label><input type="radio" name="import-mode" value="merge" checked> merge with this browser's progress</label>
@@ -254,7 +268,7 @@ ${mods}
 <p><button type="button" id="export-progress">export progress</button>
 <button type="button" id="import-progress">import progress</button>
 <input type="file" id="import-file" accept="application/json,.json" hidden>
-<button type="button" id="reset-progress">clear progress</button></p>
+<button type="button" id="reset-progress">reset progress</button></p>
 <p id="progress-status" class="status-message" role="status"></p>
 </section>`;
   return page({ title: course.title, description: `${course.tagline}: ${counts.lesson_count} short daily lessons.`,

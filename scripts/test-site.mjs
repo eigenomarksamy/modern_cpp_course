@@ -272,6 +272,38 @@ async function browserTests(base) {
     check('import accepts a raw v1 day list', await ev(`window.courseProgress.parseImport('["#day-08"]').ids.join(',')`) === 'raii,scope-guards');
     check('import rejects invalid files', await ev(`(() => { try { window.courseProgress.parseImport('{"x":1}'); return false; } catch (e) { return /not a progress export/.test(e.message); } })()`));
 
+    // dashboard controls: tick a day, set progress to a point, reset
+    const ids = course.lessons.map((l) => l.id);
+    const box = (id) => `document.querySelector('.lesson-list li[data-id="${id}"] input.status')`;
+    const doneNow = async () => JSON.stringify(await ev(`window.courseProgress.state.done`));
+    await ev(`localStorage.clear(); true`);
+    await go('/');
+    check('day checkboxes are enabled once progress loads', await ev(`[...document.querySelectorAll('.lesson-list input.status')].every(c => !c.disabled)`));
+    await ev(`${box(ids[2])}.click(); true`);
+    check('ticking a day marks it completed', (await doneNow()) === JSON.stringify([ids[2]]) &&
+          (await ev(`document.getElementById('progress-count').textContent`)) === `1 of ${total}`);
+    await go('/');
+    check('a ticked day stays ticked after a reload', await ev(`${box(ids[2])}.checked`));
+    await ev(`${box(ids[2])}.click(); true`);
+    check('unticking a day marks it not completed', (await doneNow()) === '[]' && !(await ev(`${box(ids[2])}.checked`)));
+
+    await ev(`window.courseProgress.importText(JSON.stringify({format:'modern-cpp-course-progress',schema:2,curriculum:'${course.version}',` +
+             `completed:['${ids[40]}'],last:'${ids[50]}'}), 'replace'); true`);
+    await go('/');
+    const setTo = (id, answer) => ev(`(() => { window.confirm = () => ${answer}; document.getElementById('set-progress-through').value = '${id}'; ` +
+                                     `document.getElementById('set-progress').click(); return true; })()`);
+    await setTo(ids[9], false);
+    check('set progress asks before unmarking later days', (await doneNow()) === JSON.stringify([ids[40]]));
+    await setTo(ids[9], true);
+    check('set progress completes exactly the days through the chosen one', (await doneNow()) === JSON.stringify(ids.slice(0, 10)));
+    check('continue resumes after the chosen day', (await ev(`document.getElementById('continue').getAttribute('href')`)) === `/day/${course.lessons[10].slug}/`);
+    await go('/');
+    check('set progress starts at the current point', (await ev(`document.getElementById('set-progress-through').value`)) === ids[9]);
+    await ev(`window.confirm = () => true; document.getElementById('reset-progress').click(); true`);
+    check('reset clears every completed day', (await doneNow()) === '[]' &&
+          (await ev(`document.getElementById('progress-count').textContent`)) === `0 of ${total}` &&
+          (await ev(`[...document.querySelectorAll('.lesson-list input.status')].every(c => !c.checked)`)));
+
     // old links into the single-page v1 site
     const target = course.legacy.v1.redirect['12'];
     await go('/#day-12');
