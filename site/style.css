@@ -127,6 +127,7 @@ button:hover, .button:hover { border-color: var(--accent); }
 
 /* layout */
 main { max-width: var(--measure); margin: 0 auto; padding: 2rem var(--gutter) 4rem; overflow-wrap: break-word; }
+.site-footer { max-width: var(--measure); margin: 0 auto; padding: 0 var(--gutter) 2rem; }
 h1, h2, h3, h4, h5 { line-height: 1.25; margin: 2em 0 0.6em; }
 h1 { font-size: 2rem; margin-top: 0.3em; }
 h2 { font-size: 1.55rem; }
@@ -246,6 +247,6 @@ details.deeper > summary .topics { font-weight: 400; color: var(--muted); }
   .lesson-nav .middle { grid-column: 1 / -1; grid-row: 2; text-align: center; }
 }
 @media print {
-  .site-header, .lesson-actions, .lesson-nav, .code-actions, .full-tools { display: none; }
+  .site-header, .site-footer, .lesson-actions, .lesson-nav, .code-actions, .full-tools { display: none; }
   details { border: 0; padding: 0; }
 }

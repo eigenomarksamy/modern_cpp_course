@@ -20,7 +20,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 const OUT = 'dist';
 const MARKDOWN = 'modern_cpp_daily_course.md';
 const SITE = 'https://cpp.eigenomar.com';
-const HOME = 'https://eigenomar.com/writings';
+const HOME = 'https://eigenomar.com';
 const REPO = 'https://github.com/eigenomarksamy/modern_cpp_course';
 const CE_COMPILER = { id: 'g141', name: 'GCC 14.1' };   // Compiler Explorer compiler id
 
@@ -183,6 +183,9 @@ ${nav}
 <main id="main">
 ${body}
 </main>
+<footer class="site-footer">
+<a class="button" href="${HOME}">eigenomar.com</a>
+</footer>
 <div id="live" class="visually-hidden" aria-live="polite"></div>
 </body>
 </html>

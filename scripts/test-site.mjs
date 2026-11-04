@@ -87,6 +87,8 @@ for (const [f, text] of html) {
   }
 }
 check('pages have lang, one h1, main landmark, skip link, labelled buttons', a11y.length === 0, a11y.slice(0, 5).join('; '));
+const noFooter = [...html].filter(([, t]) => !/<\/main>\s*<footer[^>]*>\s*<a class="button" href="https:\/\/eigenomar\.com">eigenomar\.com<\/a>\s*<\/footer>/.test(t)).map(([f]) => f);
+check('every page has the button back to eigenomar.com', noFooter.length === 0, `${noFooter.length} missing: ${noFooter.slice(0, 5).join('; ')}`);
 const ceLinks = [...html.values()].join('').match(/href="https:\/\/godbolt\.org\/clientstate\/[^"]+"/g) || [];
 check('compiler explorer links present', ceLinks.length > 50, `${ceLinks.length} links`);
 const ceOk = ceLinks.slice(0, 200).every((l) => {
@@ -344,6 +346,24 @@ async function browserTests(base) {
     await ev(`document.querySelector('.theme-toggle').click(); true`);   // auto -> light
     check('theme toggle overrides the system', (await ev(`document.documentElement.dataset.theme`)) === 'light' &&
           (await ev(`getComputedStyle(document.body).backgroundColor`)) === 'rgb(247, 246, 242)');
+
+    // footer: one page of each type, ending on light so the checks below see the same theme as before
+    const footerShows = `(() => { const b = document.querySelector('footer .button'); if (!b) return false;
+      const r = b.getBoundingClientRect(), c = getComputedStyle(b);
+      return r.width > 0 && r.height > 0 && c.visibility === 'visible' && c.color !== c.backgroundColor; })()`;
+    for (const theme of ['dark', 'light']) {
+      await ev(`localStorage.setItem('modern-cpp-course:theme', '${theme}'); true`);
+      const hidden = [];
+      for (const p of ['/', '/day/21/', '/full/', '/cheat-sheet/', '/references/', '/no/such/page/']) {
+        await go(p);
+        if (!(await ev(footerShows))) hidden.push(p);
+      }
+      check(`the button back to eigenomar.com shows in the ${theme} theme`, hidden.length === 0, hidden.join(', '));
+    }
+    await cdp.send('Emulation.setEmulatedMedia', { media: 'print' }, s);
+    check('the footer is left out of print', (await ev(`getComputedStyle(document.querySelector('footer')).display`)) === 'none');
+    await cdp.send('Emulation.setEmulatedMedia', { media: '' }, s);
+
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 375, height: 800, deviceScaleFactor: 2, mobile: true }, s);
     for (const p of ['/', '/day/03/', '/day/58/', '/full/', '/references/', '/cheat-sheet/']) {
       await go(p);
