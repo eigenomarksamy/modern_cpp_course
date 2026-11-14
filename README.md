@@ -89,7 +89,7 @@ C++ blocks are tagged `complete`, `ub`, `fails`, `external`, `group=NAME`, or le
 
 ## building, testing, and deploying
 
-requires Node 22.12 or newer and Python 3.10 or newer.
+requires Node 22.12 or newer and Python 3.10 or newer. `npm run assemble` and `npm run check` call `python`, so on Linux it must be on the `PATH` under that name (on Ubuntu, `sudo apt install python-is-python3`).
 
 | command | what it does |
 | --- | --- |

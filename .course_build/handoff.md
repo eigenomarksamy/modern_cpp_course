@@ -25,7 +25,8 @@ the website stores progress in `localStorage` under `modern-cpp-course:progress`
 
 ## toolchain notes
 
-- local: MSYS2 g++ 12.1 on Windows (no `<format>`, no sanitizers) and g++ 11.4 in WSL Ubuntu (sanitizers; lacks `constexpr std::vector` and P2210 `split`). CI uses g++ 14 and clang++ 18 on ubuntu-24.04.
+- local: MSYS2 g++ 12.1 on Windows (no `<format>`, no sanitizers).
+- sanitizer and Linux runs come from CI: g++ 14 and clang++ 18 on ubuntu-24.04, under ASan and UBSan, with the report uploaded as the `code-report` artifact. `checks/code_report_linux_gcc11_asan.*` is the 2.0 upgrade's record of a g++ 11.4 sanitizer run on Linux.
 - `std::barrier` with several threads hangs on this MinGW toolchain (libstdc++ 12, non-futex wait); the barrier example is compile-checked only.
 - the website needs Node 22.12 or newer; `npm test` drives a headless Chrome or Edge if one is installed (set `CHROME_PATH` otherwise).
 
