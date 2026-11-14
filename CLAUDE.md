@@ -1,3 +1,5 @@
+@../meta-eigenomar/standards/claude-ecosystem.md
+
 # modern c++ daily course
 
 - course sources, tools, and workflow: read `.course_build/handoff.md`, then `.course_build/authoring.md`.

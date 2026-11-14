@@ -1,0 +1,35 @@
+schema_version: 1
+
+# the modern c++ daily course's manifest for the eigenomar ecosystem: what this
+# repository is and where its documents are. it points at documents and holds
+# none of their content. update it in the same change that moves or adds one.
+
+id: modern_cpp_course
+name: modern c++ daily course
+description: a course on modern C++17 and C++20 for working engineers, 119 short daily lessons in 17 modules, read as a website or as one Markdown document
+status: maintenance
+tags: [c++, c++17, c++20, python, javascript, node, marked, highlight.js, cloudflare-workers]
+
+links:
+  deployment: https://cpp.eigenomar.com
+
+documents:
+  plan: docs/plan.md
+  architecture: [README.md#layout, README.md#the-website, .course_build/handoff.md]
+  engineering:
+    - .course_build/authoring.md
+    - .course_build/handoff.md#toolchain-notes
+    - README.md#building-testing-and-deploying
+  decisions: .course_build/site_upgrade/plan.md#decisions   # the 1.0 to 2.0 restructuring
+
+delivery:
+  ci: github-actions               # .github/workflows/ci.yml on ubuntu-24.04: sources, C++ examples (GCC 14, Clang 18, sanitizers), the site
+  releases: none                   # the curriculum's version is in .course_build/curriculum.json
+  deployment: cloudflare           # Workers static assets from dist/, built by npm run build
+  deploys_on: merge                # Cloudflare's build deploys every push to main
+
+artifacts:
+  diagrams: null
+  test_reports: .course_build/checks/   # the latest compile-check reports; CI also uploads its own with each run
+  coverage: null                   # does not apply: the code is course content and a static site
+  monitoring: null
