@@ -1,6 +1,6 @@
 # modern c++ daily course: plan
 
-the course is at curriculum 2.0: 119 days (102 lessons and 17 reviews) in 17 modules, live at [cpp.eigenomar.com](https://cpp.eigenomar.com) and in [`modern_cpp_daily_course.md`](../modern_cpp_daily_course.md). no new course work is planned. this plan holds the repository's open work as tickets. its ecosystem onboarding (EO1–EO7) was done on 2026-11-14, so nothing is open.
+the course is at curriculum 2.0: 119 days (102 lessons and 17 reviews) in 17 modules, live at [cpp.eigenomar.com](https://cpp.eigenomar.com) and in [`modern_cpp_daily_course.md`](../modern_cpp_daily_course.md). no new course work is planned. this plan holds the repository's open work as tickets. its ecosystem onboarding (EO1–EO7) was done on 2026-11-14. the open tickets are [DOC1](#doc1) and [SCM1](#scm1), which adopt the ecosystem's standards.
 
 the lessons themselves are not planned here: they are changed in `.course_build/` as [`authoring.md`](../.course_build/authoring.md) describes. the finished 1.0 to 2.0 restructuring and its decisions are recorded in [`.course_build/site_upgrade/plan.md`](../.course_build/site_upgrade/plan.md), which is a record, not a plan of open work.
 
@@ -12,6 +12,8 @@ the lessons themselves are not planned here: they are changed in `.course_build/
   | prefix | lane |
   | --- | --- |
   | EO | ecosystem onboarding |
+  | DOC | the course's documents: vision, architecture, design, testing strategy, and verification and validation |
+  | SCM | source control and delivery: CI, branching, protection, releases and versioning |
 
 - **each ticket** says what to do, what it needs, and when it is done. its "done when" is its acceptance criteria. size is a rough guess: S is small, M is medium.
 - **issues.** every open ticket gets one GitHub issue in this repository. the issue's title starts with the ticket's id, and its body links the ticket's anchor here without copying it. the ticket holds the scope and history, and the issue holds status, priority and blockers ([EO7](#eo7)).
@@ -29,6 +31,8 @@ the lessons themselves are not planned here: they are changed in `.course_build/
 | [EO5](#eo5) | Python's name on Linux | S | none | done |
 | [EO6](#eo6) | toolchain notes without WSL | S | none | done |
 | [EO7](#eo7) | an issue for every open ticket | S | the owner's approval | done |
+| [DOC1](#doc1) | the course's documents | M | `meta-eigenomar` ST1 | todo |
+| [SCM1](#scm1) | the ecosystem's SCM strategy | S | `meta-eigenomar` ST2 | todo |
 
 ## ecosystem onboarding
 
@@ -115,7 +119,28 @@ each step is small and independent, and can be done between other work.
 2. **EO5:** answered on 2026-11-14: the README line.
 3. **GitHub's description:** answered on 2026-11-14: `project.yaml`'s, with cpp.eigenomar.com as the homepage.
 
+## ecosystem standards
+
+the ecosystem's contract, in `meta-eigenomar`, is adding two standards that every repository adopts: the documents each one keeps, and how each one manages its source and delivers it. DOC1 and SCM1 adopt them here, each once its standard is designed. until then, their issues stay in the backlog. the course is in maintenance, so both gather what exists rather than add course work.
+
+<a id="doc1"></a>
+
+### DOC1 · the course's documents · M
+
+- **do:** write or gather the course's product vision, architecture, design, testing strategy, and verification and validation (V&V) documents, in the shape the ecosystem's document standard sets. where a file or section already covers one, name it rather than copy it. today `course_spec.md` holds the original 1.0 specification, kept for its educational requirements, the README's layout and website sections and `.course_build/handoff.md` the architecture, `.course_build/authoring.md` how lessons are written, and `.course_build/site_upgrade/plan.md` the 1.0 to 2.0 decisions. the checks are `course.py validate`, `check_code.py`, `check_ui.py` and `npm test`, and CI runs the C++ examples under GCC 14 and Clang 18 with sanitizers.
+- **needs:** the ecosystem's document standard (`meta-eigenomar` ST1).
+- **done when:** each of the five documents exists, or names the file or section that holds it, and follows the standard's outline. `project.yaml` names them under the standard's keys, and the ecosystem's validator passes. nothing in them is confidential, since this repository is public.
+
+<a id="scm1"></a>
+
+### SCM1 · the ecosystem's SCM strategy · S
+
+- **do:** adopt the ecosystem's SCM strategy through its adoption checklist: CI, branching, protection of `main`, versioning and releases, the health report and dependency updates. today `.github/workflows/ci.yml` runs on ubuntu-24.04 for every push to `main` and every pull request, work is committed straight to `main`, Cloudflare's build deploys every push, and there are no releases: the curriculum's version is in `.course_build/curriculum.json`.
+- **needs:** the ecosystem's SCM strategy (`meta-eigenomar` ST2).
+- **done when:** every item on the checklist is applied here, or recorded here as an exception the strategy allows, with its reason. `project.yaml`'s `delivery` and `CLAUDE.md` say what runs, CI passes on `main`, and the ecosystem's validator passes.
+
 ## log
 
+- 2026-11-18 · plan · added DOC1 and SCM1, in two new lanes, at the owner's request: this repository's adoption of the ecosystem's document standard and SCM strategy, which are designed in `meta-eigenomar`. each needs its standard, so its issue waits in the backlog.
 - 2026-11-14 · EO4–EO7 · done, as the owner chose: `.gitattributes` with LF line endings, which staged nothing; the README's requirements say Linux needs `python` on the `PATH`; the toolchain notes name no WSL environment and give CI as the sanitizer and Linux runs; and EO7 needs no issues, since nothing is open. `npm run check` passes from `c:\` and `C:\` (68 checks). EO1–EO3's results name `0085c9c`. the ecosystem onboarding is complete.
 - 2026-11-14 · plan · created by the ecosystem onboarding run, with EO1–EO7. EO1–EO3 are done: `project.yaml`, which validates, `CLAUDE.md`'s import of the shared rules, and this plan. EO4–EO6 are the portability gaps the run found, and EO7 opens their issues. nothing else in the repository changed.
