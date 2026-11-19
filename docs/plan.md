@@ -15,7 +15,7 @@ the lessons themselves are not planned here: they are changed in `.course_build/
   | DOC | the course's documents: vision, architecture, design, testing strategy, and verification and validation |
   | SCM | source control and delivery: CI, branching, protection, releases and versioning |
 
-- **each ticket** says what to do, what it needs, and when it is done. its "done when" is its acceptance criteria. size is a rough guess: S is small, M is medium.
+- **each ticket** says what to do, what it needs, and when it is done. its "done when" is its acceptance criteria. its size is on the ecosystem's scale, the same value as its issue's `Size` in the ecosystem's GitHub Project: xxs takes minutes, xs under an hour, s an hour or two, m about a session, l two or three, xl four to six and xxl more. tbd means an open decision or work not yet planned decides it. a change to one is made to the other in the same session.
 - **issues.** every open ticket gets one GitHub issue in this repository. the issue's title starts with the ticket's id, and its body links the ticket's anchor here without copying it. the ticket holds the scope and history, and the issue holds status, priority and blockers ([EO7](#eo7)).
 - **adding work.** new work goes here as a ticket in a lane, with a new lane when none fits. this repository is public, so confidential work never goes in this file. the ecosystem's shared rules, which `CLAUDE.md` imports, say where it goes.
 - **when work ships,** update the ticket's status in the index, add a result with the commit to the ticket, and add a line to the [log](#log).
@@ -24,15 +24,15 @@ the lessons themselves are not planned here: they are changed in `.course_build/
 
 | ticket | title | size | needs | status |
 | --- | --- | --- | --- | --- |
-| [EO1](#eo1) | `project.yaml` | S | none | done |
-| [EO2](#eo2) | `CLAUDE.md` with the shared rules | S | none | done |
-| [EO3](#eo3) | the plan in this repository | S | none | done |
-| [EO4](#eo4) | `.gitattributes` with LF line endings | S | none | done |
-| [EO5](#eo5) | Python's name on Linux | S | none | done |
-| [EO6](#eo6) | toolchain notes without WSL | S | none | done |
-| [EO7](#eo7) | an issue for every open ticket | S | the owner's approval | done |
-| [DOC1](#doc1) | the course's documents | M | `meta-eigenomar` ST1 | todo |
-| [SCM1](#scm1) | the ecosystem's SCM strategy | S | `meta-eigenomar` ST2 | todo |
+| [EO1](#eo1) | `project.yaml` | s | none | done |
+| [EO2](#eo2) | `CLAUDE.md` with the shared rules | s | none | done |
+| [EO3](#eo3) | the plan in this repository | s | none | done |
+| [EO4](#eo4) | `.gitattributes` with LF line endings | s | none | done |
+| [EO5](#eo5) | Python's name on Linux | s | none | done |
+| [EO6](#eo6) | toolchain notes without WSL | s | none | done |
+| [EO7](#eo7) | an issue for every open ticket | s | the owner's approval | done |
+| [DOC1](#doc1) | the course's documents | tbd | `meta-eigenomar` ST1 | todo |
+| [SCM1](#scm1) | the ecosystem's SCM strategy | tbd | `meta-eigenomar` ST2 | todo |
 
 ## ecosystem onboarding
 
@@ -125,7 +125,7 @@ the ecosystem's contract, in `meta-eigenomar`, is adding two standards that ever
 
 <a id="doc1"></a>
 
-### DOC1 · the course's documents · M
+### DOC1 · the course's documents · tbd
 
 - **do:** write or gather the course's product vision, architecture, design, testing strategy, and verification and validation (V&V) documents, in the shape the ecosystem's document standard sets. where a file or section already covers one, name it rather than copy it. today `course_spec.md` holds the original 1.0 specification, kept for its educational requirements, the README's layout and website sections and `.course_build/handoff.md` the architecture, `.course_build/authoring.md` how lessons are written, and `.course_build/site_upgrade/plan.md` the 1.0 to 2.0 decisions. the checks are `course.py validate`, `check_code.py`, `check_ui.py` and `npm test`, and CI runs the C++ examples under GCC 14 and Clang 18 with sanitizers.
 - **needs:** the ecosystem's document standard (`meta-eigenomar` ST1).
@@ -133,7 +133,7 @@ the ecosystem's contract, in `meta-eigenomar`, is adding two standards that ever
 
 <a id="scm1"></a>
 
-### SCM1 · the ecosystem's SCM strategy · S
+### SCM1 · the ecosystem's SCM strategy · tbd
 
 - **do:** adopt the ecosystem's SCM strategy through its adoption checklist: CI, branching, protection of `main`, versioning and releases, the health report and dependency updates. today `.github/workflows/ci.yml` runs on ubuntu-24.04 for every push to `main` and every pull request, work is committed straight to `main`, Cloudflare's build deploys every push, and there are no releases: the curriculum's version is in `.course_build/curriculum.json`.
 - **needs:** the ecosystem's SCM strategy (`meta-eigenomar` ST2).
