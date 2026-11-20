@@ -1,6 +1,6 @@
 # modern c++ daily course: plan
 
-the course is at curriculum 2.0: 119 days (102 lessons and 17 reviews) in 17 modules, live at [cpp.eigenomar.com](https://cpp.eigenomar.com) and in [`modern_cpp_daily_course.md`](../modern_cpp_daily_course.md). no new course work is planned. this plan holds the repository's open work as tickets. its ecosystem onboarding (EO1–EO7) was done on 2026-11-14. the open tickets are [DOC1](#doc1) and [SCM1](#scm1), which adopt the ecosystem's standards.
+the course is at curriculum 2.0: 119 days (102 lessons and 17 reviews) in 17 modules, live at [cpp.eigenomar.com](https://cpp.eigenomar.com) and in [`modern_cpp_daily_course.md`](../modern_cpp_daily_course.md). no new course work is planned. this plan holds the repository's open work as tickets. its ecosystem onboarding (EO1–EO7) was done on 2026-11-14. the open tickets are [S1](#s1), the ecosystem's tab icon, and [DOC1](#doc1) and [SCM1](#scm1), which adopt the ecosystem's standards.
 
 the lessons themselves are not planned here: they are changed in `.course_build/` as [`authoring.md`](../.course_build/authoring.md) describes. the finished 1.0 to 2.0 restructuring and its decisions are recorded in [`.course_build/site_upgrade/plan.md`](../.course_build/site_upgrade/plan.md), which is a record, not a plan of open work.
 
@@ -12,6 +12,7 @@ the lessons themselves are not planned here: they are changed in `.course_build/
   | prefix | lane |
   | --- | --- |
   | EO | ecosystem onboarding |
+  | S | the site at cpp.eigenomar.com: how its pages are built and served, not the lessons |
   | DOC | the course's documents: vision, architecture, design, testing strategy, and verification and validation |
   | SCM | source control and delivery: CI, branching, protection, releases and versioning |
 
@@ -31,6 +32,7 @@ the lessons themselves are not planned here: they are changed in `.course_build/
 | [EO5](#eo5) | Python's name on Linux | s | none | done |
 | [EO6](#eo6) | toolchain notes without WSL | s | none | done |
 | [EO7](#eo7) | an issue for every open ticket | s | the owner's approval | done |
+| [S1](#s1) | the ecosystem's tab icon | xs | none | todo |
 | [DOC1](#doc1) | the course's documents | tbd | `meta-eigenomar` ST1 | todo |
 | [SCM1](#scm1) | the ecosystem's SCM strategy | tbd | `meta-eigenomar` ST2 | todo |
 
@@ -119,6 +121,18 @@ each step is small and independent, and can be done between other work.
 2. **EO5:** answered on 2026-11-14: the README line.
 3. **GitHub's description:** answered on 2026-11-14: `project.yaml`'s, with cpp.eigenomar.com as the homepage.
 
+## the site
+
+changes to how cpp.eigenomar.com's pages are built and served, which touch `scripts/build.mjs` and `site/` but no lesson.
+
+<a id="s1"></a>
+
+### S1 · the ecosystem's tab icon · xs
+
+- **do:** every app under eigenomar.com shows the same tab icon: eigenomar.com's lambda with its two colors swapped, a light-blue tile and a near-black lambda (shared decision SD5). the site has none today. add it as `site/favicon.svg`, copy it to `dist/assets/favicon.svg` in `scripts/build.mjs` beside `style.css` and `app.js`, and link it in the page head the script writes, with `<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">`.
+- **needs:** nothing.
+- **done when:** every page of the built site links the icon, and the tab shows it on `npm run build`'s output and at cpp.eigenomar.com, in a light and a dark browser theme. `npm run check` passes, and CI passes on `main`.
+
 ## ecosystem standards
 
 the ecosystem's contract, in `meta-eigenomar`, is adding two standards that every repository adopts: the documents each one keeps, and how each one manages its source and delivers it. DOC1 and SCM1 adopt them here, each once its standard is designed. until then, their issues stay in the backlog. the course is in maintenance, so both gather what exists rather than add course work.
@@ -141,6 +155,7 @@ the ecosystem's contract, in `meta-eigenomar`, is adding two standards that ever
 
 ## log
 
+- 2026-11-20 · plan · added S1, in a new lane for the site, at the owner's request: every app under eigenomar.com shares one tab icon, eigenomar.com's lambda with its colors swapped (shared decision SD5). the site has none, so S1 adds it.
 - 2026-11-18 · plan · added DOC1 and SCM1, in two new lanes, at the owner's request: this repository's adoption of the ecosystem's document standard and SCM strategy, which are designed in `meta-eigenomar`. each needs its standard, so its issue waits in the backlog.
 - 2026-11-14 · EO4–EO7 · done, as the owner chose: `.gitattributes` with LF line endings, which staged nothing; the README's requirements say Linux needs `python` on the `PATH`; the toolchain notes name no WSL environment and give CI as the sanitizer and Linux runs; and EO7 needs no issues, since nothing is open. `npm run check` passes from `c:\` and `C:\` (68 checks). EO1–EO3's results name `0085c9c`. the ecosystem onboarding is complete.
 - 2026-11-14 · plan · created by the ecosystem onboarding run, with EO1–EO7. EO1–EO3 are done: `project.yaml`, which validates, `CLAUDE.md`'s import of the shared rules, and this plan. EO4–EO6 are the portability gaps the run found, and EO7 opens their issues. nothing else in the repository changed.
