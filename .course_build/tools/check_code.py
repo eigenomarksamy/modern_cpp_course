@@ -101,13 +101,16 @@ def check_unit(unit, cxx, workdir, run, sanitize, has_format):
     flags = [f"-std={unit['std']}", "-Wall", "-Wextra", "-pedantic", "-pthread"]
     has_main = bool(MAIN.search(unit["src"]))
     want_run = run and has_main and unit["kind"] in ("complete", "group") and not unit["norun"]
+    # compile from inside the work folder with bare file names, so diagnostics name
+    # `example.cpp`, never the machine's temporary folder, which the report would publish
+    compiler = shutil.which(cxx) or cxx
     if want_run:
         exe = Path(workdir) / (safe + (".exe" if os.name == "nt" else ""))
         extra = ["-g", "-O1", "-fsanitize=address,undefined", "-fno-sanitize-recover=undefined"] if sanitize else ["-O1"]
-        cmd = [cxx, *flags, *extra, str(src), "-o", str(exe)]
+        cmd = [compiler, *flags, *extra, src.name, "-o", exe.name]
     else:
-        cmd = [cxx, *flags, "-fsyntax-only", str(src)]
-    r = subprocess.run(cmd, capture_output=True, text=True)
+        cmd = [compiler, *flags, "-fsyntax-only", src.name]
+    r = subprocess.run(cmd, capture_output=True, text=True, cwd=workdir)
     compiled = r.returncode == 0
     diag = [l for l in r.stderr.splitlines() if "error" in l or "warning" in l][:4]
     if unit["kind"] == "fails":

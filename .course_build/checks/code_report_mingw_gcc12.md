@@ -1,6 +1,6 @@
 # code check report
 
-generated 2026-11-01T04:35:37+00:00 on `win32`; run: True; sanitizers: False.
+generated 2026-11-24T16:17:13+00:00 on `win32`; run: True; sanitizers: False.
 
 | example | kind | standard | compiler | status | detail |
 | --- | --- | --- | --- | --- | --- |

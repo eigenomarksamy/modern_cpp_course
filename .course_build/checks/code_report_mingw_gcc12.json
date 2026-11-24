@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated": "2026-11-01T04:35:37+00:00",
+  "generated": "2026-11-24T16:17:13+00:00",
   "platform": "win32",
   "run": true,
   "sanitize": false,
@@ -56,7 +56,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\linkage_odr_1.cpp:2:9: warning: #pragma once in main file"
+    "linkage_odr_1.cpp:2:9: warning: #pragma once in main file"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -80,7 +80,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\linkage_odr_4.cpp:2:9: warning: #pragma once in main file"
+    "linkage_odr_4.cpp:2:9: warning: #pragma once in main file"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -107,8 +107,8 @@
    "status": "ok",
    "detail": "rejected as intended",
    "diagnostics": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\initialization_1.cpp:7:11: warning: narrowing conversion of 'measured' from 'double' to 'int' [-Wnarrowing]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\initialization_1.cpp:8:28: error: narrowing conversion of '70000' from 'int' to 'uint16_t' {aka 'short unsigned int'} [-Wnarrowing]"
+    "initialization_1.cpp:7:11: warning: narrowing conversion of 'measured' from 'double' to 'int' [-Wnarrowing]",
+    "initialization_1.cpp:8:28: error: narrowing conversion of '70000' from 'int' to 'uint16_t' {aka 'short unsigned int'} [-Wnarrowing]"
    ],
    "compiler_version": "g++ (Rev2, Built by MSYS2 project) 12.1.0"
   },
@@ -140,8 +140,8 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\initialization_4.cpp:5:13: warning: missing initializer for member 'Gains::ki' [-Wmissing-field-initializers]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\initialization_4.cpp:5:13: warning: missing initializer for member 'Gains::ki' [-Wmissing-field-initializers]"
+    "initialization_4.cpp:5:13: warning: missing initializer for member 'Gains::ki' [-Wmissing-field-initializers]",
+    "initialization_4.cpp:5:13: warning: missing initializer for member 'Gains::ki' [-Wmissing-field-initializers]"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -154,7 +154,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\integer_types_0.cpp:12:21: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]"
+    "integer_types_0.cpp:12:21: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]"
    ],
    "status": "ok",
    "detail": "compiled and ran",
@@ -278,7 +278,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_foundations_0.cpp:2:9: warning: #pragma once in main file"
+    "review_foundations_0.cpp:2:9: warning: #pragma once in main file"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -291,7 +291,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\temporaries_dangling_0.cpp:6:12: warning: reference to local variable 'id' returned [-Wreturn-local-addr]"
+    "temporaries_dangling_0.cpp:6:12: warning: reference to local variable 'id' returned [-Wreturn-local-addr]"
    ],
    "status": "ok",
    "detail": "compiled (undefined behavior: not run)",
@@ -337,7 +337,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\pointers_references_1.cpp:6:34: warning: 'sizeof' on array function parameter 'samples' will return size of 'const float*' [-Wsizeof-array-argument]"
+    "pointers_references_1.cpp:6:34: warning: 'sizeof' on array function parameter 'samples' will return size of 'const float*' [-Wsizeof-array-argument]"
    ],
    "status": "ok",
    "detail": "compiled (undefined behavior: not run)",
@@ -350,8 +350,8 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\pointers_references_2.cpp:7:23: warning: unused parameter 'a' [-Wunused-parameter]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\pointers_references_2.cpp:7:40: warning: unused parameter 'b' [-Wunused-parameter]"
+    "pointers_references_2.cpp:7:23: warning: unused parameter 'a' [-Wunused-parameter]",
+    "pointers_references_2.cpp:7:40: warning: unused parameter 'b' [-Wunused-parameter]"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -409,8 +409,8 @@
    "status": "ok",
    "detail": "rejected as intended",
    "diagnostics": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\const_correctness_3.cpp:10:8: error: assignment of read-only location '* p'",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\const_correctness_3.cpp:11:7: error: assignment of read-only variable 'q'"
+    "const_correctness_3.cpp:10:8: error: assignment of read-only location '* p'",
+    "const_correctness_3.cpp:11:7: error: assignment of read-only variable 'q'"
    ],
    "compiler_version": "g++ (Rev2, Built by MSYS2 project) 12.1.0"
   },
@@ -453,7 +453,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\value_categories_5.cpp:13:50: warning: reference to local variable 'local' returned [-Wreturn-local-addr]"
+    "value_categories_5.cpp:13:50: warning: reference to local variable 'local' returned [-Wreturn-local-addr]"
    ],
    "status": "ok",
    "detail": "compiled (undefined behavior: not run)",
@@ -488,7 +488,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\copy_elision_2.cpp:6:21: warning: moving a local object in a return statement prevents copy elision [-Wpessimizing-move]"
+    "copy_elision_2.cpp:6:21: warning: moving a local object in a return statement prevents copy elision [-Wpessimizing-move]"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -711,10 +711,10 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\construction_order_0.cpp:10:17: warning: 'SampleWindow::size_' will be initialized after [-Wreorder]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\construction_order_0.cpp:9:24: warning:   'std::vector<float> SampleWindow::samples_' [-Wreorder]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\construction_order_0.cpp:6:14: warning:   when initialized here [-Wreorder]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\construction_order_0.cpp:7:30: warning: member 'SampleWindow::size_' is used uninitialized [-Wuninitialized]"
+    "construction_order_0.cpp:10:17: warning: 'SampleWindow::size_' will be initialized after [-Wreorder]",
+    "construction_order_0.cpp:9:24: warning:   'std::vector<float> SampleWindow::samples_' [-Wreorder]",
+    "construction_order_0.cpp:6:14: warning:   when initialized here [-Wreorder]",
+    "construction_order_0.cpp:7:30: warning: member 'SampleWindow::size_' is used uninitialized [-Wuninitialized]"
    ],
    "status": "ok",
    "detail": "compiled (undefined behavior: not run)",
@@ -851,10 +851,10 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_lifecycle_0.cpp:11:17: warning: 'Recorder::count_' will be initialized after [-Wreorder]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_lifecycle_0.cpp:10:13: warning:   'double* Recorder::samples_' [-Wreorder]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_lifecycle_0.cpp:5:5: warning:   when initialized here [-Wreorder]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_lifecycle_0.cpp:10:13: warning: 'Recorder::samples_' will be initialized after [-Wreorder]"
+    "review_lifecycle_0.cpp:11:17: warning: 'Recorder::count_' will be initialized after [-Wreorder]",
+    "review_lifecycle_0.cpp:10:13: warning:   'double* Recorder::samples_' [-Wreorder]",
+    "review_lifecycle_0.cpp:5:5: warning:   when initialized here [-Wreorder]",
+    "review_lifecycle_0.cpp:10:13: warning: 'Recorder::samples_' will be initialized after [-Wreorder]"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -1125,7 +1125,7 @@
    "status": "ok",
    "detail": "rejected as intended",
    "diagnostics": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\virtual_dispatch_1.cpp:11:12: error: 'double LowPass2::apply(double)' marked 'override', but does not override",
+    "virtual_dispatch_1.cpp:11:12: error: 'double LowPass2::apply(double)' marked 'override', but does not override",
     "   11 |     double apply(double x) override;      // error: marked 'override' but does not override"
    ],
    "compiler_version": "g++ (Rev2, Built by MSYS2 project) 12.1.0"
@@ -1371,17 +1371,14 @@
    "kind": "complete",
    "std": "c++17",
    "compiler": "g++",
-   "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\lambdas_0.cpp:3:11: warning: capture of variable 'gain' with non-automatic storage duration",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\lambdas_0.cpp:3:18: warning: capture of variable 'calls' with non-automatic storage duration"
-   ],
+   "warnings": [],
    "status": "ok",
    "detail": "compiled",
    "compiler_version": "g++ (Rev2, Built by MSYS2 project) 12.1.0"
   },
   {
    "id": "lambdas#1",
-   "where": ".course_build/lessons/lambdas.md:44",
+   "where": ".course_build/lessons/lambdas.md:48",
    "kind": "complete",
    "std": "c++17",
    "compiler": "g++",
@@ -1393,7 +1390,7 @@
   },
   {
    "id": "lambdas#2",
-   "where": ".course_build/lessons/lambdas.md:75",
+   "where": ".course_build/lessons/lambdas.md:79",
    "kind": "complete",
    "std": "c++17",
    "compiler": "g++",
@@ -1404,7 +1401,7 @@
   },
   {
    "id": "lambdas#3",
-   "where": ".course_build/lessons/lambdas.md:96",
+   "where": ".course_build/lessons/lambdas.md:100",
    "kind": "ub",
    "std": "c++17",
    "compiler": "g++",
@@ -1415,7 +1412,7 @@
   },
   {
    "id": "lambdas#4",
-   "where": ".course_build/lessons/lambdas.md:118",
+   "where": ".course_build/lessons/lambdas.md:122",
    "kind": "snippet",
    "std": "c++17",
    "compiler": "g++",
@@ -1496,7 +1493,7 @@
    "status": "ok",
    "detail": "rejected as intended",
    "diagnostics": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\function_templates_0.cpp:5:18: error: no matching function for call to 'clamp_to(double&, int, int)'",
+    "function_templates_0.cpp:5:18: error: no matching function for call to 'clamp_to(double&, int, int)'",
     "    5 | auto s = clamp_to(speed, 0, 10);  // error: deduced conflicting types for 'T' ('double' and 'int')"
    ],
    "compiler_version": "g++ (Rev2, Built by MSYS2 project) 12.1.0"
@@ -1796,10 +1793,10 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_generic_1.cpp:2:31: warning: parameter 'lo' set but not used [-Wunused-but-set-parameter]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_generic_1.cpp:2:37: warning: parameter 'hi' set but not used [-Wunused-but-set-parameter]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_generic_1.cpp:3:17: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]",
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_generic_1.cpp:3:29: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]"
+    "review_generic_1.cpp:2:31: warning: parameter 'lo' set but not used [-Wunused-but-set-parameter]",
+    "review_generic_1.cpp:2:37: warning: parameter 'hi' set but not used [-Wunused-but-set-parameter]",
+    "review_generic_1.cpp:3:17: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]",
+    "review_generic_1.cpp:3:29: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -1937,7 +1934,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\exception_safety_2.cpp:7:29: warning: catching polymorphic type 'class std::exception' by value [-Wcatch-value=]"
+    "exception_safety_2.cpp:7:29: warning: catching polymorphic type 'class std::exception' by value [-Wcatch-value=]"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -2447,7 +2444,7 @@
    "std": "c++20",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\views_2.cpp:9:26: warning: variable 'key' set but not used [-Wunused-but-set-variable]"
+    "views_2.cpp:9:26: warning: variable 'key' set but not used [-Wunused-but-set-variable]"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -2697,7 +2694,7 @@
    "std": "c++20",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\consteval_constinit_2.cpp:5:9: warning: unused variable 'l' [-Wunused-variable]"
+    "consteval_constinit_2.cpp:5:9: warning: unused variable 'l' [-Wunused-variable]"
    ],
    "status": "ok",
    "detail": "compiled and ran",
@@ -2781,7 +2778,7 @@
    "std": "c++17",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\threads_0.cpp:6:34: warning: unused parameter 's' [-Wunused-parameter]"
+    "threads_0.cpp:6:34: warning: unused parameter 's' [-Wunused-parameter]"
    ],
    "status": "ok",
    "detail": "compiled (undefined behavior: not run)",
@@ -3458,7 +3455,7 @@
    "std": "c++20",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\api_stability_0.cpp:2:9: warning: #pragma once in main file"
+    "api_stability_0.cpp:2:9: warning: #pragma once in main file"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -3573,7 +3570,7 @@
    "std": "c++20",
    "compiler": "g++",
    "warnings": [
-    "C:\\Users\\omark\\AppData\\Local\\Temp\\tmpt14987az\\g_\\review_abstractions_1.cpp:2:9: warning: #pragma once in main file"
+    "review_abstractions_1.cpp:2:9: warning: #pragma once in main file"
    ],
    "status": "ok",
    "detail": "compiled",
@@ -3588,7 +3585,7 @@
    "warnings": [],
    "status": "ok",
    "detail": "compiled and ran",
-   "output": "100 sums: 48599 us\n",
+   "output": "100 sums: 60935 us\n",
    "compiler_version": "g++ (Rev2, Built by MSYS2 project) 12.1.0"
   },
   {
@@ -3600,7 +3597,7 @@
    "warnings": [],
    "status": "ok",
    "detail": "compiled and ran",
-   "output": "median 673.8 us (min 352.8, max 1280.0)\n",
+   "output": "median 858.5 us (min 721.2, max 1250.7)\n",
    "compiler_version": "g++ (Rev2, Built by MSYS2 project) 12.1.0"
   },
   {
