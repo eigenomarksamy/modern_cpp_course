@@ -1,6 +1,6 @@
 # modern c++ daily course: plan
 
-the course is at curriculum 2.0: 119 days (102 lessons and 17 reviews) in 17 modules, live at [cpp.eigenomar.com](https://cpp.eigenomar.com) and in [`modern_cpp_daily_course.md`](../modern_cpp_daily_course.md). no new course work is planned. this plan holds the repository's open work as tickets. its ecosystem onboarding (EO1–EO7) was done on 2026-11-14. the open tickets are [S6](#s6), the ecosystem's tab icon, and [DOC6](#doc6) and [SCM6](#scm6), which adopt the ecosystem's standards.
+the course is at curriculum 2.0: 119 days (102 lessons and 17 reviews) in 17 modules, live at [cpp.eigenomar.com](https://cpp.eigenomar.com) and in [`modern_cpp_daily_course.md`](../modern_cpp_daily_course.md). no new course work is planned. this plan holds the repository's open work as tickets. its ecosystem onboarding (EO1–EO7) was done on 2026-11-14. the open tickets are [S6](#s6), the ecosystem's tab icon, [DOC6](#doc6) and [SCM6](#scm6), which adopt the ecosystem's standards, and [MIG6](#mig6), which moves this plan's tickets into their GitHub issues.
 
 the lessons themselves are not planned here: they are changed in `.course_build/` as [`authoring.md`](../.course_build/authoring.md) describes. the finished 1.0 to 2.0 restructuring and its decisions are recorded in [`.course_build/site_upgrade/plan.md`](../.course_build/site_upgrade/plan.md), which is a record, not a plan of open work.
 
@@ -15,6 +15,7 @@ the lessons themselves are not planned here: they are changed in `.course_build/
   | S | the site at cpp.eigenomar.com: how its pages are built and served, not the lessons |
   | DOC | the course's documents: vision, architecture, design, testing strategy, and verification and validation |
   | SCM | source control and delivery: CI, branching, protection, releases and versioning |
+  | MIG | the backlog moves into GitHub issues: the cutover to GitHub as its home |
 
 - **each ticket** says what to do, what it needs, and when it is done. its "done when" is its acceptance criteria. its size is on the ecosystem's scale, the same value as its issue's `Size` in the ecosystem's GitHub Project: xxs takes minutes, xs under an hour, s an hour or two, m about a session, l two or three, xl four to six and xxl more. tbd means an open decision or work not yet planned decides it. a change to one is made to the other in the same session.
 - **issues.** every open ticket gets one GitHub issue in this repository. the issue's title starts with the ticket's id, and its body links the ticket's anchor here without copying it. the ticket holds the scope and history, and the issue holds status, priority and blockers ([EO7](#eo7)).
@@ -35,6 +36,7 @@ the lessons themselves are not planned here: they are changed in `.course_build/
 | [S6](#s6) | the ecosystem's tab icon | xs | none | todo |
 | [DOC6](#doc6) | the course's documents | tbd | `meta-eigenomar` ST1 | todo |
 | [SCM6](#scm6) | the ecosystem's SCM strategy | tbd | `meta-eigenomar` ST2 | todo |
+| [MIG6](#mig6) | the backlog moves into GitHub issues | xs | `meta-eigenomar` ST3 | todo |
 
 ## ecosystem onboarding
 
@@ -137,6 +139,8 @@ changes to how cpp.eigenomar.com's pages are built and served, which touch `scri
 
 the ecosystem's contract, in `meta-eigenomar`, is adding two standards that every repository adopts: the documents each one keeps, and how each one manages its source and delivers it. DOC6 and SCM6 adopt them here, each once its standard is designed. until then, their issues stay in the backlog. the course is in maintenance, so both gather what exists rather than add course work.
 
+a third standard, `meta-eigenomar` ST3, makes GitHub's issues the home of every repository's backlog, and its decisions were made on 2026-11-27. MIG6 moves this plan's tickets there, once ST3 is built.
+
 <a id="doc6"></a>
 
 ### DOC6 · the course's documents · tbd
@@ -153,8 +157,17 @@ the ecosystem's contract, in `meta-eigenomar`, is adding two standards that ever
 - **needs:** the ecosystem's SCM strategy (`meta-eigenomar` ST2).
 - **done when:** every item on the checklist is applied here, or recorded here as an exception the strategy allows, with its reason. `project.yaml`'s `delivery` and `CLAUDE.md` say what runs, CI passes on `main`, and the ecosystem's validator passes.
 
+<a id="mig6"></a>
+
+### MIG6 · the backlog moves into GitHub issues · tbd
+
+- **do:** move this plan's planning to GitHub all at once, following the cutover steps of the ecosystem's standard `meta-eigenomar` ST3. each open ticket's content moves into its issue's body, keeping its id and its issue's `<id>: <title>`. ideas not yet tickets become draft items in the Project with status `idea`, hard needs are blocked-by links, and size, status and priority live only in the Project. done, dropped and moved tickets stay here as a frozen archive, and each open ticket's anchor stays, linking its issue.
+- **needs:** GitHub as the home of the backlog (`meta-eigenomar` ST3), which includes the ecosystem's own cutover first and the backlog's backup. DOC6 is a planning need: the plan's direction moves into the vision before this plan retires.
+- **done when:** every open ticket's content is in its issue, and this file holds only the archive and the anchors. `project.yaml`'s `documents.plan` is `null` and `planning.source` names GitHub, the ecosystem's validator passes, nothing confidential is in any issue, since this repository is public, and the owner approved the cutover. bringing tickets up to the ecosystem's ticket standard (`meta-eigenomar` ST4) isn't part of it: each ticket follows it when it is picked up.
+
 ## log
 
+- 2026-11-27 · plan · added MIG6, in a new lane, at the owner's request: this repository's cutover to GitHub as the home of its backlog, the ecosystem's standard `meta-eigenomar` ST3, whose decisions were made that day. it needs ST3, so its issue waits as `blocked`.
 - 2026-11-26 · plan · renamed, since the ecosystem's lanes are numbered across its repositories: S6 from `S1`, DOC6 from `DOC1` and SCM6 from `SCM1`. their anchors, headings, index rows and issues changed with them, and the log keeps the ids it was written with.
 - 2026-11-20 · plan · added S1, in a new lane for the site, at the owner's request: every app under eigenomar.com shares one tab icon, eigenomar.com's lambda with its colors swapped (shared decision SD5). the site has none, so S1 adds it.
 - 2026-11-18 · plan · added DOC1 and SCM1, in two new lanes, at the owner's request: this repository's adoption of the ecosystem's document standard and SCM strategy, which are designed in `meta-eigenomar`. each needs its standard, so its issue waits in the backlog.
