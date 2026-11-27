@@ -89,6 +89,8 @@ for (const [f, text] of html) {
 check('pages have lang, one h1, main landmark, skip link, labelled buttons', a11y.length === 0, a11y.slice(0, 5).join('; '));
 const noFooter = [...html].filter(([, t]) => !/<\/main>\s*<footer[^>]*>\s*<a class="button" href="https:\/\/eigenomar\.com">eigenomar\.com<\/a>\s*<\/footer>/.test(t)).map(([f]) => f);
 check('every page has the button back to eigenomar.com', noFooter.length === 0, `${noFooter.length} missing: ${noFooter.slice(0, 5).join('; ')}`);
+const noIcon = [...html].filter(([, t]) => !/<link rel="icon" type="image\/svg\+xml" href="\/assets\/favicon\.svg">/.test(t)).map(([f]) => f);
+check('every page links the tab icon', noIcon.length === 0, `${noIcon.length} missing: ${noIcon.slice(0, 5).join('; ')}`);
 const ceLinks = [...html.values()].join('').match(/href="https:\/\/godbolt\.org\/clientstate\/[^"]+"/g) || [];
 check('compiler explorer links present', ceLinks.length > 50, `${ceLinks.length} links`);
 const ceOk = ceLinks.slice(0, 200).every((l) => {

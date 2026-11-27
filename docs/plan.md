@@ -33,7 +33,7 @@ the lessons themselves are not planned here: they are changed in `.course_build/
 | [EO5](#eo5) | Python's name on Linux | s | none | done |
 | [EO6](#eo6) | toolchain notes without WSL | s | none | done |
 | [EO7](#eo7) | an issue for every open ticket | s | the owner's approval | done |
-| [S6](#s6) | the ecosystem's tab icon | xs | none | todo |
+| [S6](#s6) | the ecosystem's tab icon | xs | none | done |
 | [DOC6](#doc6) | the course's documents | tbd | `meta-eigenomar` ST1 | todo |
 | [SCM6](#scm6) | the ecosystem's SCM strategy | tbd | `meta-eigenomar` ST2 | todo |
 | [MIG6](#mig6) | the backlog moves into GitHub issues | xs | `meta-eigenomar` ST3 | todo |
@@ -134,6 +134,7 @@ changes to how cpp.eigenomar.com's pages are built and served, which touch `scri
 - **do:** every app under eigenomar.com shows the same tab icon: eigenomar.com's lambda with its two colors swapped, a light-blue tile and a near-black lambda (shared decision SD5). the site has none today. add it as `site/favicon.svg`, copy it to `dist/assets/favicon.svg` in `scripts/build.mjs` beside `style.css` and `app.js`, and link it in the page head the script writes, with `<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">`.
 - **needs:** nothing.
 - **done when:** every page of the built site links the icon, and the tab shows it on `npm run build`'s output and at cpp.eigenomar.com, in a light and a dark browser theme. `npm run check` passes, and CI passes on `main`.
+- **result (2026-11-27):** `site/favicon.svg` is shared decision SD5's icon, byte for byte. `scripts/build.mjs` copies it to `dist/assets/favicon.svg` and links it in every page's head, and `scripts/test-site.mjs` checks that every page links it, beside the check for the button back to eigenomar.com. `npm run check` passes with 69 checks, one of them new, and the build writes 130 files. in headless Chrome, the dashboard, a lesson, the full course, the cheat sheet, the references and the 404 page each load the icon from `npm run build`'s output. the icon is a filled tile with no `prefers-color-scheme` rule, so it is the same in a light and a dark theme. cpp.eigenomar.com and CI on `main` show it once the change is pushed.
 
 ## ecosystem standards
 
@@ -167,6 +168,7 @@ a third standard, `meta-eigenomar` ST3, makes GitHub's issues the home of every 
 
 ## log
 
+- 2026-11-27 · S6 · done: every page links the ecosystem's tab icon, the lambda on a light-blue tile (shared decision SD5), copied into `dist/assets/` by the build, and the site's tests check it. `npm run check` passes (69 checks).
 - 2026-11-27 · plan · added MIG6, in a new lane, at the owner's request: this repository's cutover to GitHub as the home of its backlog, the ecosystem's standard `meta-eigenomar` ST3, whose decisions were made that day. it needs ST3, so its issue waits as `blocked`.
 - 2026-11-26 · plan · renamed, since the ecosystem's lanes are numbered across its repositories: S6 from `S1`, DOC6 from `DOC1` and SCM6 from `SCM1`. their anchors, headings, index rows and issues changed with them, and the log keeps the ids it was written with.
 - 2026-11-20 · plan · added S1, in a new lane for the site, at the owner's request: every app under eigenomar.com shares one tab icon, eigenomar.com's lambda with its colors swapped (shared decision SD5). the site has none, so S1 adds it.

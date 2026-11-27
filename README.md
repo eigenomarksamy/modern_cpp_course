@@ -45,6 +45,7 @@ progress lives only in your browser (`localStorage`, key `modern-cpp-course:prog
 modern_cpp_daily_course.md      the course as one document (generated)
 site/course.json                the same content for the website (generated)
 site/style.css, site/app.js     the website's stylesheet and script
+site/favicon.svg                the tab icon every app under eigenomar.com shares
 scripts/build.mjs               renders site/course.json into dist/
 scripts/test-site.mjs           link, accessibility, and headless-browser tests for dist/
 wrangler.jsonc                  Cloudflare Worker config (static assets only)

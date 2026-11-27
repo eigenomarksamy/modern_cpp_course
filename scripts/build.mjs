@@ -159,6 +159,7 @@ function page({ title, description, pageType, lessonId = '', path, body }) {
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}">
 <link rel="canonical" href="${SITE}${path}">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="stylesheet" href="/assets/style.css">
 <script>try{var t=localStorage.getItem('modern-cpp-course:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script src="/assets/course-data.js" defer></script>
@@ -402,7 +403,8 @@ for (const [name, content] of files) {
 }
 await copyFile('site/style.css', `${OUT}/assets/style.css`);
 await copyFile('site/app.js', `${OUT}/assets/app.js`);
+await copyFile('site/favicon.svg', `${OUT}/assets/favicon.svg`);
 await copyFile(MARKDOWN, `${OUT}/${MARKDOWN}`);
 const bytes = [...files.values()].reduce((n, s) => n + Buffer.byteLength(s), 0);
-console.log(`built ${files.size + 3} files in ${OUT}/ (${Math.round(bytes / 1024)} KiB of HTML/JSON): ` +
+console.log(`built ${files.size + 4} files in ${OUT}/ (${Math.round(bytes / 1024)} KiB of HTML/JSON): ` +
             `${lessons.length} lesson pages, dashboard, full course, cheat sheet, references`);
